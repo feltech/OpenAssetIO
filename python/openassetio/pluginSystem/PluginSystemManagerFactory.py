@@ -27,6 +27,8 @@ __all__ = ['PluginSystemManagerFactory', ]
 
 class PluginSystemManagerFactory(ManagerFactoryInterface):
     """
+    Something something dark side.
+
     A Factory to manage @ref openassetio.pluginSystem.ManagerPlugin
     derived plugins and instantiation of Manager and UIDelegate
     instances. Not usually used directly by a @ref host, which instead
