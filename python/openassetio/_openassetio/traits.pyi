@@ -9,10 +9,10 @@ class SpecificationData:
 
 
 class Properties:
-    def __getitem__(self, key: str) -> Union[str, int, float, bool, SimpleMap, None]:
+    def __getitem__(self, key: str) -> Union[str, int, float, bool, SimpleMap]:
         ...
 
-    def __setitem__(self, key: str, value: Union[str, int, float, bool, SimpleMap, None]) -> None:
+    def __setitem__(self, key: str, value: Union[str, int, float, bool, SimpleMap]) -> None:
         ...
 
 
