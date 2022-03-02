@@ -1,10 +1,23 @@
+from typing import Union, List
 
 
-from typing import Union
+class BlobSpecification(BaseSpecification):
+    kTraits: List[str]
+
+    def blobTrait(self) -> BlobTrait:
+        ...
+
+
+class BaseSpecification:
+    def data(self) -> SpecificationData:
+        ...
 
 
 class SpecificationData:
     def __getitem__(self, traitName: str) -> Properties:
+        ...
+
+    def __len__(self) -> int:
         ...
 
 
@@ -13,6 +26,9 @@ class Properties:
         ...
 
     def __setitem__(self, key: str, value: Union[str, int, float, bool, SimpleMap]) -> None:
+        ...
+
+    def __len__(self) -> int:
         ...
 
 
