@@ -2,7 +2,7 @@ from typing import Union, Tuple
 
 
 class BlobSpecification(BaseSpecification):
-    kTraits: Tuple[str]
+    kTraitIDs: Tuple[str]
 
     def blobTrait(self) -> BlobTrait:
         ...
@@ -41,7 +41,7 @@ class SimpleMap:
 
 
 class BlobTrait:
-    kName: str
+    kID: str
 
     def __init__(self, data: SpecificationData):
         ...

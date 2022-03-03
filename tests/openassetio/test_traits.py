@@ -162,7 +162,7 @@ def test_BlobSpecification_data(a_blob_specification):
     assert isinstance(data, traits.SpecificationData)
     assert len(data) == 1  # Initialised with (empty) BlobTrait.
 
-    props = data[traits.BlobTrait.kName]
+    props = data[traits.BlobTrait.kID]
     assert isinstance(props, traits.Properties)
     assert len(props) == 0
 
@@ -174,7 +174,7 @@ class Test_BlobSpecification_blobTrait:
             self, a_blob_specification, a_blob_specifications_data):
         blobTrait = a_blob_specification.blobTrait()
         expected = "updated://url"
-        a_blob_specifications_data[traits.BlobTrait.kName]["url"] = expected
+        a_blob_specifications_data[traits.BlobTrait.kID]["url"] = expected
 
         actual = blobTrait.getURL()
 
@@ -187,7 +187,7 @@ class Test_BlobSpecification_blobTrait:
 
         blobTrait.setURL(expected)
 
-        actual = a_blob_specifications_data[traits.BlobTrait.kName]["url"]
+        actual = a_blob_specifications_data[traits.BlobTrait.kID]["url"]
         assert actual == expected
 
 
@@ -232,8 +232,8 @@ class Test_SimpleMap:
         assert a_simple_map["a bool"] is True
 
 
-def test_BlobTrait_kName():
-    assert traits.BlobTrait.kName == "blob"
+def test_BlobTrait_kID():
+    assert traits.BlobTrait.kID == "blob"
 
 
 class Test_BlobTrait_getURL:
@@ -242,7 +242,7 @@ class Test_BlobTrait_getURL:
 
     def test_when_data_has_url_then_returns_url(self, a_blob_specifications_data):
         expected = "some://url"
-        a_blob_specifications_data[traits.BlobTrait.kName]["url"] = expected
+        a_blob_specifications_data[traits.BlobTrait.kID]["url"] = expected
 
         actual = traits.BlobTrait(a_blob_specifications_data).getURL()
 
@@ -255,14 +255,14 @@ class Test_BlobTrait_setURL:
 
         traits.BlobTrait(a_specification_data).setURL(expected)
 
-        assert a_specification_data[traits.BlobTrait.kName]["url"] == expected
+        assert a_specification_data[traits.BlobTrait.kID]["url"] == expected
 
     def test_when_url_is_None_then_url_is_removed_from_dict(self, a_blob_specifications_data):
-        a_blob_specifications_data[traits.BlobTrait.kName]["url"] = "some://url"
+        a_blob_specifications_data[traits.BlobTrait.kID]["url"] = "some://url"
 
         traits.BlobTrait(a_blob_specifications_data).setURL(None)
 
-        assert "url" not in a_blob_specifications_data[traits.BlobTrait.kName]
+        assert "url" not in a_blob_specifications_data[traits.BlobTrait.kID]
 
     def test_when_url_is_wrong_type_then_TypeError_is_raised(self, a_blob_specifications_data):
         with pytest.raises(TypeError):
@@ -275,7 +275,7 @@ class Test_BlobTrait_getMimeType:
 
     def test_when_data_has_mimeType_then_returns_mimeType(self, a_blob_specifications_data):
         expected = "some://url"
-        a_blob_specifications_data[traits.BlobTrait.kName]["mimeType"] = expected
+        a_blob_specifications_data[traits.BlobTrait.kID]["mimeType"] = expected
 
         actual = traits.BlobTrait(a_blob_specifications_data).getMimeType()
 
@@ -289,15 +289,15 @@ class Test_BlobTrait_setMimeType:
 
         traits.BlobTrait(a_blob_specifications_data).setMimeType(expected)
 
-        assert a_blob_specifications_data[traits.BlobTrait.kName]["mimeType"] == expected
+        assert a_blob_specifications_data[traits.BlobTrait.kID]["mimeType"] == expected
 
     def test_when_mimeType_is_None_then_mimeType_is_removed_from_dict(
             self, a_blob_specifications_data):
-        a_blob_specifications_data[traits.BlobTrait.kName]["mimeType"] = "application/x-something"
+        a_blob_specifications_data[traits.BlobTrait.kID]["mimeType"] = "application/x-something"
 
         traits.BlobTrait(a_blob_specifications_data).setMimeType(None)
 
-        assert "mimeType" not in a_blob_specifications_data[traits.BlobTrait.kName]
+        assert "mimeType" not in a_blob_specifications_data[traits.BlobTrait.kID]
 
     def test_when_mimeType_is_wrong_type_then_TypeError_is_raised(
             self,
