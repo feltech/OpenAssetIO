@@ -2,6 +2,7 @@
 Tests for the traits type system.
 
 TODO(DF): Notes:
+    * Do we need _required_ properties, e.g. BlobTrait is wrong without URL?
     * The dict-like containers _can_ work out of the box with pybind11 auto-converting, but this
       requires copies whenever we go from C++<->Python. Alternatively, STL containers can be bound
       as opaque (via some handy util functions), which is the approach assumed below.
@@ -70,10 +71,7 @@ def register(self, entityRefs, entitySpecs, context, hostSession):
                 is_image = True
 
         if url is not None:
-            if mime_type is None:
-                new_ref = my_ams.manage_arbitrary_file(url, is_image)
-            else:
-                new_ref = my_ams.manage_file_of_type(url, mime_type, is_image)
+            new_ref = my_ams.manage_file(url, mime_type, is_image)
             responses[idx] = new_ref
 ```
 or
@@ -92,20 +90,22 @@ def register(self, entityRefs, entitySpecs, context, hostSession):
                 image_trait = entity_spec.getTrait(ImageTrait.kID)
                 is_image = image_trait is not None
                 mime_type = blob_trait.getMimeType()
-                if mime_type is None:
-                    new_ref = my_ams.manage_arbitrary_file(url, is_image)
-                else:
-                    new_ref = my_ams.manage_file_of_type(url, mime_type, is_image)
+                new_ref = my_ams.manage_file(url, mime_type, is_image)
                 responses[idx] = new_ref
 ```
 or
 ```
+class BlobTrait:
+    kID = "blob"
+    kExpectedProps = ["url"]
+
+
 def register(self, entityRefs, entitySpecs, context, hostSession):
     responses = [RegisterError(f"Failed to register {entity_ref}") for entity_ref in entityRefs]
     for idx, entity_ref, entity_spec in enumerate(zip(entityRefs, entitySpecs)):
 
         # hasTraitData() to ensure not just has trait but trait has properties.
-        should_manage = entity_spec.hasTraitData(BlobTrait.kID)
+        should_manage = entity_spec.hasTraitAndExpectedProps(BlobTrait.kID)
 
         if should_manage:
             is_image = entity_spec.hasTrait(ImageTrait.kID)
@@ -113,10 +113,7 @@ def register(self, entityRefs, entitySpecs, context, hostSession):
             url = blob_trait.getUrl()
             mime_type = blob_trait.getMimeType()
             if url is not None:
-                if mime_type is None:
-                    new_ref = my_ams.manage_arbitrary_file(url, is_image)
-                else:
-                    new_ref = my_ams.manage_file_of_type(url, mime_type, is_image)
+                new_ref = my_ams.manage_file(url, mime_type, is_image)
                 responses[idx] = new_ref
 ```
 or
@@ -132,11 +129,7 @@ def register(self, entityRefs, entitySpecs, context, hostSession):
             url = blob_trait.getUrl()
             mime_type = blob_trait.getMimeType()
             if url is not None:
-                trait_list_str =  ",".join(entity_spec.kTraitIDs)
-                if mime_type is None:
-                    new_ref = my_ams.manage_arbitrary_file(url, trait_list_str)
-                else:
-                    new_ref = my_ams.manage_file_of_type(url, mime_type, trait_list_str)
+                new_ref = my_ams.manage_file(url, mime_type, is_image)
                 responses[idx] = new_ref
 ```
 """
@@ -234,7 +227,7 @@ class Test_BlobTrait_data:
     def test_when_wrapping_blob_spec_then_returns_specs_data(self, a_blob_specification):
         assert traits.BlobTrait(a_blob_specification).data() is a_blob_specification.data()
 
-    def test_when_wrapping_arbitary_data_then_returns_data(self):
+    def test_when_wrapping_arbitrary_data_then_returns_data(self):
         data = traits.SpecificationData()
         assert traits.BlobTrait(data).data() is data
 
