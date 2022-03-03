@@ -164,28 +164,14 @@ def test_BlobSpecification_traitIDs():
     assert traits.BlobSpecification().traitIDs() == (traits.BlobTrait.kID,)
 
 
-# TODO(DF): Should these tests be repeated for every property of every trait, or one sample
-#  property per trait (as below), or is there some way we can test this through the base class?
 class Test_BlobSpecification_blobTrait:
-    def test_when_spec_data_changed_then_trait_is_updated(
-            self, a_blob_specification, a_blob_specifications_data):
-        blobTrait = a_blob_specification.blobTrait()
-        expected = "updated://url"
-        a_blob_specifications_data[traits.BlobTrait.kID]["url"] = expected
+    def test(self, a_blob_specification):
+        blob_trait = a_blob_specification.blobTrait()
 
-        actual = blobTrait.getURL()
-
-        assert actual == expected
-
-    def test_when_trait_data_changed_then_spec_data_is_updated(
-            self, a_blob_specification, a_blob_specifications_data):
-        blobTrait = a_blob_specification.blobTrait()
-        expected = "updated://url"
-
-        blobTrait.setURL(expected)
-
-        actual = a_blob_specifications_data[traits.BlobTrait.kID]["url"]
-        assert actual == expected
+        assert isinstance(blob_trait, traits.BlobTrait)
+        assert blob_trait.isValid()
+        assert isinstance(blob_trait.data(), traits.SpecificationData)
+        assert blob_trait.data() is a_blob_specification.data()
 
 
 class Test_SpecificationDict:
@@ -231,6 +217,30 @@ class Test_SimpleMap:
 
 def test_BlobTrait_kID():
     assert traits.BlobTrait.kID == "blob"
+
+
+class Test_BlobTrait_isValid:
+    def test_when_wrapping_blob_spec_then_returns_true(self, a_blob_specification):
+        assert traits.BlobTrait(a_blob_specification).isValid()
+
+    def test_when_wrapping_arbitary_data_then_returns_true(self):
+        assert traits.BlobTrait(traits.SpecificationData()).isValid()
+
+    def test_when_wrapping_unsupported_spec_then_returns_false(self):
+        assert not traits.BlobTrait(traits.BaseSpecification()).isValid()
+
+
+class Test_BlobTrait_data:
+    def test_when_wrapping_blob_spec_then_returns_specs_data(self, a_blob_specification):
+        assert traits.BlobTrait(a_blob_specification).data() is a_blob_specification.data()
+
+    def test_when_wrapping_arbitary_data_then_returns_data(self):
+        data = traits.SpecificationData()
+        assert traits.BlobTrait(data).data() is data
+
+    def test_when_wrapping_unsupported_spec_then_returns_None(self):
+        spec = traits.BaseSpecification()
+        assert traits.BlobTrait(spec).data() is None
 
 
 class Test_BlobTrait_getURL:

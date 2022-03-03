@@ -43,11 +43,8 @@ class SimpleMap:
         ...
 
 
-class BlobTrait:
+class BlobTrait(BaseTrait):
     kID: str
-
-    def __init__(self, data: SpecificationData):
-        ...
 
     def getURL(self) -> str:
         ...
@@ -59,4 +56,15 @@ class BlobTrait:
         ...
 
     def setMimeType(self, mimeType: str) -> None:
+        ...
+
+
+class BaseTrait:
+    def __init__(self, data: Union[SpecificationData, BaseSpecification]):
+        ...
+
+    def data(self) -> SpecificationData:
+        ...
+
+    def isValid(self) -> bool:
         ...
