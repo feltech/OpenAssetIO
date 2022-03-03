@@ -1,8 +1,8 @@
-from typing import Union, List
+from typing import Union, Tuple
 
 
 class BlobSpecification(BaseSpecification):
-    kTraits: List[str]
+    kTraits: Tuple[str]
 
     def blobTrait(self) -> BlobTrait:
         ...

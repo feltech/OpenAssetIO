@@ -6,6 +6,139 @@ TODO(DF): Notes:
       requires copies whenever we go from C++<->Python. Alternatively, STL containers can be bound
       as opaque (via some handy util functions), which is the approach assumed below.
       See https://pybind11.readthedocs.io/en/stable/advanced/cast/stl.html#binding-stl-containers
+
+
+# Example: resolve then register
+
+Spec:
+```
+class ImageSpecification(BaseSpecification):
+  kTraitIDs = (BlobTrait.kID, ImageTrait.kID)
+```
+
+Host:
+```
+# Resolve an image
+
+[data] = manager.resolve([initial_ref], ImageSpecification.kTraitIDs, context)
+
+# Extract metadata about the image.
+
+initial_spec = ImageSpecification(data)
+path = img.blobTrait().getUrl()
+mime_type = img.blobTrait().getUrl()  # == None
+color_space = img.imageTrait().getColorSpace()  # == None
+
+# Do some processing on the image
+
+new_path = update_image(path, mime_type, color_space)
+
+new_spec = ImageSpecification()
+new_spec.blobTrait().setUrl(new_path)
+new_spec.blobTrait().setMimeType(get_mime_type(new_path))
+
+[new_ref] = manager.register([initial_ref], [new_spec], context)
+```
+
+ManagerInterface:
+```
+def resolve(self, entityRefs, traitIDs, context, hostSession):
+  responses = []
+  for entityRef in entityRefs:
+    response = SpecificationData()
+    responses.append(response)
+    # Alternatively: `if BlobTrait.kID in traitIDs`
+    for trait_id in traitIDs:
+      if trait_id == BlobTrait.kID:
+        BlobTrait(response).setURL(my_ams.get_url_for_ref(entityRef))
+
+  return responses
+
+def register(self, entityRefs, entitySpecs, context, hostSession):
+    responses = [RegisterError(f"Failed to register {entity_ref}") for entity_ref in entityRefs]
+    for idx, entity_ref, entity_spec in enumerate(zip(entityRefs, entitySpecs)):
+        is_image = False
+        url = None
+        mime_type = None
+
+        for trait_id in entity_spec.kTraitIDs:
+            if trait_id == BlobTrait.kID:
+                blob_trait = entity_spec.getTrait(BlobTrait.kID)
+                url = blob_trait.getUrl()
+                mime_type = blob_trait.getMimeType()
+            elif trait_id == ImageTrait.kID:
+                is_image = True
+
+        if url is not None:
+            if mime_type is None:
+                new_ref = my_ams.manage_arbitrary_file(url, is_image)
+            else:
+                new_ref = my_ams.manage_file_of_type(url, mime_type, is_image)
+            responses[idx] = new_ref
+```
+or
+```
+def register(self, entityRefs, entitySpecs, context, hostSession):
+    responses = [RegisterError(f"Failed to register {entity_ref}") for entity_ref in entityRefs]
+    for idx, entity_ref, entity_spec in enumerate(zip(entityRefs, entitySpecs)):
+        is_image = False
+        url = None
+        mime_type = None
+        blob_trait = entity_spec.getTrait(BlobTrait.kID)
+
+        if blob_trait is not None:
+            url = blob_trait.getUrl()
+            if url is not None:
+                image_trait = entity_spec.getTrait(ImageTrait.kID)
+                is_image = image_trait is not None
+                mime_type = blob_trait.getMimeType()
+                if mime_type is None:
+                    new_ref = my_ams.manage_arbitrary_file(url, is_image)
+                else:
+                    new_ref = my_ams.manage_file_of_type(url, mime_type, is_image)
+                responses[idx] = new_ref
+```
+or
+```
+def register(self, entityRefs, entitySpecs, context, hostSession):
+    responses = [RegisterError(f"Failed to register {entity_ref}") for entity_ref in entityRefs]
+    for idx, entity_ref, entity_spec in enumerate(zip(entityRefs, entitySpecs)):
+
+        # hasTraitData() to ensure not just has trait but trait has properties.
+        should_manage = entity_spec.hasTraitData(BlobTrait.kID)
+
+        if should_manage:
+            is_image = entity_spec.hasTrait(ImageTrait.kID)
+            blob_trait = entity_spec.getTrait(BlobTrait.kID)
+            url = blob_trait.getUrl()
+            mime_type = blob_trait.getMimeType()
+            if url is not None:
+                if mime_type is None:
+                    new_ref = my_ams.manage_arbitrary_file(url, is_image)
+                else:
+                    new_ref = my_ams.manage_file_of_type(url, mime_type, is_image)
+                responses[idx] = new_ref
+```
+or
+```
+def register(self, entityRefs, entitySpecs, context, hostSession):
+    responses = [RegisterError(f"Failed to register {entity_ref}") for entity_ref in entityRefs]
+    for idx, entity_ref, entity_spec in enumerate(zip(entityRefs, entitySpecs)):
+
+        blob_trait = BlobTrait(entity_spec)
+
+        if blob_trait.isValid():
+            is_image = ImageTrait(entity_spec).isValid()
+            url = blob_trait.getUrl()
+            mime_type = blob_trait.getMimeType()
+            if url is not None:
+                trait_list_str =  ",".join(entity_spec.kTraitIDs)
+                if mime_type is None:
+                    new_ref = my_ams.manage_arbitrary_file(url, trait_list_str)
+                else:
+                    new_ref = my_ams.manage_file_of_type(url, mime_type, trait_list_str)
+                responses[idx] = new_ref
+```
 """
 # pylint: disable=invalid-name,missing-class-docstring,missing-function-docstring
 # pylint: disable=redefined-outer-name,no-self-use
