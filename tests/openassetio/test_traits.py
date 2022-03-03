@@ -167,11 +167,30 @@ class Test_BlobSpecification_blobTrait:
         assert blob_trait.data() is a_blob_specification.data()
 
 
-class Test_SpecificationDict:
+class Test_SpecificationData:
     def test_valid_values(self, a_specification_data, a_trait_properties):
         a_specification_data["a trait name"] = a_trait_properties
 
         assert a_specification_data["a trait name"] is a_trait_properties
+
+    def test_when_key_is_not_found_then_raises_KeyError(self, a_specification_data):
+        with pytest.raises(KeyError):
+            _ = a_specification_data["missing key"]
+
+        with pytest.raises(KeyError):
+            a_specification_data["missing key"] = "_"
+
+    def test_when_key_is_not_str_then_TypeError_raised(
+            self, a_specification_data, a_trait_properties):
+        with pytest.raises(TypeError):
+            _ = a_specification_data[123]
+
+        with pytest.raises(TypeError):
+            a_specification_data[123] = a_trait_properties
+
+    def test_when_value_is_not_supported_then_TypeError_raised(self, a_specification_data):
+        with pytest.raises(TypeError):
+            a_specification_data["key"] = object()
 
 
 class Test_Properties:
@@ -191,6 +210,24 @@ class Test_Properties:
         assert a_trait_properties["a bool"] is True
         assert a_trait_properties["a map"] is a_simple_map
 
+    def test_when_key_is_not_found_then_raises_KeyError(self, a_trait_properties):
+        with pytest.raises(KeyError):
+            _ = a_trait_properties["missing key"]
+
+        with pytest.raises(KeyError):
+            a_trait_properties["missing key"] = "_"
+
+    def test_when_key_is_not_str_then_TypeError_raised(self, a_trait_properties):
+        with pytest.raises(TypeError):
+            _ = a_trait_properties[123]
+
+        with pytest.raises(TypeError):
+            a_trait_properties[123] = 1
+
+    def test_when_value_is_not_supported_then_TypeError_raised(self, a_trait_properties):
+        with pytest.raises(TypeError):
+            a_trait_properties["key"] = object()
+
 
 class Test_SimpleMap:
     def test_valid_values(self, a_simple_map):
@@ -206,6 +243,27 @@ class Test_SimpleMap:
         assert a_simple_map["a float"] == 1.0
         assert isinstance(a_simple_map["a float"], float)
         assert a_simple_map["a bool"] is True
+
+    def test_when_key_is_not_found_then_KeyError_is_raised(self, a_simple_map):
+        with pytest.raises(KeyError):
+            _ = a_simple_map["missing key"]
+
+        with pytest.raises(KeyError):
+            a_simple_map["missing key"] = 1
+
+    def test_when_key_is_not_str_then_TypeError_raised(self, a_simple_map):
+        with pytest.raises(TypeError):
+            _ = a_simple_map[123]
+
+        with pytest.raises(TypeError):
+            a_simple_map[123] = 1
+
+    def test_when_value_is_not_primitive_then_TypeError_raised(self, a_simple_map):
+        with pytest.raises(TypeError):
+            a_simple_map["key"] = None
+
+        with pytest.raises(TypeError):
+            a_simple_map["key"] = object()
 
 
 def test_BlobTrait_kID():
