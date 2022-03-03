@@ -9,6 +9,9 @@ class BlobSpecification(BaseSpecification):
 
 
 class BaseSpecification:
+    def traitIDs(self) -> Tuple[str]:
+        ...
+
     def data(self) -> SpecificationData:
         ...
 

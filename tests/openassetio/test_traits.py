@@ -61,7 +61,7 @@ def register(self, entityRefs, entitySpecs, context, hostSession):
         url = None
         mime_type = None
 
-        for trait_id in entity_spec.kTraitIDs:
+        for trait_id in entity_spec.traitIDs():
             if trait_id == BlobTrait.kID:
                 blob_trait = entity_spec.getTrait(BlobTrait.kID)
                 url = blob_trait.getUrl()
@@ -156,15 +156,12 @@ def test_BaseSpecification_data():
     assert len(data) == 0
 
 
-def test_BlobSpecification_data(a_blob_specification):
-    data = a_blob_specification.data()
+def test_BaseSpecification_traitIDs():
+    assert traits.BaseSpecification().traitIDs() == tuple()
 
-    assert isinstance(data, traits.SpecificationData)
-    assert len(data) == 1  # Initialised with (empty) BlobTrait.
 
-    props = data[traits.BlobTrait.kID]
-    assert isinstance(props, traits.Properties)
-    assert len(props) == 0
+def test_BlobSpecification_traitIDs():
+    assert traits.BlobSpecification().traitIDs() == (traits.BlobTrait.kID,)
 
 
 # TODO(DF): Should these tests be repeated for every property of every trait, or one sample
