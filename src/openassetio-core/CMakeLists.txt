@@ -41,10 +41,14 @@ install(TARGETS openassetio-core EXPORT ${PROJECT_NAME}_EXPORTED_TARGETS)
 # Target dependencies
 
 # Source file dependencies.
-target_sources(openassetio-core
+target_sources(
+    openassetio-core
     PRIVATE
     managerAPI/ManagerInterface.cpp
-    specifications.cpp)
+    specification/trait/BlobTrait.cpp
+    specification/SpecificationData.cpp
+    specification/BlobSpecification.cpp
+)
 
 # Public header dependency.
 target_include_directories(openassetio-core
