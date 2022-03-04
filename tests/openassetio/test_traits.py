@@ -44,14 +44,17 @@ new_spec.blobTrait().setMimeType(get_mime_type(new_path))
 ManagerInterface:
 ```
 def resolve(self, entityRefs, traitIDs, context, hostSession):
-  responses = []
-  for entityRef in entityRefs:
-    response = SpecificationData()
-    responses.append(response)
-    # Alternatively: `if BlobTrait.kID in traitIDs`
+    responses = [SpecificationData() for _ in entityRefs]
     for trait_id in traitIDs:
       if trait_id == BlobTrait.kID:
-        BlobTrait(response).setURL(my_ams.get_url_for_ref(entityRef))
+        urls = my_ams.get_url_for_refs(entityRefs)
+        for idx, entityRef in enumerate(entityRefs):
+            BlobTrait.setUrl(responses[idx], urls[idx])
+            trait = BlobTrait(responses[idx])
+            trait.setUrl(url)
+            trait.setMimeType("ams/thing")
+
+            BlobTrait.setParams(responses[idx], url=url, mimeType="ams/thing")
 
   return responses
 
@@ -126,6 +129,8 @@ def register(self, entityRefs, entitySpecs, context, hostSession):
 
         if blob_trait.isValid():
             is_image = ImageTrait(entity_spec).isValid()
+            # Alternatively:
+            is_image = ImageTrait.kID in entity_spec.traitIDs()
             url = blob_trait.getUrl()
             mime_type = blob_trait.getMimeType()
             if url is not None:
