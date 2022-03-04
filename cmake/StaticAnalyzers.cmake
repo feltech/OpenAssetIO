@@ -2,7 +2,12 @@
 # Copyright 2013-2022 The Foundry Visionmongers Ltd
 
 macro(enable_clang_tidy)
-    find_program(CLANGTIDY clang-tidy)
+    # clang-tidy-10 (default on Ubuntu 20.04, i.e. Github CI) has false
+    # positives for `performance-unnecessary-value-param` when using the
+    # idiom of immediately `std::move`ing parameters. Luckily
+    # clang-tidy-12 is available in Ubuntu 20.04 and doesn't have this
+    # problem.
+    find_program(CLANGTIDY clang-tidy-12)
 
     if (CLANGTIDY)
         # Construct the clang-tidy command line
