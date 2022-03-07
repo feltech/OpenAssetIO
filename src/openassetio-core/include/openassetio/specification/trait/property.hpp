@@ -46,9 +46,6 @@ using Maybe = std::optional<T>;
 
 /// Trait unique ID type.
 using TraitId = property::Key;
-/// Property dictionary for a trait.
-// TODO(DF): Hide this within SpecificationData.
-using Properties = std::unordered_map<property::Key, property::Value>;
 }  // namespace specification::trait
 }  // namespace OPENASSETIO_VERSION
 }  // namespace openassetio

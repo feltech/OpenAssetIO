@@ -16,7 +16,7 @@ trait::property::Maybe<trait::property::Value> SpecificationData::getTraitProper
     return {};
   }
 
-  const trait::Properties& props = traitIter->second;
+  const Properties& props = traitIter->second;
   const auto propIter = props.find(propertyKey);
   if (propIter == props.end()) {
     return {};

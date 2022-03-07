@@ -48,8 +48,9 @@ class OPENASSETIO_CORE_EXPORT SpecificationData {
                         trait::property::Value propertyValue);
 
  private:
-  using TraitDict = std::unordered_map<trait::TraitId, trait::Properties>;
-  TraitDict traitDict_;
+  using Properties = std::unordered_map<trait::property::Key, trait::property::Value>;
+  using PropertiesByTrait = std::unordered_map<trait::TraitId, Properties>;
+  PropertiesByTrait traitDict_;
 };
 
 using SpecificationDataPtr = std::shared_ptr<SpecificationData>;
