@@ -8,5 +8,5 @@
 void registerManagerInterface(const py::module& mod) {
   using openassetio::managerAPI::ManagerInterface;
 
-  py::class_<ManagerInterface>(mod, "ManagerInterface").def(py::init());
+  py::class_<ManagerInterface, Holder<ManagerInterface>>(mod, "ManagerInterface").def(py::init());
 }
