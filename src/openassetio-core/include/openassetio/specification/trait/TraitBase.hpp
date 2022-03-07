@@ -26,8 +26,6 @@ struct OPENASSETIO_CORE_EXPORT TraitBase : HasSpecificationData {
   explicit TraitBase(const SpecificationBase& spec)
       : HasSpecificationData(specDataForTrait(spec)) {}
 
-  virtual ~TraitBase() = default;
-
   [[nodiscard]] static const TraitId& traitId() { return Derived::kId; }
   [[nodiscard]] bool isValid() const { return bool{data()}; }
 

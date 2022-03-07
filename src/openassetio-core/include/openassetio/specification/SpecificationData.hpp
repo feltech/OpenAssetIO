@@ -61,11 +61,11 @@ using SpecificationDataPtr = std::shared_ptr<SpecificationData>;
  */
 class HasSpecificationData {
  public:
-  HasSpecificationData() = default;  // TODO(DF): Make protected to enforce this class as abstract.
-  explicit HasSpecificationData(SpecificationDataPtr data);
   [[nodiscard]] const SpecificationDataPtr& data() const;
-  SpecificationDataPtr& data();
-
+    SpecificationDataPtr& data();
+ protected:
+    explicit HasSpecificationData(SpecificationDataPtr data);
+    virtual ~HasSpecificationData() = default;
  private:
   SpecificationDataPtr data_;
 };

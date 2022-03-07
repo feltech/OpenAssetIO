@@ -16,8 +16,6 @@ using TraitIds = std::vector<trait::TraitId>;
  * Abstract base class of all specifications.
  */
 struct OPENASSETIO_CORE_EXPORT SpecificationBase : HasSpecificationData {
-  virtual ~SpecificationBase() = default;
-
   [[nodiscard]] virtual const TraitIds& traitIDs() const = 0;
 };
 
