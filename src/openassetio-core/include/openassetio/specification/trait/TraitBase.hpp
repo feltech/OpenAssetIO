@@ -12,8 +12,6 @@ namespace specification::trait {
 
 template <class Derived>
 struct OPENASSETIO_CORE_EXPORT TraitBase : HasSpecificationData {
-  static constexpr TraitId kId = Derived::kId;
-
   explicit TraitBase(SpecificationDataPtr specificationData)
       : HasSpecificationData(specificationData) {}
 
@@ -22,13 +20,13 @@ struct OPENASSETIO_CORE_EXPORT TraitBase : HasSpecificationData {
 
   virtual ~TraitBase() = default;
 
-  [[nodiscard]] TraitId traitId() const { return kId; }
-  [[nodiscard]] bool isValid() const { return data().get() != nullptr; }
+  [[nodiscard]] static const TraitId& traitId() { return Derived::kId; }
+  [[nodiscard]] bool isValid() const { return bool{data()}; }
 
  private:
   [[nodiscard]] SpecificationDataPtr specDataForTrait(const SpecificationBase& spec) const {
     const auto& specTraitIDs = spec.traitIDs();
-    if (std::find(specTraitIDs.begin(), specTraitIDs.end(), kId) != specTraitIDs.end()) {
+    if (std::find(specTraitIDs.begin(), specTraitIDs.end(), traitId()) != specTraitIDs.end()) {
       return spec.data();
     }
     return {};

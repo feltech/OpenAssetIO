@@ -29,7 +29,7 @@ template <class T>
 using Maybe = std::optional<T>;
 }  // namespace property
 
-using TraitId = std::string_view;  // TODO(DF): Is this always safe?
+using TraitId = property::Key;
 using Properties = std::unordered_map<property::Key, property::Value>;
 }  // namespace specification::trait
 }  // namespace OPENASSETIO_VERSION

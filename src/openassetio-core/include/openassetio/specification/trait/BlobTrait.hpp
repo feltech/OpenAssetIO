@@ -12,7 +12,7 @@ inline namespace OPENASSETIO_VERSION {
 namespace specification::trait {
 
 struct OPENASSETIO_CORE_EXPORT BlobTrait : TraitBase<BlobTrait> {
-  static constexpr TraitId kId = "blob";
+  static inline const TraitId kId{"blob"};
 
   using TraitBase<BlobTrait>::TraitBase;
 

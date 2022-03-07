@@ -7,7 +7,7 @@ namespace openassetio {
 inline namespace OPENASSETIO_VERSION {
 namespace specification {
 
-const TraitIds BlobSpecification::kTraitIds{{trait::BlobTrait::kId}};
+const TraitIds BlobSpecification::kTraitIds{{trait::BlobTrait::traitId()}};
 
 const TraitIds& BlobSpecification::traitIDs() const { return kTraitIds; }
 
