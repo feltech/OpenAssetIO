@@ -189,14 +189,11 @@ class Test_SpecificationData:
         assert a_specification_data.getTraitProperty("a trait id", "a bool") is True
         # assert a_specification_data.getTraitProperty("a trait id", "a map") is a_simple_map
 
-    def test_when_key_is_not_found_then_raises_KeyError(self, a_specification_data):
-        with pytest.raises(KeyError):
-            _ = a_specification_data.getTraitProperty("a trait id", "a string")
-
+    def test_when_key_is_not_found_then_returns_None(self, a_specification_data):
+        assert a_specification_data.getTraitProperty("a trait id", "a string") is None
+        # Set a value under the same trait but different key.
         a_specification_data.setTraitProperty("a trait id", "an int", 1)
-
-        with pytest.raises(KeyError):
-            _ = a_specification_data.getTraitProperty("a trait id", "a string")
+        assert a_specification_data.getTraitProperty("a trait id", "a string") is None
 
     def test_when_key_is_not_str_then_TypeError_raised(self, a_specification_data):
         with pytest.raises(TypeError):
