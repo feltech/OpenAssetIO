@@ -21,24 +21,20 @@ class OPENASSETIO_CORE_EXPORT SpecificationData {
   [[nodiscard]] std::size_t size() const;
 
   template <class T>
-  [[nodiscard]] trait::property::Maybe<T> getTraitProperty(const trait::TraitId traitId,
-                                                    const trait::property::Key& propertyKey) {
-    const auto traitIter = traitDict_.find(traitId);
-    if (traitIter == traitDict_.end()) {
+  [[nodiscard]] trait::property::Maybe<T> getTraitProperty(
+      const trait::TraitId& traitId, const trait::property::Key& propertyKey) {
+    const auto maybeValue = getTraitProperty(traitId, propertyKey);
+    if (!maybeValue) {
       return {};
     }
-
-    const trait::Properties& props = traitIter->second;
-    const auto propIter = props.find(propertyKey);
-    if (propIter == props.end()) {
-      return {};
-    }
-
     // TODO(DF): Make exception message more friendly.
-    return std::get<T>(propIter->second);
+    return std::get<T>(*maybeValue);
   }
 
-  void setTraitProperty(trait::TraitId traitId, const trait::property::Key& propertyKey,
+  [[nodiscard]] trait::property::Maybe<trait::property::Value> getTraitProperty(
+      const trait::TraitId& traitId, const trait::property::Key& propertyKey) const;
+
+  void setTraitProperty(const trait::TraitId& traitId, const trait::property::Key& propertyKey,
                         trait::property::Value propertyValue);
 
  private:

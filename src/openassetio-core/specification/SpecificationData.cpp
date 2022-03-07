@@ -8,7 +8,24 @@ namespace specification {
 
 std::size_t SpecificationData::size() const { return traitDict_.size(); }
 
-void SpecificationData::setTraitProperty(const trait::TraitId traitId,
+trait::property::Maybe<trait::property::Value> SpecificationData::getTraitProperty(
+    const trait::TraitId& traitId, const trait::property::Key& propertyKey) const {
+
+  const auto traitIter = traitDict_.find(traitId);
+  if (traitIter == traitDict_.end()) {
+    return {};
+  }
+
+  const trait::Properties& props = traitIter->second;
+  const auto propIter = props.find(propertyKey);
+  if (propIter == props.end()) {
+    return {};
+  }
+
+  return propIter->second;
+}
+
+void SpecificationData::setTraitProperty(const trait::TraitId& traitId,
                                          const trait::property::Key& propertyKey,
                                          trait::property::Value propertyValue) {
   traitDict_[traitId][propertyKey] = std::move(propertyValue);
