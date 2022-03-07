@@ -23,7 +23,13 @@ set_target_properties(openassetio-python
 #-----------------------------------------------------------------------
 # Target dependencies
 
-target_sources(openassetio-python PRIVATE _openassetio.cpp)
+target_sources(
+    openassetio-python
+    PRIVATE
+    _openassetio.cpp
+    managerAPI/ManagerInterface.cpp
+    specification/SpecificationData.cpp
+)
 
 target_link_libraries(openassetio-python
     PRIVATE
@@ -118,7 +124,7 @@ if (OPENASSETIO_ENABLE_TESTS AND Python_Interpreter_FOUND)
         # `malloc` rather than the optimized `pymalloc`, so that ASan
         # can properly count memory (de)allocations.
         set(pytest_env PYTHONMALLOC=malloc LD_PRELOAD=${asan_path})
-    endif()
+    endif ()
 
     # Target to run pytest in the install directory, ensuring the lib has
     # been built and installed first. Add `-s` to ensure no output is

@@ -144,9 +144,9 @@ def register(self, entityRefs, entitySpecs, context, hostSession):
 # pylint: disable=no-member
 import pytest
 
-from openassetio import traits
+from openassetio import specification
 
-
+"""
 def test_BaseSpecification_data():
     data = traits.BaseSpecification().data()
 
@@ -170,70 +170,50 @@ class Test_BlobSpecification_blobTrait:
         assert blob_trait.isValid()
         assert isinstance(blob_trait.data(), traits.SpecificationData)
         assert blob_trait.data() is a_blob_specification.data()
-
+"""
 
 class Test_SpecificationData:
-    def test_valid_values(self, a_specification_data, a_trait_properties):
-        a_specification_data["a trait name"] = a_trait_properties
+    def test_valid_values(self, a_specification_data): #, a_simple_map):
+        a_specification_data.setTraitProperty("a trait id", "a string", "string")
+        a_specification_data.setTraitProperty("a trait id", "an int", 1)
+        a_specification_data.setTraitProperty("a trait id", "a float", 1.0)
+        a_specification_data.setTraitProperty("a trait id", "a bool", True)
+        # a_specification_data.setTraitProperty("a trait id", "a map", a_simple_map)
 
-        assert a_specification_data["a trait name"] is a_trait_properties
+        assert a_specification_data.getTraitProperty("a trait id", "a string") == "string"
+        assert isinstance(a_specification_data.getTraitProperty("a trait id", "a string"), str)
+        assert a_specification_data.getTraitProperty("a trait id", "an int") == 1
+        assert isinstance(a_specification_data.getTraitProperty("a trait id", "an int"), int)
+        assert a_specification_data.getTraitProperty("a trait id", "a float") == 1.0
+        assert isinstance(a_specification_data.getTraitProperty("a trait id", "a float"), float)
+        assert a_specification_data.getTraitProperty("a trait id", "a bool") is True
+        # assert a_specification_data.getTraitProperty("a trait id", "a map") is a_simple_map
 
     def test_when_key_is_not_found_then_raises_KeyError(self, a_specification_data):
         with pytest.raises(KeyError):
-            _ = a_specification_data["missing key"]
+            _ = a_specification_data.getTraitProperty("a trait id", "a string")
+
+        a_specification_data.setTraitProperty("a trait id", "an int", 1)
 
         with pytest.raises(KeyError):
-            a_specification_data["missing key"] = "_"
+            _ = a_specification_data.getTraitProperty("a trait id", "a string")
 
-    def test_when_key_is_not_str_then_TypeError_raised(
-            self, a_specification_data, a_trait_properties):
+    def test_when_key_is_not_str_then_TypeError_raised(self, a_specification_data):
         with pytest.raises(TypeError):
-            _ = a_specification_data[123]
+            _ = a_specification_data.getTraitProperty(123, "a string")
 
         with pytest.raises(TypeError):
-            a_specification_data[123] = a_trait_properties
+            a_specification_data.setTraitProperty(123, "a string", "string")
+
+        with pytest.raises(TypeError):
+            a_specification_data.setTraitProperty("a trait id", 123, "string")
 
     def test_when_value_is_not_supported_then_TypeError_raised(self, a_specification_data):
         with pytest.raises(TypeError):
-            a_specification_data["key"] = object()
+            a_specification_data.setTraitProperty("a trait id", "unknown type", object())
 
 
-class Test_Properties:
-    def test_valid_values(self, a_trait_properties, a_simple_map):
-        a_trait_properties["a string"] = "string"
-        a_trait_properties["an int"] = 1
-        a_trait_properties["a float"] = 1.0
-        a_trait_properties["a bool"] = True
-        a_trait_properties["a map"] = a_simple_map
-
-        assert a_trait_properties["a string"] == "string"
-        assert isinstance(a_trait_properties["a string"], str)
-        assert a_trait_properties["an int"] == 1
-        assert isinstance(a_trait_properties["an int"], int)
-        assert a_trait_properties["a float"] == 1.0
-        assert isinstance(a_trait_properties["a float"], float)
-        assert a_trait_properties["a bool"] is True
-        assert a_trait_properties["a map"] is a_simple_map
-
-    def test_when_key_is_not_found_then_raises_KeyError(self, a_trait_properties):
-        with pytest.raises(KeyError):
-            _ = a_trait_properties["missing key"]
-
-        with pytest.raises(KeyError):
-            a_trait_properties["missing key"] = "_"
-
-    def test_when_key_is_not_str_then_TypeError_raised(self, a_trait_properties):
-        with pytest.raises(TypeError):
-            _ = a_trait_properties[123]
-
-        with pytest.raises(TypeError):
-            a_trait_properties[123] = 1
-
-    def test_when_value_is_not_supported_then_TypeError_raised(self, a_trait_properties):
-        with pytest.raises(TypeError):
-            a_trait_properties["key"] = object()
-
-
+"""
 class Test_SimpleMap:
     def test_valid_values(self, a_simple_map):
         a_simple_map["a string"] = "string"
@@ -269,8 +249,9 @@ class Test_SimpleMap:
 
         with pytest.raises(TypeError):
             a_simple_map["key"] = object()
+"""
 
-
+"""
 def test_BlobTrait_kID():
     assert traits.BlobTrait.kID == "blob"
 
@@ -377,18 +358,14 @@ def a_blob_specifications_data(a_blob_specification):
 @pytest.fixture
 def a_blob_specification():
     return traits.BlobSpecification()
-
+"""
 
 @pytest.fixture
 def a_specification_data():
-    return traits.SpecificationData()
+    return specification.SpecificationData()
 
-
-@pytest.fixture
-def a_trait_properties():
-    return traits.Properties()
-
-
+"""
 @pytest.fixture
 def a_simple_map():
     return traits.SimpleMap()
+"""
