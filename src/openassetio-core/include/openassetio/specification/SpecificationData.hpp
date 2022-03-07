@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2013-2022 The Foundry Visionmongers Ltd
+/**
+ * Provides core specification property data storage types.
+ */
 #pragma once
 
 #include <memory>
@@ -14,6 +17,13 @@ namespace openassetio {
 inline namespace OPENASSETIO_VERSION {
 namespace specification {
 
+/**
+ * Core specification data storage dictionary.
+ *
+ * All access is via a key pair of trait ID and property key. Queries
+ * return optional types, such that if a trait property doesn't exist
+ * then the optional evaluates falsey.
+ */
 class OPENASSETIO_CORE_EXPORT SpecificationData {
  public:
   SpecificationData() = default;
@@ -44,9 +54,13 @@ class OPENASSETIO_CORE_EXPORT SpecificationData {
 
 using SpecificationDataPtr = std::shared_ptr<SpecificationData>;
 
+/**
+ * Abstract mixin/base class imbuing a subclass with a SpecificationData
+ * member and providing accessors to it.
+ */
 class HasSpecificationData {
  public:
-  HasSpecificationData() = default;
+  HasSpecificationData() = default;  // TODO(DF): Make protected to enforce this class as abstract.
   explicit HasSpecificationData(SpecificationDataPtr data);
   [[nodiscard]] const SpecificationDataPtr& data() const;
   SpecificationDataPtr& data();

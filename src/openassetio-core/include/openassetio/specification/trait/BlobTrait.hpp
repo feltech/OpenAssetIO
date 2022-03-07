@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2013-2022 The Foundry Visionmongers Ltd
+/**
+ * Define the core `BlobTrait` trait class.
+ */
 #pragma once
 
 #include <openassetio/export.h>
@@ -11,6 +14,12 @@ namespace openassetio {
 inline namespace OPENASSETIO_VERSION {
 namespace specification::trait {
 
+/**
+ * Core trait class representing a locatable blob of data of a specific
+ * type.
+ *
+ * Has the ID of "blob" and defines url and mimeType properties.
+ */
 struct OPENASSETIO_CORE_EXPORT BlobTrait : TraitBase<BlobTrait> {
   static inline const TraitId kId{"blob"};
 

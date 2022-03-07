@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2013-2022 The Foundry Visionmongers Ltd
+/**
+ * Typedefs for the trait property data stored within specifications.
+ */
 #pragma once
 
 #include <optional>
@@ -15,21 +18,36 @@ inline namespace OPENASSETIO_VERSION {
 namespace specification::trait {
 
 namespace property {
-using Key = std::string;
 
+/// Boolean value type for specification property dictionaries.
 using Bool = bool;
+/// Integer value type for specification property dictionaries.
 using Int = int;
+/// Real value type for specification property dictionaries.
 using Float = double;
+/// String value type for specification property dictionaries.
 using Str = std::string;
-using Map = std::unordered_map<Key, std::variant<Bool, Int, Float, Str>>;
+/// Simple map value type for specification property dictionaries.
+// TODO(DF): Create wrapper type for this.
+using Map = std::unordered_map<Str, std::variant<Bool, Int, Float, Str>>;
 
+/// Property dictionary keys.
+using Key = std::string;
+/// Property dictionary values.
 using Value = std::variant<Bool, Int, Float, Str, Map>;
 
+/**
+ * Type used to allow "unset" as a valid return value from specification
+ * dictionary queries.
+ */
 template <class T>
 using Maybe = std::optional<T>;
 }  // namespace property
 
+/// Trait unique ID type.
 using TraitId = property::Key;
+/// Property dictionary for a trait.
+// TODO(DF): Hide this within SpecificationData.
 using Properties = std::unordered_map<property::Key, property::Value>;
 }  // namespace specification::trait
 }  // namespace OPENASSETIO_VERSION

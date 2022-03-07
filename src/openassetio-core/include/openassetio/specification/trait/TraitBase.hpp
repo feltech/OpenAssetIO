@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2013-2022 The Foundry Visionmongers Ltd
+/**
+ * Base class for all specification traits.
+ */
 #pragma once
 #include <algorithm>
 
@@ -10,6 +13,11 @@ namespace openassetio {
 inline namespace OPENASSETIO_VERSION {
 namespace specification::trait {
 
+/**
+ * Abstract CRTP base class for specification traits.
+ *
+ * @tparam Derived Concrete subclass.
+ */
 template <class Derived>
 struct OPENASSETIO_CORE_EXPORT TraitBase : HasSpecificationData {
   explicit TraitBase(SpecificationDataPtr specificationData)
