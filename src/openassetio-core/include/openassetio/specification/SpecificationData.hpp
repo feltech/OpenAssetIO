@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <utility>
 
 // API export generated header
 #include <openassetio/export.h>
@@ -54,6 +55,11 @@ class OPENASSETIO_CORE_EXPORT SpecificationData {
 };
 
 using SpecificationDataPtr = std::shared_ptr<SpecificationData>;
+
+template <typename... Args>
+SpecificationDataPtr makeSpecificationData(Args&&... args) {
+  return std::make_shared<SpecificationData>(std::forward(args)...);
+}
 
 /**
  * Abstract mixin/base class imbuing a subclass with a SpecificationData

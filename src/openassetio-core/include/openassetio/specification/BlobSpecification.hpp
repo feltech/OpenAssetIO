@@ -17,7 +17,7 @@ namespace specification {
  */
 struct OPENASSETIO_CORE_EXPORT BlobSpecification : SpecificationBase {
   static const TraitIds kTraitIds;
-
+  using SpecificationBase::SpecificationBase;
   [[nodiscard]] const TraitIds& traitIDs() const override;
 };
 }  // namespace specification

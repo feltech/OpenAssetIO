@@ -17,6 +17,9 @@ using TraitIds = std::vector<trait::TraitId>;
  */
 struct OPENASSETIO_CORE_EXPORT SpecificationBase : HasSpecificationData {
   [[nodiscard]] virtual const TraitIds& traitIDs() const = 0;
+
+ protected:
+  SpecificationBase() : HasSpecificationData{makeSpecificationData()} {}
 };
 
 }  // namespace specification
