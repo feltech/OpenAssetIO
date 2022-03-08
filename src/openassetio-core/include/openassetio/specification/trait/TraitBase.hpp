@@ -19,7 +19,7 @@ namespace specification::trait {
  * @tparam Derived Concrete subclass.
  */
 template <class Derived>
-struct OPENASSETIO_CORE_EXPORT TraitBase : HasSpecificationData {
+struct TraitBase : HasSpecificationData {
   explicit TraitBase(SpecificationDataPtr specificationData)
       : HasSpecificationData(specificationData) {}
 
