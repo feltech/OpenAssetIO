@@ -65,13 +65,15 @@ SpecificationDataPtr makeSpecificationData(Args&&... args) {
  * Abstract mixin/base class imbuing a subclass with a SpecificationData
  * member and providing accessors to it.
  */
-class HasSpecificationData {
+class OPENASSETIO_CORE_EXPORT HasSpecificationData {
  public:
   [[nodiscard]] const SpecificationDataPtr& data() const;
-    SpecificationDataPtr& data();
+  SpecificationDataPtr& data();
+
  protected:
-    explicit HasSpecificationData(SpecificationDataPtr data);
-    virtual ~HasSpecificationData() = default;
+  explicit HasSpecificationData(SpecificationDataPtr data);
+  virtual ~HasSpecificationData() = default;
+
  private:
   SpecificationDataPtr data_;
 };
