@@ -33,14 +33,14 @@ struct TraitBase {
   [[nodiscard]] const SpecificationPtr& spec() const { return spec_; }
 
   template <class T>
-  [[nodiscard]] property::Maybe<T> getTraitProperty(const TraitId& traitId,
-                                                    const property::Key& propertyKey) const {
-    const auto maybeValue = spec()->getTraitProperty(traitId, propertyKey);
-    if (!maybeValue) {
-      return {};
+  [[nodiscard]] bool getTraitProperty(T* out, const TraitId& traitId,
+                                      const property::Key& propertyKey) const {
+    if (property::Value value; spec()->getTraitProperty(&value, traitId, propertyKey)) {
+      // TODO(DF): Make exception message more friendly.
+      *out = std::get<T>(value);
+      return true;
     }
-    // TODO(DF): Make exception message more friendly.
-    return std::get<T>(*maybeValue);
+    return false;
   }
 
  private:

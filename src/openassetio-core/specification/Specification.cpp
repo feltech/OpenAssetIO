@@ -21,16 +21,17 @@ class Specification::Impl {
     return static_cast<bool>(data_.count(traitId));
   }
 
-  trait::property::Maybe<trait::property::Value> getTraitProperty(
-      const trait::TraitId& traitId, const trait::property::Key& propertyKey) const {
+  bool getTraitProperty(trait::property::Value* out, const trait::TraitId& traitId,
+                        const trait::property::Key& propertyKey) const {
     // Use `at` deliberately to trigger exception if trait doesn't exist
     const auto& traitDict = data_.at(traitId);
 
     const auto& iter = traitDict.find(propertyKey);
     if (iter == traitDict.end()) {
-      return {};
+      return false;
     }
-    return iter->second;
+    *out = iter->second;
+    return true;
   }
 
   void setTraitProperty(const trait::TraitId& traitId, const trait::property::Key& propertyKey,
@@ -52,9 +53,9 @@ bool Specification::hasTrait(const trait::TraitId& traitId) const {
   return impl_->hasTrait(traitId);
 }
 
-trait::property::Maybe<trait::property::Value> Specification::getTraitProperty(
-    const trait::TraitId& traitId, const trait::property::Key& propertyKey) const {
-  return impl_->getTraitProperty(traitId, propertyKey);
+bool Specification::getTraitProperty(trait::property::Value* out, const trait::TraitId& traitId,
+                                     const trait::property::Key& propertyKey) const {
+  return impl_->getTraitProperty(out, traitId, propertyKey);
 }
 
 void Specification::setTraitProperty(const trait::TraitId& traitId,

@@ -14,14 +14,14 @@ const property::Key kUrl = "url";
 const property::Key kMimeType = "mimeType";
 }  // namespace
 
-property::Maybe<property::Str> BlobTrait::getUrl() const {
-  return getTraitProperty<property::Str>(kId, kUrl);
+bool BlobTrait::getUrl(property::Str* out) const {
+  return getTraitProperty<property::Str>(out, kId, kUrl);
 }
 
 void BlobTrait::setUrl(property::Str url) { spec()->setTraitProperty(kId, kUrl, std::move(url)); }
 
-[[maybe_unused]] property::Maybe<property::Str> BlobTrait::getMimeType() const {
-  return getTraitProperty<property::Str>(kId, kMimeType);
+bool BlobTrait::getMimeType(property::Str* out) const {
+  return getTraitProperty<property::Str>(out, kId, kMimeType);
 }
 
 void BlobTrait::setMimeType(property::Str mimeType) {

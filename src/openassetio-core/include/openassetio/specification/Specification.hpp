@@ -27,8 +27,8 @@ class OPENASSETIO_CORE_EXPORT Specification {
 
   [[nodiscard]] bool hasTrait(const trait::TraitId& traitId) const;
 
-  [[nodiscard]] trait::property::Maybe<trait::property::Value> getTraitProperty(
-      const trait::TraitId& traitId, const trait::property::Key& propertyKey) const;
+  [[nodiscard]] bool getTraitProperty(trait::property::Value* out, const trait::TraitId& traitId,
+                                      const trait::property::Key& propertyKey) const;
 
   void setTraitProperty(const trait::TraitId& traitId, const trait::property::Key& propertyKey,
                         trait::property::Value propertyValue);
