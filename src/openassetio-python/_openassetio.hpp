@@ -26,3 +26,10 @@ using Holder = std::shared_ptr<T>;
 void registerManagerInterface(const py::module& mod);
 /// Register the SpecificationData class with Python.
 void registerSpecificationData(const py::module& mod);
+/// Register the SpecificationBase abstract base class with Python.
+void registerSpecificationBase(const py::module& mod);
+
+/// Register the BlobTrait class with Python.
+void registerBlobTrait(const py::module& mod);
+/// Register the BlobSpecification class with Python.
+void registerBlobSpecification(const py::module& mod);

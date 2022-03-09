@@ -29,6 +29,9 @@ target_sources(
     _openassetio.cpp
     managerAPI/ManagerInterface.cpp
     specification/SpecificationData.cpp
+    specification/trait/BlobTrait.cpp
+    specification/SpecificationBase.cpp
+    specification/BlobSpecification.cpp
 )
 
 target_link_libraries(openassetio-python
