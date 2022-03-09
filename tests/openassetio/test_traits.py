@@ -58,45 +58,6 @@ class Test_SpecificationData:
             a_specification_data.setTraitProperty("a trait id", "unknown type", object())
 
 
-"""
-class Test_SimpleMap:
-    def test_valid_values(self, a_simple_map):
-        a_simple_map["a string"] = "string"
-        a_simple_map["an int"] = 1
-        a_simple_map["a float"] = 1.0
-        a_simple_map["a bool"] = True
-
-        assert a_simple_map["a string"] == "string"
-        assert isinstance(a_simple_map["a string"], str)
-        assert a_simple_map["an int"] == 1
-        assert isinstance(a_simple_map["an int"], int)
-        assert a_simple_map["a float"] == 1.0
-        assert isinstance(a_simple_map["a float"], float)
-        assert a_simple_map["a bool"] is True
-
-    def test_when_key_is_not_found_then_KeyError_is_raised(self, a_simple_map):
-        with pytest.raises(KeyError):
-            _ = a_simple_map["missing key"]
-
-        with pytest.raises(KeyError):
-            a_simple_map["missing key"] = 1
-
-    def test_when_key_is_not_str_then_TypeError_raised(self, a_simple_map):
-        with pytest.raises(TypeError):
-            _ = a_simple_map[123]
-
-        with pytest.raises(TypeError):
-            a_simple_map[123] = 1
-
-    def test_when_value_is_not_primitive_then_TypeError_raised(self, a_simple_map):
-        with pytest.raises(TypeError):
-            a_simple_map["key"] = None
-
-        with pytest.raises(TypeError):
-            a_simple_map["key"] = object()
-"""
-
-
 def test_BlobTrait_traitId():
     assert trait.BlobTrait.traitId() == "blob"
 
@@ -201,10 +162,3 @@ def a_blob_specification():
 @pytest.fixture
 def a_specification_data():
     return specification.SpecificationData()
-
-
-"""
-@pytest.fixture
-def a_simple_map():
-    return trait.SimpleMap()
-"""

@@ -27,14 +27,11 @@ using Int = int;
 using Float = double;
 /// String value type for specification property dictionaries.
 using Str = std::string;
-/// Simple map value type for specification property dictionaries.
-// TODO(DF): Create wrapper type for this.
-using Map = std::unordered_map<Str, std::variant<Bool, Int, Float, Str>>;
 
 /// Property dictionary keys.
 using Key = std::string;
 /// Property dictionary values.
-using Value = std::variant<Bool, Int, Float, Str, Map>;
+using Value = std::variant<Bool, Int, Float, Str>;
 
 /**
  * Type used to allow "unset" as a valid return value from specification
