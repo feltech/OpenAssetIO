@@ -1,12 +1,8 @@
 """
 Tests for the traits type system.
 
-TODO(DF): Notes:
-    * Do we need _required_ properties, e.g. BlobTrait is wrong without URL?
-    * Test trait accessors to SpecificationData where the property exists but is an unexpected type
-      in the variant.
-    * Add SpecificationBase / TraitBase for Python-defined specifications and/or test that abstract
-      bases cannot be instantiated.
+TODO(DF):
+    * More informative exception messages
 """
 # pylint: disable=invalid-name,missing-class-docstring,missing-function-docstring
 # pylint: disable=redefined-outer-name,no-self-use
@@ -16,46 +12,47 @@ from openassetio import specification
 from openassetio.specification import trait
 
 
-def test_BlobSpecification_traitIDs():
-    assert specification.BlobSpecification().traitIDs() == [trait.BlobTrait.traitId()]
+class Test_Specification_hasTrait:
+    def test_when_has_trait_then_returns_true(self, a_specification):
+        assert a_specification.hasTrait("second_trait")
+
+    def test_when_not_has_trait_then_returns_false(self, a_specification):
+        assert not a_specification.hasTrait("unknown_trait")
 
 
-class Test_SpecificationData:
-    def test_valid_values(self, a_specification_data):  # , a_simple_map):
-        a_specification_data.setTraitProperty("a trait id", "a string", "string")
-        a_specification_data.setTraitProperty("a trait id", "an int", 1)
-        a_specification_data.setTraitProperty("a trait id", "a float", 1.0)
-        a_specification_data.setTraitProperty("a trait id", "a bool", True)
-        # a_specification_data.setTraitProperty("a trait id", "a map", a_simple_map)
+class Test_BlobSpecification_hasTrait:
+    def test_has_blob_trait(self, a_blob_specification):
+        assert a_blob_specification.hasTrait("blob")
 
-        assert a_specification_data.getTraitProperty("a trait id", "a string") == "string"
-        assert isinstance(a_specification_data.getTraitProperty("a trait id", "a string"), str)
-        assert a_specification_data.getTraitProperty("a trait id", "an int") == 1
-        assert isinstance(a_specification_data.getTraitProperty("a trait id", "an int"), int)
-        assert a_specification_data.getTraitProperty("a trait id", "a float") == 1.0
-        assert isinstance(a_specification_data.getTraitProperty("a trait id", "a float"), float)
-        assert a_specification_data.getTraitProperty("a trait id", "a bool") is True
-        # assert a_specification_data.getTraitProperty("a trait id", "a map") is a_simple_map
 
-    def test_when_key_is_not_found_then_returns_None(self, a_specification_data):
-        assert a_specification_data.getTraitProperty("a trait id", "a string") is None
-        # Set a value under the same trait but different key.
-        a_specification_data.setTraitProperty("a trait id", "an int", 1)
-        assert a_specification_data.getTraitProperty("a trait id", "a string") is None
+class Test_Specification_getsetTraitProperty:
+    def test_valid_values(self, a_specification):
+        a_specification.setTraitProperty("first_trait", "a string", "string")
+        a_specification.setTraitProperty("second_trait", "an int", 1)
+        a_specification.setTraitProperty("first_trait", "a float", 1.0)
+        a_specification.setTraitProperty("second_trait", "a bool", True)
 
-    def test_when_key_is_not_str_then_TypeError_raised(self, a_specification_data):
+        assert a_specification.getTraitProperty("first_trait", "a string") == "string"
+        assert isinstance(a_specification.getTraitProperty("first_trait", "a string"), str)
+        assert a_specification.getTraitProperty("second_trait", "an int") == 1
+        assert isinstance(a_specification.getTraitProperty("second_trait", "an int"), int)
+        assert a_specification.getTraitProperty("first_trait", "a float") == 1.0
+        assert isinstance(a_specification.getTraitProperty("first_trait", "a float"), float)
+        assert a_specification.getTraitProperty("second_trait", "a bool") is True
+
+    def test_when_key_is_not_found_then_get_returns_None(self, a_specification):
+        assert a_specification.getTraitProperty("first_trait", "a string") is None
+
+    def test_when_trait_is_not_found_then_IndexError_raised(self, a_specification):
+        with pytest.raises(IndexError):
+            a_specification.setTraitProperty("unknown_trait", "a string", "string")
+
+        with pytest.raises(IndexError):
+            _ = a_specification.getTraitProperty("unknown_trait", "a string")
+
+    def test_when_value_is_not_supported_then_set_raises_TypeError(self, a_specification):
         with pytest.raises(TypeError):
-            _ = a_specification_data.getTraitProperty(123, "a string")
-
-        with pytest.raises(TypeError):
-            a_specification_data.setTraitProperty(123, "a string", "string")
-
-        with pytest.raises(TypeError):
-            a_specification_data.setTraitProperty("a trait id", 123, "string")
-
-    def test_when_value_is_not_supported_then_TypeError_raised(self, a_specification_data):
-        with pytest.raises(TypeError):
-            a_specification_data.setTraitProperty("a trait id", "unknown type", object())
+            a_specification.setTraitProperty("first_trait", "unknown type", object())
 
 
 def test_BlobTrait_traitId():
@@ -63,102 +60,99 @@ def test_BlobTrait_traitId():
 
 
 class Test_BlobTrait_isValid:
-    def test_when_wrapping_blob_spec_then_returns_true(self, a_blob_specification):
+    def test_when_wrapping_BlobSpecification_then_returns_true(self, a_blob_specification):
         assert trait.BlobTrait(a_blob_specification).isValid()
 
-    def test_when_wrapping_arbitary_data_then_returns_true(self):
-        assert trait.BlobTrait(specification.SpecificationData()).isValid()
+    def test_when_wrapping_blob_supporting_spec_then_returns_true(self):
+        assert trait.BlobTrait(
+            specification.Specification([trait.BlobTrait.traitId(), "other"])).isValid()
 
-    # TODO(DF): fix this
-    # def test_when_wrapping_unsupported_spec_then_returns_false(self):
-    #     assert not trait.BlobTrait(trait.BaseSpecification()).isValid()
-
-
-class Test_BlobTrait_data:
-    def test_when_wrapping_blob_spec_then_returns_specs_data(self, a_blob_specification):
-        assert trait.BlobTrait(a_blob_specification).data() is a_blob_specification.data()
-
-    def test_when_wrapping_arbitrary_data_then_returns_data(self):
-        data = specification.SpecificationData()
-        assert trait.BlobTrait(data).data() is data
-
-    # TODO(DF): fix this
-    # def test_when_wrapping_unsupported_spec_then_returns_None(self):
-    #     spec = trait.BaseSpecification()
-    #     assert trait.BlobTrait(spec).data() is None
+    def test_when_wrapping_non_blob_spec_then_returns_false(self, a_specification):
+        assert not trait.BlobTrait(a_specification).isValid()
 
 
 class Test_BlobTrait_getURL:
-    def test_when_data_has_no_url_then_returns_None(self, a_specification_data):
-        assert trait.BlobTrait(a_specification_data).getUrl() is None
+    def test_when_spec_doesnt_have_blob_trait_then_raises_IndexError(self, a_specification):
+        with pytest.raises(IndexError):
+            trait.BlobTrait(a_specification).getUrl()
 
-    def test_when_data_has_url_then_returns_url(self, a_blob_specifications_data):
+    def test_when_url_in_spec_has_wrong_value_type_then_raises_RuntimeError(self):
+        spec = specification.Specification([trait.BlobTrait.traitId()])
+        spec.setTraitProperty(trait.BlobTrait.traitId(), "url", 123)
+
+        with pytest.raises(RuntimeError):
+            trait.BlobTrait(spec).getUrl()
+
+    def test_when_spec_has_no_url_then_returns_None(self, a_blob_specification):
+        assert trait.BlobTrait(a_blob_specification).getUrl() is None
+
+    def test_when_spec_has_url_then_returns_url(self, a_blob_specification):
         expected = "some://url"
-        a_blob_specifications_data.setTraitProperty(trait.BlobTrait.traitId(), "url", expected)
+        a_blob_specification.setTraitProperty(trait.BlobTrait.traitId(), "url", expected)
 
-        actual = trait.BlobTrait(a_blob_specifications_data).getUrl()
+        actual = trait.BlobTrait(a_blob_specification).getUrl()
 
         assert actual == expected
 
 
 class Test_BlobTrait_setURL:
-    def test_when_url_is_a_str_then_url_is_added_to_dict(self, a_specification_data):
+    def test_when_spec_doesnt_have_blob_trait_then_raises_IndexError(self, a_specification):
+        with pytest.raises(IndexError):
+            trait.BlobTrait(a_specification).setUrl("some://url")
+
+    def test_when_url_is_wrong_type_then_TypeError_is_raised(self, a_blob_specification):
+        with pytest.raises(TypeError):
+            trait.BlobTrait(a_blob_specification).setUrl(123)
+
+    def test_when_url_is_a_str_then_url_is_added_to_spec(self, a_blob_specification):
         expected = "some://url"
 
-        trait.BlobTrait(a_specification_data).setUrl(expected)
+        trait.BlobTrait(a_blob_specification).setUrl(expected)
 
-        assert a_specification_data.getTraitProperty(trait.BlobTrait.traitId(), "url") == expected
-
-    # TODO(DF): Support "unsetting" properties?
-
-    def test_when_url_is_wrong_type_then_TypeError_is_raised(self, a_blob_specifications_data):
-        with pytest.raises(TypeError):
-            trait.BlobTrait(a_blob_specifications_data).setUrl(123)
+        assert a_blob_specification.getTraitProperty(trait.BlobTrait.traitId(), "url") == expected
 
 
 class Test_BlobTrait_getMimeType:
-    def test_when_data_has_no_mimeType_then_returns_None(self, a_specification_data):
-        assert trait.BlobTrait(a_specification_data).getMimeType() is None
+    def test_when_spec_doesnt_have_blob_trait_then_raises_IndexError(self, a_specification):
+        with pytest.raises(IndexError):
+            trait.BlobTrait(a_specification).getMimeType()
 
-    def test_when_data_has_mimeType_then_returns_mimeType(self, a_blob_specifications_data):
+    def test_when_data_has_no_mimeType_then_returns_None(self, a_blob_specification):
+        assert trait.BlobTrait(a_blob_specification).getMimeType() is None
+
+    def test_when_data_has_mimeType_then_returns_mimeType(self, a_blob_specification):
         expected = "some://url"
-        a_blob_specifications_data.setTraitProperty(
-            trait.BlobTrait.traitId(), "mimeType", expected)
+        a_blob_specification.setTraitProperty(trait.BlobTrait.traitId(), "mimeType", expected)
 
-        actual = trait.BlobTrait(a_blob_specifications_data).getMimeType()
+        actual = trait.BlobTrait(a_blob_specification).getMimeType()
 
         assert actual == expected
 
 
 class Test_BlobTrait_setMimeType:
-    def test_when_mimeType_is_a_str_then_mimeType_is_added_to_dict(
-            self, a_blob_specifications_data):
+    def test_when_spec_doesnt_have_blob_trait_then_raises_IndexError(self, a_specification):
+        with pytest.raises(IndexError):
+            trait.BlobTrait(a_specification).setMimeType("application/x-something")
+
+    def test_when_mimeType_is_a_str_then_mimeType_is_added_to_spec(
+            self, a_blob_specification):
         expected = "application/x-something"
 
-        trait.BlobTrait(a_blob_specifications_data).setMimeType(expected)
+        trait.BlobTrait(a_blob_specification).setMimeType(expected)
 
-        assert a_blob_specifications_data.getTraitProperty(
+        assert a_blob_specification.getTraitProperty(
             trait.BlobTrait.traitId(), "mimeType") == expected
 
-    # TODO(DF): Support "unsetting" properties?
-
-    def test_when_mimeType_is_wrong_type_then_TypeError_is_raised(
-            self,
-            a_blob_specifications_data):
+    def test_when_mimeType_is_wrong_type_then_TypeError_is_raised(self, a_blob_specification):
         with pytest.raises(TypeError):
-            trait.BlobTrait(a_blob_specifications_data).setMimeType(123)
+            trait.BlobTrait(a_blob_specification).setMimeType(123)
 
 
 @pytest.fixture
-def a_blob_specifications_data(a_blob_specification):
-    return a_blob_specification.data()
+def a_specification():
+    return specification.Specification(["first_trait", "second_trait"])
 
 
 @pytest.fixture
 def a_blob_specification():
     return specification.BlobSpecification()
-
-
-@pytest.fixture
-def a_specification_data():
-    return specification.SpecificationData()

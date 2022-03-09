@@ -5,9 +5,10 @@
  */
 #pragma once
 #include <algorithm>
+#include <memory>
+#include <utility>
 
-#include "../SpecificationBase.hpp"
-#include "../SpecificationData.hpp"
+#include "../Specification.hpp"
 
 namespace openassetio {
 inline namespace OPENASSETIO_VERSION {
@@ -19,24 +20,31 @@ namespace specification::trait {
  * @tparam Derived Concrete subclass.
  */
 template <class Derived>
-struct TraitBase : HasSpecificationData {
-  explicit TraitBase(SpecificationDataPtr specificationData)
-      : HasSpecificationData(specificationData) {}
+struct TraitBase {
+  using SpecificationPtr = std::shared_ptr<Specification>;
 
-  explicit TraitBase(const SpecificationBase& spec)
-      : HasSpecificationData(specDataForTrait(spec)) {}
+  explicit TraitBase(SpecificationPtr spec) : spec_{std::move(spec)} {}
 
   [[nodiscard]] static const TraitId& traitId() { return Derived::kId; }
-  [[nodiscard]] bool isValid() const { return bool{data()}; }
+  [[nodiscard]] bool isValid() const { return spec_->hasTrait(traitId()); }
+
+ protected:
+  SpecificationPtr& spec() { return spec_; }
+  [[nodiscard]] const SpecificationPtr& spec() const { return spec_; }
+
+  template <class T>
+  [[nodiscard]] property::Maybe<T> getTraitProperty(const TraitId& traitId,
+                                                    const property::Key& propertyKey) const {
+    const auto maybeValue = spec()->getTraitProperty(traitId, propertyKey);
+    if (!maybeValue) {
+      return {};
+    }
+    // TODO(DF): Make exception message more friendly.
+    return std::get<T>(*maybeValue);
+  }
 
  private:
-  [[nodiscard]] SpecificationDataPtr specDataForTrait(const SpecificationBase& spec) const {
-    const auto& specTraitIDs = spec.traitIDs();
-    if (std::find(specTraitIDs.begin(), specTraitIDs.end(), traitId()) != specTraitIDs.end()) {
-      return spec.data();
-    }
-    return {};
-  }
+  SpecificationPtr spec_;
 };
 }  // namespace specification::trait
 }  // namespace OPENASSETIO_VERSION

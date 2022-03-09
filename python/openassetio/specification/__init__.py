@@ -13,6 +13,6 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-__all__ = ["SpecificationData", "BlobSpecification"]
+__all__ = ["BlobSpecification", "Specification"]
 
-from openassetio._openassetio.specification import SpecificationData, BlobSpecification
+from openassetio._openassetio.specification import BlobSpecification, Specification

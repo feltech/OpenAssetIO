@@ -6,7 +6,7 @@
 #pragma once
 #include <openassetio/export.h>
 
-#include "SpecificationBase.hpp"
+#include "Specification.hpp"
 
 namespace openassetio {
 inline namespace OPENASSETIO_VERSION {
@@ -15,10 +15,8 @@ namespace specification {
 /**
  * Core specification for a locatable blob of data.
  */
-struct OPENASSETIO_CORE_EXPORT BlobSpecification : SpecificationBase {
-  static const TraitIds kTraitIds;
-  using SpecificationBase::SpecificationBase;
-  [[nodiscard]] const TraitIds& traitIDs() const override;
+struct OPENASSETIO_CORE_EXPORT BlobSpecification : Specification {
+  BlobSpecification();
 };
 }  // namespace specification
 }  // namespace OPENASSETIO_VERSION

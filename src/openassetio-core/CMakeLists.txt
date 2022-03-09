@@ -46,7 +46,7 @@ target_sources(
     PRIVATE
     managerAPI/ManagerInterface.cpp
     specification/trait/BlobTrait.cpp
-    specification/SpecificationData.cpp
+    specification/Specification.cpp
     specification/BlobSpecification.cpp
 )
 

@@ -12,8 +12,7 @@ PYBIND11_MODULE(_openassetio, mod) {
 
   py::module specification = mod.def_submodule("specification");
 
-  registerSpecificationData(specification);
-  registerSpecificationBase(specification);
+  registerSpecification(specification);
 
   py::module trait = specification.def_submodule("trait");
 

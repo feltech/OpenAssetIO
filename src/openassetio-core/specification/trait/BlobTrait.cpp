@@ -15,17 +15,17 @@ const property::Key kMimeType = "mimeType";
 }  // namespace
 
 property::Maybe<property::Str> BlobTrait::getUrl() const {
-  return data()->getTraitProperty<property::Str>(kId, kUrl);
+  return getTraitProperty<property::Str>(kId, kUrl);
 }
 
-void BlobTrait::setUrl(property::Str url) { data()->setTraitProperty(kId, kUrl, std::move(url)); }
+void BlobTrait::setUrl(property::Str url) { spec()->setTraitProperty(kId, kUrl, std::move(url)); }
 
 [[maybe_unused]] property::Maybe<property::Str> BlobTrait::getMimeType() const {
-  return data()->getTraitProperty<property::Str>(kId, kMimeType);
+  return getTraitProperty<property::Str>(kId, kMimeType);
 }
 
 void BlobTrait::setMimeType(property::Str mimeType) {
-  data()->setTraitProperty(kId, kMimeType, std::move(mimeType));
+  spec()->setTraitProperty(kId, kMimeType, std::move(mimeType));
 }
 
 }  // namespace specification::trait
