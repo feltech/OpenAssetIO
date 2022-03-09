@@ -13,6 +13,9 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
+"""
+Trait classes providing a concrete view on specification properties.
+"""
 __all__ = ["BlobTrait"]
 
 from openassetio._openassetio.specification.trait import BlobTrait

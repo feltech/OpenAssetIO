@@ -13,6 +13,9 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
+"""
+Entity type system and property transport mechanism.
+"""
 __all__ = ["BlobSpecification", "Specification"]
 
 from openassetio._openassetio.specification import BlobSpecification, Specification
