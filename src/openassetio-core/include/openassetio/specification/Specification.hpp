@@ -8,7 +8,7 @@
 #include <memory>
 #include <vector>
 
-#include "trait/property.hpp"
+#include "../trait/property.hpp"
 
 namespace openassetio {
 inline namespace OPENASSETIO_VERSION {

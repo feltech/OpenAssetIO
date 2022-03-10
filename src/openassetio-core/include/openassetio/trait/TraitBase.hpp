@@ -8,11 +8,11 @@
 #include <memory>
 #include <utility>
 
-#include "../Specification.hpp"
+#include "../specification/Specification.hpp"
 
 namespace openassetio {
 inline namespace OPENASSETIO_VERSION {
-namespace specification::trait {
+namespace trait {
 
 /**
  * Abstract CRTP base class for specification traits.
@@ -21,7 +21,7 @@ namespace specification::trait {
  */
 template <class Derived>
 struct TraitBase {
-  using SpecificationPtr = std::shared_ptr<Specification>;
+  using SpecificationPtr = std::shared_ptr<specification::Specification>;
 
   explicit TraitBase(SpecificationPtr spec) : spec_{std::move(spec)} {}
 
@@ -46,6 +46,6 @@ struct TraitBase {
  private:
   SpecificationPtr spec_;
 };
-}  // namespace specification::trait
+}  // namespace trait
 }  // namespace OPENASSETIO_VERSION
 }  // namespace openassetio

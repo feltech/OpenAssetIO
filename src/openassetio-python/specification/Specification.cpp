@@ -10,8 +10,8 @@
 
 void registerSpecification(const py::module& mod) {
   using openassetio::specification::Specification;
-  namespace trait = openassetio::specification::trait;
-  namespace property = openassetio::specification::trait::property;
+  namespace trait = openassetio::trait;
+  namespace property = openassetio::trait::property;
   using MaybeValue = std::optional<property::Value>;
 
   auto cls = py::class_<Specification, Holder<Specification>>(mod, "Specification")

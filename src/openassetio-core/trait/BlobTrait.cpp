@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2013-2022 The Foundry Visionmongers Ltd
-#include <openassetio/specification/trait/BlobTrait.hpp>
-// System headers
 #include <algorithm>
 #include <utility>
 
+#include <openassetio/trait/BlobTrait.hpp>
+#include <openassetio/trait/property.hpp>
+
 namespace openassetio {
 inline namespace OPENASSETIO_VERSION {
-namespace specification::trait {
+namespace trait {
 
 namespace {
 const property::Key kUrl = "url";
@@ -28,6 +29,6 @@ void BlobTrait::setMimeType(property::Str mimeType) {
   spec()->setTraitProperty(kId, kMimeType, std::move(mimeType));
 }
 
-}  // namespace specification::trait
+}  // namespace trait
 }  // namespace OPENASSETIO_VERSION
 }  // namespace openassetio

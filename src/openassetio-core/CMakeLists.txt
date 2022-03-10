@@ -45,7 +45,7 @@ target_sources(
     openassetio-core
     PRIVATE
     managerAPI/ManagerInterface.cpp
-    specification/trait/BlobTrait.cpp
+    trait/BlobTrait.cpp
     specification/Specification.cpp
     specification/BlobSpecification.cpp
 )

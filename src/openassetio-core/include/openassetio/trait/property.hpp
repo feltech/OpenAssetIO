@@ -15,7 +15,7 @@
 
 namespace openassetio {
 inline namespace OPENASSETIO_VERSION {
-namespace specification::trait {
+namespace trait {
 
 namespace property {
 
@@ -43,6 +43,6 @@ using Maybe = std::optional<T>;
 
 /// Trait unique ID type.
 using TraitId = property::Key;
-}  // namespace specification::trait
+}  // namespace trait
 }  // namespace OPENASSETIO_VERSION
 }  // namespace openassetio

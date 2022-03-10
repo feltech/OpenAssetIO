@@ -4,14 +4,14 @@
 
 #include <pybind11/stl.h>
 
-#include <openassetio/specification/trait/BlobTrait.hpp>
+#include <openassetio/trait/BlobTrait.hpp>
 
-#include "../../_openassetio.hpp"
+#include "../_openassetio.hpp"
 
 void registerBlobTrait(const py::module& mod) {
   namespace specification = openassetio::specification;
-  using openassetio::specification::trait::BlobTrait;
-  namespace property = openassetio::specification::trait::property;
+  using openassetio::trait::BlobTrait;
+  namespace property = openassetio::trait::property;
 
   using MaybeStr = std::optional<property::Str>;
 

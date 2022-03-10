@@ -29,7 +29,7 @@ target_sources(
     _openassetio.cpp
     managerAPI/ManagerInterface.cpp
     specification/Specification.cpp
-    specification/trait/BlobTrait.cpp
+    trait/BlobTrait.cpp
     specification/BlobSpecification.cpp
 )
 

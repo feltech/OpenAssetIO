@@ -12,7 +12,7 @@
 
 namespace openassetio {
 inline namespace OPENASSETIO_VERSION {
-namespace specification::trait {
+namespace trait {
 
 /**
  * Core trait class representing a locatable blob of data of a specific
@@ -31,6 +31,6 @@ struct OPENASSETIO_CORE_EXPORT BlobTrait : TraitBase<BlobTrait> {
   [[nodiscard]] bool getMimeType(property::Str* out) const;
   void setMimeType(property::Str mimeType);
 };
-}  // namespace specification::trait
+}  // namespace trait
 }  // namespace OPENASSETIO_VERSION
 }  // namespace openassetio

@@ -8,8 +8,7 @@ TODO(DF):
 # pylint: disable=redefined-outer-name,no-self-use
 import pytest
 
-from openassetio import specification
-from openassetio.specification import trait
+from openassetio import specification, trait
 
 
 class Test_Specification_hasTrait:
