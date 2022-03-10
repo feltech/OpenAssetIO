@@ -85,3 +85,8 @@ install(
     FILES ${PROJECT_BINARY_DIR}/include/openassetio/export.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/openassetio/
 )
+
+option(BUILD_PERFTEST "Build the performance test tool" OFF)
+if(BUILD_PERFTEST)
+    add_subdirectory(../../resources/perftest perftest)
+endif()
