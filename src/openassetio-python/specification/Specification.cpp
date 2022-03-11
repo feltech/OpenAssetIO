@@ -15,16 +15,18 @@ void registerSpecification(const py::module& mod) {
   using MaybeValue = std::optional<property::Value>;
 
   py::class_<Specification, Holder<Specification>>(mod, "Specification")
-      .def(py::init<const Specification::TraitIds&>())
-      .def("hasTrait", &Specification::hasTrait)
+      .def(py::init<const Specification::TraitIds&>(), py::arg("traitIds"))
+      .def("hasTrait", &Specification::hasTrait, py::arg("traitId"))
       .def("setTraitProperty", &Specification::setTraitProperty, py::arg("traitId"),
            py::arg("propertyKey"), py::arg("propertyValue").none(false))
-      .def("getTraitProperty",
-           [](const Specification& self, const trait::TraitId& traitId,
-              const property::Key& key) -> MaybeValue {
-             if (property::Value out; self.getTraitProperty(&out, traitId, key)) {
-               return out;
-             }
-             return {};
-           });
+      .def(
+          "getTraitProperty",
+          [](const Specification& self, const trait::TraitId& traitId,
+             const property::Key& key) -> MaybeValue {
+            if (property::Value out; self.getTraitProperty(&out, traitId, key)) {
+              return out;
+            }
+            return {};
+          },
+          py::arg("traitId"), py::arg("key"));
 }

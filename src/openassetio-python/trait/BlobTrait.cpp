@@ -71,7 +71,7 @@ void registerBlobTrait(const py::module& mod) {
   namespace property = openassetio::trait::property;
 
   py::class_<BlobTrait, Holder<BlobTrait>>(mod, "BlobTrait")
-      .def(py::init<Holder<specification::Specification>>())
+      .def(py::init<Holder<specification::Specification>>(), py::arg("spec"))
       .def_static("traitId", &BlobTrait::traitId)
       .def("isValid", &BlobTrait::isValid)
       .def(
@@ -83,7 +83,7 @@ void registerBlobTrait(const py::module& mod) {
                                  std::move(out));
           },
           py::arg("raiseOnError") = false)
-      .def("setUrl", &BlobTrait::setUrl)
+      .def("setUrl", &BlobTrait::setUrl, py::arg("url"))
       .def(
           "getMimeType",
           [](const BlobTrait& self, const bool raiseOnError) {
@@ -93,5 +93,5 @@ void registerBlobTrait(const py::module& mod) {
                                  std::move(out));
           },
           py::arg("raiseOnError") = false)
-      .def("setMimeType", &BlobTrait::setMimeType);
+      .def("setMimeType", &BlobTrait::setMimeType, py::arg("mimeType"));
 }
