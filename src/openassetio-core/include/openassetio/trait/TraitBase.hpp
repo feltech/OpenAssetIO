@@ -27,9 +27,9 @@ struct TraitBase {
   /**
    * Construct this trait, wrapping given specification.
    *
-   * @param spec Underlying specification to wrap.
+   * @param specification Underlying specification to wrap.
    */
-  explicit TraitBase(SpecificationPtr spec) : spec_{std::move(spec)} {}
+  explicit TraitBase(SpecificationPtr specification) : specification_{std::move(specification)} {}
 
   /**
    * Get the ID of this trait.
@@ -45,7 +45,7 @@ struct TraitBase {
    * @return `true` if the underlying specification supports this trait,
    * `false` otherwise.
    **/
-  [[nodiscard]] bool isValid() const { return spec_->hasTrait(traitId()); }
+  [[nodiscard]] bool isValid() const { return specification_->hasTrait(traitId()); }
 
  protected:
   /**
@@ -53,14 +53,14 @@ struct TraitBase {
    *
    * @return Wrapped Specification.
    */
-  SpecificationPtr& spec() { return spec_; }
+  SpecificationPtr& specification() { return specification_; }
 
   /**
    * Get the underlying Specification that this trait is wrapping.
    *
    * @return Wrapped Specification.
    */
-  [[nodiscard]] const SpecificationPtr& spec() const { return spec_; }
+  [[nodiscard]] const SpecificationPtr& specification() const { return specification_; }
 
   /**
    * Convenience typed accessor to properties in the underlying
@@ -74,8 +74,8 @@ struct TraitBase {
    */
   template <class T>
   [[nodiscard]] TraitPropertyStatus getTraitProperty(T* out, const TraitId& traitId,
-                                      const property::Key& propertyKey) const {
-    if (property::Value value; spec()->getTraitProperty(&value, traitId, propertyKey)) {
+                                                     const property::Key& propertyKey) const {
+    if (property::Value value; specification()->getTraitProperty(&value, traitId, propertyKey)) {
       if (T* maybeOut = std::get_if<T>(&value)) {
         *out = *maybeOut;
         return TraitPropertyStatus::kFound;
@@ -86,7 +86,7 @@ struct TraitBase {
   }
 
  private:
-  SpecificationPtr spec_;
+  SpecificationPtr specification_;
 };
 }  // namespace trait
 }  // namespace OPENASSETIO_VERSION

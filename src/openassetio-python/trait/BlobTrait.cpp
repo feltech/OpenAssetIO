@@ -71,7 +71,7 @@ void registerBlobTrait(const py::module& mod) {
   namespace property = openassetio::trait::property;
 
   py::class_<BlobTrait, Holder<BlobTrait>>(mod, "BlobTrait")
-      .def(py::init<Holder<specification::Specification>>(), py::arg("spec"))
+      .def(py::init<Holder<specification::Specification>>(), py::arg("specification"))
       .def_static("traitId", &BlobTrait::traitId)
       .def("isValid", &BlobTrait::isValid)
       .def(

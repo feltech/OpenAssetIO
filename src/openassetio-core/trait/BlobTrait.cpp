@@ -14,14 +14,15 @@ TraitPropertyStatus BlobTrait::getUrl(property::Str* out) const {
   return getTraitProperty(out, kId, kUrl);
 }
 
-void BlobTrait::setUrl(property::Str url) { spec()->setTraitProperty(kId, kUrl, std::move(url)); }
+void BlobTrait::setUrl(property::Str url) {
+  specification()->setTraitProperty(kId, kUrl, std::move(url)); }
 
 TraitPropertyStatus BlobTrait::getMimeType(property::Str* out) const {
   return getTraitProperty(out, kId, kMimeType);
 }
 
 void BlobTrait::setMimeType(property::Str mimeType) {
-  spec()->setTraitProperty(kId, kMimeType, std::move(mimeType));
+  specification()->setTraitProperty(kId, kMimeType, std::move(mimeType));
 }
 
 }  // namespace trait
