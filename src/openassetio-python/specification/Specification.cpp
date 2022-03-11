@@ -14,16 +14,16 @@ void registerSpecification(const py::module& mod) {
   namespace property = openassetio::trait::property;
   using MaybeValue = std::optional<property::Value>;
 
-  auto cls = py::class_<Specification, Holder<Specification>>(mod, "Specification")
-                 .def(py::init<const Specification::TraitIds&>())
-                 .def("hasTrait", &Specification::hasTrait)
-                 .def("setTraitProperty", &Specification::setTraitProperty)
-                 .def("getTraitProperty",
-                      [](const Specification& self, const trait::TraitId& traitId,
-                         const property::Key& key) -> MaybeValue {
-                        if (property::Value out; self.getTraitProperty(&out, traitId, key)) {
-                          return out;
-                        }
-                        return {};
-                      });
+  py::class_<Specification, Holder<Specification>>(mod, "Specification")
+      .def(py::init<const Specification::TraitIds&>())
+      .def("hasTrait", &Specification::hasTrait)
+      .def("setTraitProperty", &Specification::setTraitProperty)
+      .def("getTraitProperty",
+           [](const Specification& self, const trait::TraitId& traitId,
+              const property::Key& key) -> MaybeValue {
+             if (property::Value out; self.getTraitProperty(&out, traitId, key)) {
+               return out;
+             }
+             return {};
+           });
 }
