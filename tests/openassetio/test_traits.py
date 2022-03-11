@@ -72,18 +72,37 @@ class Test_BlobTrait_isValid:
 
 class Test_BlobTrait_getURL:
     def test_when_spec_doesnt_have_blob_trait_then_raises_IndexError(self, a_specification):
+
         with pytest.raises(IndexError):
             trait.BlobTrait(a_specification).getUrl()
 
-    def test_when_url_in_spec_has_wrong_value_type_then_raises_RuntimeError(self):
-        spec = specification.Specification([trait.BlobTrait.traitId()])
-        spec.setTraitProperty(trait.BlobTrait.traitId(), "url", 123)
-
-        with pytest.raises(RuntimeError):
-            trait.BlobTrait(spec).getUrl()
-
     def test_when_spec_has_no_url_then_returns_None(self, a_blob_specification):
         assert trait.BlobTrait(a_blob_specification).getUrl() is None
+
+    def test_when_url_in_spec_has_wrong_value_type_then_returns_None(self, a_blob_specification):
+        a_blob_specification.setTraitProperty(trait.BlobTrait.traitId(), "url", 123)
+
+        assert trait.BlobTrait(a_blob_specification).getUrl() is None
+
+    def test_when_raiseOnError_and_spec_has_no_url_then_raises_AttributeError(
+            self, a_blob_specification):
+
+        with pytest.raises(AttributeError) as err:
+            trait.BlobTrait(a_blob_specification).getUrl(raiseOnError=True)
+
+        assert (str(err.value) ==
+                "Specification does not have 'url' property of 'blob' trait")
+
+    def test_when_raiseOnError_and_url_in_spec_has_wrong_value_type_then_raises_TypeError(
+            self, a_blob_specification):
+
+        a_blob_specification.setTraitProperty(trait.BlobTrait.traitId(), "url", 123)
+
+        with pytest.raises(TypeError) as err:
+            trait.BlobTrait(a_blob_specification).getUrl(raiseOnError=True)
+
+        assert (str(err.value) ==
+                "Specification holds unexpected value type for 'url' property of 'blob' trait")
 
     def test_when_spec_has_url_then_returns_url(self, a_blob_specification):
         expected = "some://url"
@@ -116,8 +135,33 @@ class Test_BlobTrait_getMimeType:
         with pytest.raises(IndexError):
             trait.BlobTrait(a_specification).getMimeType()
 
-    def test_when_data_has_no_mimeType_then_returns_None(self, a_blob_specification):
+    def test_when_spec_has_no_mimeType_then_returns_None(self, a_blob_specification):
         assert trait.BlobTrait(a_blob_specification).getMimeType() is None
+
+    def test_when_mimeType_in_spec_has_wrong_value_type_then_returns_None(
+            self, a_blob_specification):
+        a_blob_specification.setTraitProperty(trait.BlobTrait.traitId(), "mimeType", 123)
+
+        assert trait.BlobTrait(a_blob_specification).getMimeType() is None
+
+    def test_when_raiseOnError_and_spec_has_no_mimeType_then_raises_AttributeError(
+            self, a_blob_specification):
+
+        with pytest.raises(AttributeError) as err:
+            trait.BlobTrait(a_blob_specification).getMimeType(raiseOnError=True)
+
+        assert (str(err.value) ==
+                "Specification does not have 'mimeType' property of 'blob' trait")
+
+    def test_when_raiseOnError_and_mimeType_in_spec_has_wrong_value_type_then_raises_TypeError(
+            self, a_blob_specification):
+        a_blob_specification.setTraitProperty(trait.BlobTrait.traitId(), "mimeType", 123)
+
+        with pytest.raises(TypeError) as err:
+            trait.BlobTrait(a_blob_specification).getMimeType(raiseOnError=True)
+
+        assert (str(err.value) ==
+                "Specification holds unexpected value type for 'mimeType' property of 'blob' trait")
 
     def test_when_data_has_mimeType_then_returns_mimeType(self, a_blob_specification):
         expected = "some://url"

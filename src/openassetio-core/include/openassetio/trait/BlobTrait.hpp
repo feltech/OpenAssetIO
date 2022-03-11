@@ -24,6 +24,10 @@ namespace trait {
 struct OPENASSETIO_CORE_EXPORT BlobTrait : TraitBase<BlobTrait> {
   /// ID of this trait.
   static inline const TraitId kId{"blob"};
+  /// Key for URL property.
+  static inline const property::Key kUrl{"url"};
+  /// Key for mime type property.
+  static inline const property::Key kMimeType{"mimeType"};
 
   /// Hoist base class constructor.
   using TraitBase<BlobTrait>::TraitBase;
@@ -35,10 +39,8 @@ struct OPENASSETIO_CORE_EXPORT BlobTrait : TraitBase<BlobTrait> {
    * @return `true` if property is set, `false` otherwise.
    * @exception `std::out_of_range` if this trait is not supported by
    * the wrapped specification.
-   * @exception `std::bad_variant_access` if the property is set but
-   * is not the expected type.
    */
-  [[nodiscard]] bool getUrl(property::Str* out) const;
+  [[nodiscard]] TraitPropertyStatus getUrl(property::Str* out) const;
 
   /**
    * Set the URL property for this trait in the wrapped specification.
@@ -57,10 +59,8 @@ struct OPENASSETIO_CORE_EXPORT BlobTrait : TraitBase<BlobTrait> {
    * @return `true` if property is set, `false` otherwise.
    * @exception `std::out_of_range` if this trait is not supported by
    * the wrapped specification.
-   * @exception `std::bad_variant_access` if the property is set but
-   * is not the expected type.
    */
-  [[nodiscard]] bool getMimeType(property::Str* out) const;
+  [[nodiscard]] TraitPropertyStatus getMimeType(property::Str* out) const;
 
   /**
    * Set the mime type property for this trait in the wrapped

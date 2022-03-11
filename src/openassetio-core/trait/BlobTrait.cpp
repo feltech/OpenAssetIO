@@ -10,18 +10,13 @@ namespace openassetio {
 inline namespace OPENASSETIO_VERSION {
 namespace trait {
 
-namespace {
-const property::Key kUrl = "url";
-const property::Key kMimeType = "mimeType";
-}  // namespace
-
-bool BlobTrait::getUrl(property::Str* out) const {
+TraitPropertyStatus BlobTrait::getUrl(property::Str* out) const {
   return getTraitProperty(out, kId, kUrl);
 }
 
 void BlobTrait::setUrl(property::Str url) { spec()->setTraitProperty(kId, kUrl, std::move(url)); }
 
-bool BlobTrait::getMimeType(property::Str* out) const {
+TraitPropertyStatus BlobTrait::getMimeType(property::Str* out) const {
   return getTraitProperty(out, kId, kMimeType);
 }
 

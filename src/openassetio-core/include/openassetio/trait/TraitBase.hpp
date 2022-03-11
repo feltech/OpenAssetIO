@@ -70,19 +70,19 @@ struct TraitBase {
    * @param[out] out Storage for value, if property is set.
    * @param traitId ID of trait to query.
    * @param propertyKey Key of property to query.
-   * @return `true` if property is set, `false` otherwise.
-   * @exception `std::bad_variant_access` if `T` does not match the type
-   * stored in the property.
+   * @return Status of property in the specification.
    */
   template <class T>
-  [[nodiscard]] bool getTraitProperty(T* out, const TraitId& traitId,
+  [[nodiscard]] TraitPropertyStatus getTraitProperty(T* out, const TraitId& traitId,
                                       const property::Key& propertyKey) const {
     if (property::Value value; spec()->getTraitProperty(&value, traitId, propertyKey)) {
-      // TODO(DF): Make exception message more friendly.
-      *out = std::get<T>(value);
-      return true;
+      if (T* maybeOut = std::get_if<T>(&value)) {
+        *out = *maybeOut;
+        return TraitPropertyStatus::kFound;
+      }
+      return TraitPropertyStatus::kInvalidValue;
     }
-    return false;
+    return TraitPropertyStatus::kMissing;
   }
 
  private:

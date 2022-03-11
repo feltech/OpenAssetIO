@@ -34,6 +34,9 @@ using Value = std::variant<Bool, Int, Float, Str>;
 
 /// Trait unique ID type.
 using TraitId = property::Key;
+
+/// Status of a trait property within a specification.
+enum class TraitPropertyStatus { kFound, kMissing, kInvalidValue };
 }  // namespace trait
 }  // namespace OPENASSETIO_VERSION
 }  // namespace openassetio
