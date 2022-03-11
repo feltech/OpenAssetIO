@@ -53,6 +53,9 @@ class Test_Specification_getsetTraitProperty:
         with pytest.raises(TypeError):
             a_specification.setTraitProperty("first_trait", "unknown type", object())
 
+        with pytest.raises(TypeError):
+            a_specification.setTraitProperty("first_trait", "unknown type", None)
+
 
 def test_BlobTrait_traitId():
     assert trait.BlobTrait.traitId() == "blob"

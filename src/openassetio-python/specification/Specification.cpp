@@ -17,7 +17,8 @@ void registerSpecification(const py::module& mod) {
   py::class_<Specification, Holder<Specification>>(mod, "Specification")
       .def(py::init<const Specification::TraitIds&>())
       .def("hasTrait", &Specification::hasTrait)
-      .def("setTraitProperty", &Specification::setTraitProperty)
+      .def("setTraitProperty", &Specification::setTraitProperty, py::arg("traitId"),
+           py::arg("propertyKey"), py::arg("propertyValue").none(false))
       .def("getTraitProperty",
            [](const Specification& self, const trait::TraitId& traitId,
               const property::Key& key) -> MaybeValue {
