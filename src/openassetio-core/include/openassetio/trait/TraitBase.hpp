@@ -36,7 +36,7 @@ struct TraitBase {
    *
    * @return ID of this trait.
    */
-  [[nodiscard]] static const TraitId& traitId() { return Derived::kId; }
+  [[nodiscard]] static const TraitId& id() { return Derived::kId; }
 
   /**
    * Check whether the specification this trait has been applied to
@@ -45,7 +45,7 @@ struct TraitBase {
    * @return `true` if the underlying specification supports this trait,
    * `false` otherwise.
    **/
-  [[nodiscard]] bool isValid() const { return specification_->hasTrait(traitId()); }
+  [[nodiscard]] bool isValid() const { return specification_->hasTrait(id()); }
 
  protected:
   /**

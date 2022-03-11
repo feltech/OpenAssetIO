@@ -72,7 +72,7 @@ void registerBlobTrait(const py::module& mod) {
 
   py::class_<BlobTrait, Holder<BlobTrait>>(mod, "BlobTrait")
       .def(py::init<Holder<specification::Specification>>(), py::arg("specification"))
-      .def_static("traitId", &BlobTrait::traitId)
+      .def_static("id", &BlobTrait::id)
       .def("isValid", &BlobTrait::isValid)
       .def(
           "getUrl",

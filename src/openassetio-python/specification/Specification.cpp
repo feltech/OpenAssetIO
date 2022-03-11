@@ -16,8 +16,8 @@ void registerSpecification(const py::module& mod) {
 
   py::class_<Specification, Holder<Specification>>(mod, "Specification")
       .def(py::init<const Specification::TraitIds&>(), py::arg("traitIds"))
-      .def("hasTrait", &Specification::hasTrait, py::arg("traitId"))
-      .def("setTraitProperty", &Specification::setTraitProperty, py::arg("traitId"),
+      .def("hasTrait", &Specification::hasTrait, py::arg("id"))
+      .def("setTraitProperty", &Specification::setTraitProperty, py::arg("id"),
            py::arg("propertyKey"), py::arg("propertyValue").none(false))
       .def(
           "getTraitProperty",
@@ -28,5 +28,5 @@ void registerSpecification(const py::module& mod) {
             }
             return {};
           },
-          py::arg("traitId"), py::arg("key"));
+          py::arg("id"), py::arg("key"));
 }
