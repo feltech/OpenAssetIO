@@ -5,9 +5,7 @@
  */
 #pragma once
 
-#include <optional>
 #include <string>
-#include <unordered_map>
 #include <variant>
 
 // API export header.
@@ -32,13 +30,6 @@ using Str = std::string;
 using Key = std::string;
 /// Property dictionary values.
 using Value = std::variant<Bool, Int, Float, Str>;
-
-/**
- * Type used to allow "unset" as a valid return value from specification
- * dictionary queries.
- */
-template <class T>
-using Maybe = std::optional<T>;
 }  // namespace property
 
 /// Trait unique ID type.

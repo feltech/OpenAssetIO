@@ -8,6 +8,7 @@
 #include <openassetio/export.h>
 
 #include "TraitBase.hpp"
+
 #include "property.hpp"
 
 namespace openassetio {
@@ -21,14 +22,54 @@ namespace trait {
  * Has the ID of "blob" and defines "url" and "mimeType" properties.
  */
 struct OPENASSETIO_CORE_EXPORT BlobTrait : TraitBase<BlobTrait> {
+  /// ID of this trait.
   static inline const TraitId kId{"blob"};
 
+  /// Hoist base class constructor.
   using TraitBase<BlobTrait>::TraitBase;
 
+  /**
+   * Get the URL property for this trait from the wrapped specification.
+   *
+   * @param[out] out Storage for value, if property is set.
+   * @return `true` if property is set, `false` otherwise.
+   * @exception `std::out_of_range` if this trait is not supported by
+   * the wrapped specification.
+   * @exception `std::bad_variant_access` if the property is set but
+   * is not the expected type.
+   */
   [[nodiscard]] bool getUrl(property::Str* out) const;
+
+  /**
+   * Set the URL property for this trait in the wrapped specification.
+   *
+   * @param url URL value to set.
+   * @exception `std::out_of_range` if this trait is not supported by
+   * the wrapped specification.
+   */
   void setUrl(property::Str url);
 
+  /**
+   * Get the mime type property for this trait from the wrapped
+   * specification.
+   *
+   * @param[out] out Storage for value, if property is set.
+   * @return `true` if property is set, `false` otherwise.
+   * @exception `std::out_of_range` if this trait is not supported by
+   * the wrapped specification.
+   * @exception `std::bad_variant_access` if the property is set but
+   * is not the expected type.
+   */
   [[nodiscard]] bool getMimeType(property::Str* out) const;
+
+  /**
+   * Set the mime type property for this trait in the wrapped
+   * specification.
+   *
+   * @param mimeType Mime type value to set.
+   * @exception `std::out_of_range` if this trait is not supported by
+   * the wrapped specification.
+   */
   void setMimeType(property::Str mimeType);
 };
 }  // namespace trait

@@ -14,8 +14,13 @@ namespace specification {
 
 /**
  * Core specification for a locatable blob of data.
+ *
+ * Composes the "blob" trait.
  */
 struct OPENASSETIO_CORE_EXPORT BlobSpecification : Specification {
+  /**
+   * Construct as a Specification supporting the "blob" trait.
+   */
   BlobSpecification();
 };
 }  // namespace specification

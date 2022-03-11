@@ -11,6 +11,7 @@ namespace specification {
 class Specification::Impl {
  public:
   explicit Impl(const TraitIds& traitIds) {
+    // Initialise data dict with supported traits.
     for (const auto& traitId : traitIds) {
       data_[traitId];
     }
@@ -36,6 +37,7 @@ class Specification::Impl {
 
   void setTraitProperty(const trait::TraitId& traitId, const trait::property::Key& propertyKey,
                         trait::property::Value propertyValue) {
+    // Use `at` deliberately to trigger exception if trait doesn't exist
     data_.at(traitId)[propertyKey] = std::move(propertyValue);
   }
 
