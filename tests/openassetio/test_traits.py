@@ -58,7 +58,7 @@ class Test_Specification_getsetTraitProperty:
 
 
 def test_BlobTrait_traitId():
-    assert trait.BlobTrait.id() == "blob"
+    assert trait.BlobTrait.kId == "blob"
 
 
 class Test_BlobTrait_isValid:
@@ -67,7 +67,7 @@ class Test_BlobTrait_isValid:
 
     def test_when_wrapping_blob_supporting_spec_then_returns_true(self):
         assert trait.BlobTrait(
-            specification.Specification([trait.BlobTrait.id(), "other"])).isValid()
+            specification.Specification([trait.BlobTrait.kId, "other"])).isValid()
 
     def test_when_wrapping_non_blob_spec_then_returns_false(self, a_specification):
         assert not trait.BlobTrait(a_specification).isValid()
@@ -83,7 +83,7 @@ class Test_BlobTrait_getURL:
         assert trait.BlobTrait(a_blob_specification).getUrl() is None
 
     def test_when_url_in_spec_has_wrong_value_type_then_returns_None(self, a_blob_specification):
-        a_blob_specification.setTraitProperty(trait.BlobTrait.id(), "url", 123)
+        a_blob_specification.setTraitProperty(trait.BlobTrait.kId, "url", 123)
 
         assert trait.BlobTrait(a_blob_specification).getUrl() is None
 
@@ -99,7 +99,7 @@ class Test_BlobTrait_getURL:
     def test_when_raiseOnError_and_url_in_spec_has_wrong_value_type_then_raises_TypeError(
             self, a_blob_specification):
 
-        a_blob_specification.setTraitProperty(trait.BlobTrait.id(), "url", 123)
+        a_blob_specification.setTraitProperty(trait.BlobTrait.kId, "url", 123)
 
         with pytest.raises(TypeError) as err:
             trait.BlobTrait(a_blob_specification).getUrl(raiseOnError=True)
@@ -109,7 +109,7 @@ class Test_BlobTrait_getURL:
 
     def test_when_spec_has_url_then_returns_url(self, a_blob_specification):
         expected = "some://url"
-        a_blob_specification.setTraitProperty(trait.BlobTrait.id(), "url", expected)
+        a_blob_specification.setTraitProperty(trait.BlobTrait.kId, "url", expected)
 
         actual = trait.BlobTrait(a_blob_specification).getUrl()
 
@@ -130,7 +130,7 @@ class Test_BlobTrait_setURL:
 
         trait.BlobTrait(a_blob_specification).setUrl(expected)
 
-        assert a_blob_specification.getTraitProperty(trait.BlobTrait.id(), "url") == expected
+        assert a_blob_specification.getTraitProperty(trait.BlobTrait.kId, "url") == expected
 
 
 class Test_BlobTrait_getMimeType:
@@ -143,7 +143,7 @@ class Test_BlobTrait_getMimeType:
 
     def test_when_mimeType_in_spec_has_wrong_value_type_then_returns_None(
             self, a_blob_specification):
-        a_blob_specification.setTraitProperty(trait.BlobTrait.id(), "mimeType", 123)
+        a_blob_specification.setTraitProperty(trait.BlobTrait.kId, "mimeType", 123)
 
         assert trait.BlobTrait(a_blob_specification).getMimeType() is None
 
@@ -158,7 +158,7 @@ class Test_BlobTrait_getMimeType:
 
     def test_when_raiseOnError_and_mimeType_in_spec_has_wrong_value_type_then_raises_TypeError(
             self, a_blob_specification):
-        a_blob_specification.setTraitProperty(trait.BlobTrait.id(), "mimeType", 123)
+        a_blob_specification.setTraitProperty(trait.BlobTrait.kId, "mimeType", 123)
 
         with pytest.raises(TypeError) as err:
             trait.BlobTrait(a_blob_specification).getMimeType(raiseOnError=True)
@@ -168,7 +168,7 @@ class Test_BlobTrait_getMimeType:
 
     def test_when_data_has_mimeType_then_returns_mimeType(self, a_blob_specification):
         expected = "some://url"
-        a_blob_specification.setTraitProperty(trait.BlobTrait.id(), "mimeType", expected)
+        a_blob_specification.setTraitProperty(trait.BlobTrait.kId, "mimeType", expected)
 
         actual = trait.BlobTrait(a_blob_specification).getMimeType()
 
@@ -187,7 +187,7 @@ class Test_BlobTrait_setMimeType:
         trait.BlobTrait(a_blob_specification).setMimeType(expected)
 
         assert a_blob_specification.getTraitProperty(
-            trait.BlobTrait.id(), "mimeType") == expected
+            trait.BlobTrait.kId, "mimeType") == expected
 
     def test_when_mimeType_is_wrong_type_then_TypeError_is_raised(self, a_blob_specification):
         with pytest.raises(TypeError):

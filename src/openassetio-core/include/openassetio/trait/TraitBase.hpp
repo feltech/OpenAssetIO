@@ -32,20 +32,13 @@ struct TraitBase {
   explicit TraitBase(SpecificationPtr specification) : specification_{std::move(specification)} {}
 
   /**
-   * Get the ID of this trait.
-   *
-   * @return ID of this trait.
-   */
-  [[nodiscard]] static const TraitId& id() { return Derived::kId; }
-
-  /**
    * Check whether the specification this trait has been applied to
    * actually supports this trait.
    *
    * @return `true` if the underlying specification supports this trait,
    * `false` otherwise.
    **/
-  [[nodiscard]] bool isValid() const { return specification_->hasTrait(id()); }
+  [[nodiscard]] bool isValid() const { return specification_->hasTrait(Derived::kId); }
 
  protected:
   /**
