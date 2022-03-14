@@ -1,14 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2013-2022 The Foundry Visionmongers Ltd
 #include <optional>
+#include <type_traits>
 
 #include <pybind11/stl.h>
 
+#include <openassetio/export.h>
 #include <openassetio/trait/BlobTrait.hpp>
 
 #include "../_openassetio.hpp"
 
-namespace openassetio::trait {
+namespace openassetio {
+inline namespace OPENASSETIO_VERSION {
+namespace trait {
 /**
  * Utility function to convert a trait accessor result with error status
  * to a std::optional or an exception.
@@ -61,7 +65,9 @@ std::optional<std::decay_t<Ret>> maybeProperty(const TraitId& traitId,
   // Will (should!) never happen.
   throw std::runtime_error{"Unknown trait property state"};
 }
-}  // namespace openassetio::trait
+}  // namespace trait
+}  // namespace OPENASSETIO_VERSION
+}  // namespace openassetio
 
 void registerBlobTrait(const py::module& mod) {
   using openassetio::trait::BlobTrait;
