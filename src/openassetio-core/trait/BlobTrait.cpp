@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2013-2022 The Foundry Visionmongers Ltd
-#include <algorithm>
 #include <utility>
 
 #include <openassetio/trait/BlobTrait.hpp>
 #include <openassetio/trait/property.hpp>
+
+#include "keys.hpp"
 
 namespace openassetio {
 inline namespace OPENASSETIO_VERSION {

@@ -24,10 +24,6 @@ namespace trait {
 struct OPENASSETIO_CORE_EXPORT BlobTrait : TraitBase<BlobTrait> {
   /// ID of this trait.
   static inline const TraitId kId{"blob"};
-  /// Key for URL property.
-  static inline const property::Key kUrl{"url"};
-  /// Key for mime type property.
-  static inline const property::Key kMimeType{"mimeType"};
 
   /// Hoist base class constructor.
   using TraitBase<BlobTrait>::TraitBase;

@@ -5,9 +5,11 @@
 
 #include <pybind11/stl.h>
 
+// Public.
 #include <openassetio/export.h>
 #include <openassetio/trait/BlobTrait.hpp>
-
+// Private.
+#include <trait/keys.hpp>
 #include "../_openassetio.hpp"
 
 namespace openassetio {
@@ -85,7 +87,7 @@ void registerBlobTrait(const py::module& mod) {
           [](const BlobTrait& self, const bool raiseOnError) {
             property::Str out;
             trait::TraitPropertyStatus status = self.getUrl(&out);
-            return maybeProperty(BlobTrait::kId, BlobTrait::kUrl, raiseOnError, status,
+            return maybeProperty(BlobTrait::kId, trait::kUrl, raiseOnError, status,
                                  std::move(out));
           },
           py::arg("raiseOnError") = false)
@@ -95,7 +97,7 @@ void registerBlobTrait(const py::module& mod) {
           [](const BlobTrait& self, const bool raiseOnError) {
             property::Str out;
             trait::TraitPropertyStatus status = self.getMimeType(&out);
-            return maybeProperty(BlobTrait::kId, BlobTrait::kMimeType, raiseOnError, status,
+            return maybeProperty(BlobTrait::kId, trait::kMimeType, raiseOnError, status,
                                  std::move(out));
           },
           py::arg("raiseOnError") = false)
