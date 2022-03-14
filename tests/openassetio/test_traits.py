@@ -19,11 +19,6 @@ class Test_Specification_hasTrait:
         assert not a_specification.hasTrait("unknown_trait")
 
 
-class Test_BlobSpecification_hasTrait:
-    def test_has_blob_trait(self, a_blob_specification):
-        assert a_blob_specification.hasTrait("blob")
-
-
 class Test_Specification_getsetTraitProperty:
     def test_valid_values(self, a_specification):
         a_specification.setTraitProperty("first_trait", "a string", "string")
@@ -201,4 +196,4 @@ def a_specification():
 
 @pytest.fixture
 def a_blob_specification():
-    return specification.BlobSpecification()
+    return specification.Specification([trait.BlobTrait.kId])

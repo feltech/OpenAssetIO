@@ -30,7 +30,6 @@ target_sources(
     managerAPI/ManagerInterface.cpp
     specification/Specification.cpp
     trait/BlobTrait.cpp
-    specification/BlobSpecification.cpp
 )
 
 # Give access to private headers.

@@ -45,9 +45,8 @@ target_sources(
     openassetio-core
     PRIVATE
     managerAPI/ManagerInterface.cpp
-    trait/BlobTrait.cpp
     specification/Specification.cpp
-    specification/BlobSpecification.cpp
+    trait/BlobTrait.cpp
 )
 
 # Public header dependency.

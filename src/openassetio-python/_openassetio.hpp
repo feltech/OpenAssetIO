@@ -30,5 +30,3 @@ void registerSpecification(const py::module& mod);
 
 /// Register the BlobTrait class with Python.
 void registerBlobTrait(const py::module& mod);
-/// Register the BlobSpecification class with Python.
-void registerBlobSpecification(const py::module& mod);

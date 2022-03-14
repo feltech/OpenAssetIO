@@ -17,5 +17,4 @@ PYBIND11_MODULE(_openassetio, mod) {
   py::module trait = mod.def_submodule("trait");
 
   registerBlobTrait(trait);
-  registerBlobSpecification(specification);
 }
