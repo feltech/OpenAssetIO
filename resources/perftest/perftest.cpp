@@ -123,6 +123,10 @@ auto benchmarkNewManager(const std::unordered_map<std::string, std::string>& ref
 ///////////////////////////////////////////////////////////
 int main()
 {
+  std::cout << "CAUTION: on Windows do not run this in a Visual Studio command prompt "
+    << "('x64 Native Tools Command Prompt for VS') or the measurements may fluctuate, "
+    << "use a basic CMD shell" << std::endl;
+
   std::cout << "       Iterations: " << nIterations << std::endl;
   std::cout << "AMS database size: " << dbSize << std::endl;
 
