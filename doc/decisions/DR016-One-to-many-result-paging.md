@@ -37,6 +37,13 @@ and invariably provide some mechanism of returning slices of result sets
 or "pages" that can be iterated through, lazily fetching chunks of data
 in a controlled way.
 
+In an ideal situation, requesting subsequent pages has performance
+benefits over repeating the same query twice (or more) with different
+range arguments, and yet work is performed lazily as pages are requested
+so that no unnecessary processing of unused pages is performed.  Also,
+pages should be stable, in that results are not skipped nor appear more
+than once on successive pages.
+
 The mechanism of paging tends to take three broad forms
 
 - (Integer) offsetting
