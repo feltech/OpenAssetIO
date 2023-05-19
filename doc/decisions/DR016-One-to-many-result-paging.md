@@ -544,6 +544,9 @@ A cursor object maximises future extensibility, where new functionality
 can be added without further polluting the `Manager`/`ManagerInterface`
 class.
 
+Whilst we may miss out on some theoretical performance, we have been 
+unable to find any real-world examples showing this sort of batched-page
+optimization.
 Cursor objects also reflect the most common programmatic approach to
 paging through the results of a database query, and so it is likely that
 adapting a database cursor object to an OpenAssetIO cursor object will
