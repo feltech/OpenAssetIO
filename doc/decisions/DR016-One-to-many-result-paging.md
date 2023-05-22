@@ -44,6 +44,13 @@ so that no unnecessary processing of unused pages is performed.  Also,
 pages should be stable, in that results are not skipped nor appear more
 than once on successive pages.
 
+Ultimately, the implementation must be provided by the manager plugin
+authors. The mechanism chosen in this DR can only present an abstract
+interface that the plugin must satisfy. As a result, characteristics
+such as page stability and performance cannot be guaranteed, but we can
+at least ensure that the chosen mechanism does not preclude such
+optimisations.
+
 The mechanism of paging tends to take three broad forms
 
 - (Integer) offsetting
@@ -551,7 +558,7 @@ A cursor object maximises future extensibility, where new functionality
 can be added without further polluting the `Manager`/`ManagerInterface`
 class.
 
-Whilst we may miss out on some theoretical performance, we have been 
+Whilst we may miss out on some theoretical performance, we have been
 unable to find any real-world examples showing this sort of batched-page
 optimization.
 Cursor objects also reflect the most common programmatic approach to
