@@ -441,13 +441,15 @@ interface for plugin authors, and mapping well to common back-end SDKs.
 
 ## Appendix: Considering manager implementations
 
+The following subsections sketch some possible implementations of
+manager-side queries for the remaining options under consideration. They
+are not to be considered canonical.
+
 ### Using Python's DB-API standard
 
 Python's [PEP 239 DB-API](https://peps.python.org/pep-0249/#fetchmany)
 standard provides a canonical example of an API for interacting with a
-back-end SQL-like database. The following subsections sketch some
-possible implementations of manager-side queries for the remaining
-options under consideration.
+back-end SQL-like database.
 
 #### Page token signature
 
@@ -569,3 +571,98 @@ def relatedEntities(
     return Cursor(cursor)
 ```
 
+### Using a REST API
+
+The following sketches investigate an alternative back-end
+implementation, namely that of a hypothetical REST API.
+
+The proposed relationship query REST endpoint interpolates the entity ID
+and relationship type in the path, and optionally supports a limit and
+page token query parameter(s).
+
+In response to a relationship query the API returns a JSON object with a
+`"data"` field, containing the list of related entity references, as
+well as some other metadata fields, including a `"next_page_token"`
+string, to be used in a subsequent REST API request to fetch the next
+page.
+
+#### Page token signature
+
+A REST API lends itself nicely to a page token based solution, with the
+page token object being a simple wrapper around the string token
+returned by the API.
+
+```python
+class PageToken(AbstractPageToken):
+    def __init__(self, token):
+        self.token = token
+
+
+def relatedEntities(
+    input: EntityReference, relationship, limit=-1, pageToken=None
+) -> Tuple[AbstractPageToken, List[EntityReference]]:
+
+    my_relationship_type: str = get_my_relationship_type(relationship)
+    my_entity_id: str = get_my_entity_id(input)
+
+    endpoint = f"https://api.example.com/entity/{my_entity_id}/related/{my_relationship_type}?"
+
+    if limit > 0:
+        endpoint = endpoint + f"limit={limit}&"
+    if pageToken is not None:
+        endpoint = endpoint + f"page_token={pageToken.token}"
+
+    response = requests.get(endpoint).json()
+
+    related_refs = [EntityReference(elem) for elem in response["data"]]
+    next_page_token = PageToken(response["next_page_token"])
+    return next_page_token, related_refs
+```
+
+#### Cursor object signature
+
+Adapting a REST API to wrap in a cursor object is fairly trivial.
+
+Note, however, that the additional `skip` functionality is implemented
+in a brute-force way - retrieving results and throwing them away. It's
+possible a REST API would have a native "skip" endpoint, but rare.
+
+```python
+class Cursor(AbstractCursor):
+    def __init__(self, entity_id: str, relationship_type: str):
+        self.__entity_id = entity_id
+        self.__relationship_type = relationship_type
+        self.__token = None
+
+    def getPage(self, pageSize) -> List[EntityReference]:
+        endpoint = f"https://api.example.com/entity/{self.__entity_id}/related/{self.__relationship_type}?"
+        if pageSize > 0:
+            endpoint = endpoint + f"limit={pageSize}&"
+        if self.__token is not None:
+            endpoint = endpoint + f"page_token={self.__token}"
+
+        response = requests.get(endpoint).json()
+
+        self.__token = response["next_page_token"]
+
+        return [EntityReference(elem) for elem in response["data"]]
+
+    def skip(self, pageSize):
+        endpoint = f"https://api.example.com/entity/{self.__entity_id}/related/{self.__relationship_type}?"
+        endpoint = endpoint + f"limit={pageSize}&"
+        if self.__token is not None:
+            endpoint = endpoint + f"page_token={self.__token}"
+
+        response = requests.get(endpoint).json()
+
+        self.__token = response["next_page_token"]
+
+
+def relatedEntities(
+        input: EntityReference, relationship) -> AbstractCursor:
+
+    entity_id: str = get_my_entity_id(input)
+    relationship_type: str = get_my_relationship_type(relationship)
+
+    return Cursor(entity_id, relationship_type)
+```
