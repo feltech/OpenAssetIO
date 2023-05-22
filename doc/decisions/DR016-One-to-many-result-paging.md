@@ -198,6 +198,9 @@ class AbstractCursor:
   object), could increase optimisation complexity for the manager
   implementation, e.g. managing query cache sharing, lifetime and
   updates across multiple "live" cursors.
+- The temptation to directly wrap a "real" DB cursor object in our
+  (potentially long-lived) paging cursor object could lead to connection
+  pool starvation.
 
 ### Outcome
 
@@ -561,7 +564,7 @@ class.
 Whilst we may miss out on some theoretical performance, we have been
 unable to find any real-world examples showing this sort of batched-page
 optimization.
+
 Cursor objects also reflect the most common programmatic approach to
-paging through the results of a database query, and so it is likely that
-adapting a database cursor object to an OpenAssetIO cursor object will
-be straightforward.
+paging through the results of a database query, presenting a familiar
+interface for plugin authors, and mapping well to common back-end SDKs.
