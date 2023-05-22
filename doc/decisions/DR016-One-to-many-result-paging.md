@@ -427,13 +427,14 @@ We opt for a non-batched cursor object design.
 Avoiding conflating batching and pagination simplifies manager plugin
 implementations.
 
-A cursor object maximises future extensibility, where new functionality
-can be added without further polluting the `Manager`/`ManagerInterface`
-class.
-
 Whilst we may miss out on some theoretical performance, we have been
 unable to find any real-world examples showing this sort of batched-page
 optimization.
+
+A cursor object maximises future extensibility, where new functionality
+can be added without further polluting the `Manager`/`ManagerInterface`
+class. They also naturally capture arbitrary state that the manager
+may wish to store as part of the ongoing query.
 
 Cursor objects also reflect the most common programmatic approach to
 paging through the results of a database query, presenting a familiar
