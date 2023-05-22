@@ -420,7 +420,26 @@ This then leaves only a batch-only signature, plus a decision between
 two remaining paging solutions: (non-batched) page token or cursor
 objects.
 
-## Considering manager implementations
+## Outcome
+
+We opt for a non-batched cursor object design.
+
+Avoiding conflating batching and pagination simplifies manager plugin
+implementations.
+
+A cursor object maximises future extensibility, where new functionality
+can be added without further polluting the `Manager`/`ManagerInterface`
+class.
+
+Whilst we may miss out on some theoretical performance, we have been
+unable to find any real-world examples showing this sort of batched-page
+optimization.
+
+Cursor objects also reflect the most common programmatic approach to
+paging through the results of a database query, presenting a familiar
+interface for plugin authors, and mapping well to common back-end SDKs.
+
+## Appendix: Considering manager implementations
 
 ### Using Python's DB-API standard
 
@@ -550,21 +569,3 @@ def relatedEntities(
     return Cursor(cursor)
 ```
 
-## Outcome
-
-We opt for a non-batched cursor object design.
-
-Avoiding conflating batching and pagination simplifies manager plugin
-implementations.
-
-A cursor object maximises future extensibility, where new functionality
-can be added without further polluting the `Manager`/`ManagerInterface`
-class.
-
-Whilst we may miss out on some theoretical performance, we have been
-unable to find any real-world examples showing this sort of batched-page
-optimization.
-
-Cursor objects also reflect the most common programmatic approach to
-paging through the results of a database query, presenting a familiar
-interface for plugin authors, and mapping well to common back-end SDKs.
