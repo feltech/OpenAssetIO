@@ -47,8 +47,9 @@ than once on successive pages.
 Ultimately, the implementation must be provided by the manager plugin
 authors. The mechanism chosen in this DR can only present an abstract
 interface that the plugin must satisfy. As a result, characteristics
-such as page stability and performance cannot be guaranteed, but we can
-at least ensure that the chosen mechanism does not preclude such
+such as page stability and performance cannot be guaranteed, and nor
+do we desire to place such restrictions upon the implementation. However
+we can at least ensure that the chosen mechanism does not preclude such
 optimisations.
 
 The mechanism of paging tends to take three broad forms
