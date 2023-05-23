@@ -437,6 +437,14 @@ can be added without further polluting the `Manager`/`ManagerInterface`
 class. They also naturally capture arbitrary state that the manager
 may wish to store as part of the ongoing query.
 
+A cursor object also encapsulates the arguments required for requesting
+subsequent pages, whereas a page token requires (potentially
+redundantly) re-specifying the same arguments for each subsequent page
+along with the page token. This could be mitigated for the page token
+design by having a separate API for page token operations, but this
+starts to closely resemble a cursor object solution (with the `this`
+pointer fed from outside).
+
 Cursor objects also reflect the most common programmatic approach to
 paging through the results of a database query, presenting a familiar
 interface for plugin authors, and mapping well to common back-end SDKs.
