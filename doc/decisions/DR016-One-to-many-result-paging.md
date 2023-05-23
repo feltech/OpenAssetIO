@@ -449,6 +449,19 @@ Cursor objects also reflect the most common programmatic approach to
 paging through the results of a database query, presenting a familiar
 interface for plugin authors, and mapping well to common back-end SDKs.
 
+The additional complexity of the interface compared to a page token
+solution, for plugin authors, host authors and future language bindings,
+is small compared to the advantages in extensibility. For example, we do
+not foresee any issues in following the existing pattern of the
+(prototype) C API.
+
+Enforcing excessively stateful or complex functionality on the cursor
+object, e.g. by mandating `skip` or `remaining` methods, as used in the
+sketched examples, is a cause for concern. We do not propose to mandate
+such methods. Methods may be added, but most if not all will be optional
+such that the host will have to test the capabilities of the cursor
+object before using them.
+
 ## Appendix: Considering manager implementations
 
 The following subsections sketch some possible implementations of
