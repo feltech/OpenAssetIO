@@ -123,6 +123,8 @@ def GetRows(Rows: int, Start: None, Fields: None)
 
 #### Return a list of versions
 
+With a separate `get` methods:
+
 ```python
 class MyVersionPagerInterface(VersionPagerInterface):
     def __init__(self, entityRef, pageSize):
@@ -143,31 +145,71 @@ class MyVersionPagerInterface(VersionPagerInterface):
         self.__pageJson = response.json()
 ```
 
+Lazy fetching of first page:
+
 ```python
 class MyVersionPagerInterface(VersionPagerInterface):
     def __init__(self, entityRef, pageSize):
-        self.__pageJson = {"pagination": {
-            "next": f"https://api.ams.com/{entityRef}/versions?page_size={pageSize}"}}
+        self.__isFirstPage = True
+        self.__data = None
+        self.__firstPageUrl = f"https://api.ams.com/{entityRef}/versions?page_size={pageSize}"
 
     def hasMore(self, hostSession):
-        if not self.__pageJson:
-            self.__next()
-            return bool(self.__pageJson["data"])
-        return bool(self.__pageJson["pagination"]["next"])
+        if self.__isFirstPage:
+            if self.__data is None:
+                self.__fetch(self.__firstPageUrl)
+            return bool(self.__data["data"])
+        return bool(self.__data["pagination"]["next"])
 
     def next(self, hostSession):
-        if not self.__pageJson:
-            self.__next()
-        return self.__get()
+        if self.__isFirstPage:
+            self.__isFirstPage = False
+            if self.__data is None:
+                self.__fetch(self.__firstPageUrl)
+        else:
+            self.__fetch(self.__data["pagination"]["next"])
 
-    def __next(self):
-        response = requests.get(self.__pageJson["pagination"]["next"])
-        response.raise_for_status()
-        self.__pageJson = response.json()
-
-    def __get(self):
         return [(elem["versionId"], EntityReference(elem["entityRef"]))
-                for elem in self.__pageJson["data"]]
+                for elem in self.__data["data"]]
+
+    def __fetch(self, url):
+        response = requests.get(url)
+        response.raise_for_status()
+        self.__data = response.json()
+```
+
+Greedy fetching of first page:
+
+```python
+class MyVersionPagerInterface(VersionPagerInterface):
+    def __init__(self, firstPageResponse):
+        self.__firstPage = firstPageResponse["data"]
+        self.__nextUrl = firstPageResponse["pagination"]["next"]
+
+    @staticmethod
+    def fetchPage(url):
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+
+    def hasMorePages(self, hostSession):
+        # If first page, then check it is not empty, otherwise check
+        # that we have a next page.
+        return bool(self.__firstPage or self.__nextUrl)
+
+    def nextPage(self, hostSession):
+        if self.__firstPage is not None:
+            pageData = self.__firstPage
+            self.__firstPage = None
+        elif self.__nextUrl is not None:
+            response = self.fetchPage(self.__nextUrl)
+            pageData = response["data"]
+            self.__nextUrl = response["pagination"]["next"]
+        else:
+            return []
+
+        return [(elem["versionId"], EntityReference(elem["entityRef"]))
+                for elem in pageData]
 ```
 
 ```python
@@ -175,10 +217,15 @@ class MyManagerInterface(ManagerInterface):
 
     ...
 
-    def entityVersions(self, entityRef, context, hostSession, pageSize):
-        return MyVersionPagerInterface(entityRef, pageSize, hostSession)
+    def entityVersions(self, entityRef, pageSize, context, hostSession, successCb, errorCb):
+        firstPage = MyVersionPagerInterface.fetchPage(
+            f"https://api.ams.com/{entityRef}/versions?page_size={pageSize}")
 
-
+        error = validateFirstPage(firstPage)
+        if error is None:
+            successCb(MyVersionPagerInterface(firstPage))
+        else:
+            errorCb(error)
 ```
 
 ### Version dropdown
