@@ -832,3 +832,51 @@ class Pager {
 ```
 
 #### Return a single record
+
+
+#### Manager implementation using Google Cloud Datastore
+```python
+from google.cloud import datastore
+
+class BasicAssetLibraryEntityVersionsPagerInterface(EntityVersionsPagerInterface):
+    def __init__(self, page_size, entityRefs, client):
+        self.client = client  # Google datastore client
+        self.next_cursor = None
+        self.page_size = page_size
+        self.entityRefs = entityRefs
+
+        self.done_first_query_cache_return = False
+        self.next_page_first_query_cache = None
+
+    def hasMore(self, hostSession):
+        # This is the first query
+        if self.next_cursor is None:
+            self.next_page_first_query_cache = self.nextPage(hostSession)
+
+        return self.next_cursor is not None
+
+    # This can be expensive, you should cache this result mr host
+    def approxTotalRecords(self, hostSession):
+        query = self.client.query(kind="EntityReference")
+        query.add_filter("name", "IN", self.entityRefs)
+        query.add_filter("entityVersion", "!=", None)
+        query.keys_only()
+        results = query.fetch()
+        return len(list(results))
+
+    def nextPage(self, hostSession):
+        if self.next_page_first_query_cache and not self.done_first_query_cache_return:
+            self.done_first_query_cache_return = True
+            return self.next_page_first_query_cache
+
+        query = self.client.query(kind="EntityReference")
+        query.add_filter("name", "IN", self.entityRefs)
+        query.add_filter("entityVersion", "!=", None)
+        query_iter = query.fetch(start_cursor=self.next_cursor, limit=self.page_size)
+        page = next(query_iter.pages)
+
+        entityVersions = list(page)
+        self.next_cursor = query_iter.next_page_token
+
+        return entityVersions
+```
