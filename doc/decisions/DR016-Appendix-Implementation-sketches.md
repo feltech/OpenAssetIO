@@ -118,45 +118,135 @@ def GetRows(Rows: int, Start: None, Fields: None)
 
 ## Possible implementations
 
-TODO:
-- Resizable UI
+
+### Manager plugin
+
+#### Return a list of versions
+
+```python
+class MyVersionPagerInterface(VersionPagerInterface):
+    def __init__(self, entityRef, pageSize):
+        response = requests.get(f"https://api.ams.com/{entityRef}/versions?page_size={pageSize}")
+        response.raise_for_status()
+        self.__pageJson = response.json()
+
+    def hasMore(self, hostSession):
+        return bool(self.__pageJson["pagination"]["next"])
+
+    def get(self, hostSession):
+        return [(elem["versionId"], EntityReference(elem["entityRef"]))
+                for elem in self.__pageJson["data"]]
+
+    def next(self):
+        response = requests.get(self.__pageJson["pagination"]["next"])
+        response.raise_for_status()
+        self.__pageJson = response.json()
+```
+
+```python
+class MyVersionPagerInterface(VersionPagerInterface):
+    def __init__(self, entityRef, pageSize):
+        self.__pageJson = {"pagination": {
+            "next": f"https://api.ams.com/{entityRef}/versions?page_size={pageSize}"}}
+
+    def hasMore(self, hostSession):
+        if not self.__pageJson:
+            self.__next()
+            return bool(self.__pageJson["data"])
+        return bool(self.__pageJson["pagination"]["next"])
+
+    def next(self, hostSession):
+        if not self.__pageJson:
+            self.__next()
+        return self.__get()
+
+    def __next(self):
+        response = requests.get(self.__pageJson["pagination"]["next"])
+        response.raise_for_status()
+        self.__pageJson = response.json()
+
+    def __get(self):
+        return [(elem["versionId"], EntityReference(elem["entityRef"]))
+                for elem in self.__pageJson["data"]]
+```
+
+```python
+class MyManagerInterface(ManagerInterface):
+
+    ...
+
+    def entityVersions(self, entityRef, context, hostSession, pageSize):
+        return MyVersionPagerInterface(entityRef, pageSize, hostSession)
+
+
+```
 
 ### Version dropdown
 
 #### Return a list
+
+Without a `hasMore` return value:
 
 ```python
 class EntityVersionsPageIter:
     def next(self, pageSize) -> List[VersionInfo]: ...
 ```
 ```python
-pages = manager.entityVersions("asset://my/thing", context)
+pages = manager.entityVersions("asset://my/thing", context, kPageSize)
 
-kPageSize = 20
-first_page = pages.next(kPageSize)
+first_page = pages.next()
 
-def update_combo_box_options(options):
-    if len(options) % kPageSize == 1:  # TODO: doesn't work.
+def update_combo_box_options(options, has_more):
+    if has_more:
         options += ["more"]
     combo_box.set_options(options)
 
-update_combo_box_options(first_page)
-render_version_info(first_page[0])
+has_more = len(first_page) == kPageSize  # May be false positive
+update_combo_box_options(first_page, has_more)
 
 def on_option_chosen_cb(idx, value):
     if value == "more":
         current_options = combo_box.get_options()[:-1]  # Remove "more"
-        next_page = pages.next(kPageSize)
-        options = current_options + next_page
-        update_combo_box_options(options)
-    else:
-        render_version_info(value)
+        next_page = pages.next()
+        has_more = len(next_page) == kPageSize  # May be false positive
+        update_combo_box_options(current_options + next_page, has_more)
+
+    ...
+
+combo_box.on_option_chosen(on_option_chosen_cb)
+```
+
+With a `hasMore` return value:
+```python
+class EntityVersionsPageIter:
+    def next(self, pageSize) -> Tuple[List[VersionInfo], bool]: ...
+```
+```python
+pages = manager.entityVersions("asset://my/thing", context, kPageSize)
+
+first_page, has_more = pages.next()
+
+def update_combo_box_options(options, has_more):
+    if has_more:
+        options += ["more"]
+    combo_box.set_options(options)
+
+update_combo_box_options(first_page, has_more)
+
+def on_option_chosen_cb(idx, value):
+    if value == "more":
+        current_options = combo_box.get_options()[:-1]  # Remove "more"
+        next_page, has_more = pages.next()
+        update_combo_box_options(current_options + next_page, has_more)
+
+    ...
 
 combo_box.on_option_chosen(on_option_chosen_cb)
 ```
 
 #### List provided to a callback
 
+Without a `hasMore` callback argument:
 ```python
 EntityVersionsSuccessCallback = Callable[[List[EntityReference]], None]
 EntityVersionsErrorCallback = Callable[[PageError], None]
@@ -172,16 +262,16 @@ pages = manager.entityVersions("asset://my/thing", context)
 kPageSize = 20
 
 
-def update_combo_box_options(options):
-    if len(options) == kPageSize:   # TODO: doesn't work.
+def update_combo_box_options(options, has_more):
+    if has_more:
         options += ["more"]
     combo_box.set_options(options)
 
 
-def on_page_success(entity_refs):
+def on_page_success(next_page):
     current_options = combo_box.get_options()[:-1]  # Remove "more"
-    options = current_options + next_page
-    update_combo_box_options(options)
+    has_more = len(next_page) == kPageSize  # May be false positive
+    update_combo_box_options(current_options + next_page, has_more)
 
 
 def on_page_error(page_error):
@@ -191,11 +281,55 @@ def on_page_error(page_error):
 def on_option_chosen_cb(idx, value):
     if value == "more":
         pages.next(kPageSize, on_page_success, on_page_error)
-    else:
-        render_version_info(value)
+
+    ...
 
 
 pages.next(kPageSize, on_page_success, on_page_error)
+# Assumes synchronous `next` call, above.
+render_version_info(first_page[0])
+
+combo_box.on_option_chosen(on_option_chosen_cb)
+```
+
+With a `hasMore` callback argument:
+```python
+EntityVersionsSuccessCallback = Callable[[List[EntityReference], bool], None]
+EntityVersionsErrorCallback = Callable[[PageError], None]
+
+class EntityVersionsPageIter:
+    def next(self, pageSize,
+             successCb: EntityVersionsSuccessCallback,
+             errorCb: EntityVersionsErrorCallback): ...
+```
+```python
+kPageSize = 20
+
+pages = manager.entityVersions("asset://my/thing", context, kPageSize)
+
+
+def update_combo_box_options(options, has_more):
+    if has_more:
+        options += ["more"]
+    combo_box.set_options(options)
+
+
+def on_page_success(next_page, has_more):
+    current_options = combo_box.get_options()[:-1]  # Remove "more"
+    update_combo_box_options(current_options + next_page, has_more)
+
+
+def on_page_error(page_error):
+    raise Exception("Failed to get versions: %s" % str(page_error))
+
+
+def on_option_chosen_cb(idx, value):
+    if value == "more":
+        pages.next(kPageSize, on_page_success, on_page_error)
+
+    ...
+
+pages.next(on_page_success, on_page_error)
 # Assumes synchronous `next` call, above.
 render_version_info(first_page[0])
 
@@ -502,6 +636,10 @@ Rendering AOVs across multiple sub-processes, a page per process.
 
 #### Return a list
 
+
+Without `hasMore` return value / with `hasMore` as a separate (unused)
+method:
+
 ```python
 class RelatedEntitiesPageIter:
     def next(self, pageSize) -> List[EntityReferences]: ...
@@ -509,16 +647,44 @@ class RelatedEntitiesPageIter:
 ```python
 relationship = ChildAOVRelationshipSpecification()
 
-pages = manager.getWithRelationship("asset://my/render/bundle", relationship.traitsData(), context)
-
 page_size = optimal_aovs_per_cpu()
 
+pages = manager.getWithRelationship(
+    "asset://my/render/bundle", relationship.traitsData(), context, page_size)
+
 with multiprocessing.Pool() as pool:
-    while page := pages.next(page_size):
+    while page := pages.next():
         pool.apply_async(render_aovs, (input_node, page))
 ```
 
+With `hasMore` return value
+
+```python
+class RelatedEntitiesPageIter:
+    def next(self, pageSize) -> Tuple[List[EntityReferences]], bool: ...
+```
+```python
+relationship = ChildAOVRelationshipSpecification()
+
+page_size = optimal_aovs_per_cpu()
+
+pages = manager.getWithRelationship(
+    "asset://my/render/bundle", relationship.traitsData(), context, page_size)
+
+with multiprocessing.Pool() as pool:
+    page, has_more = pages.next()
+    if page:
+        pool.apply_async(render_aovs, (input_node, page))
+
+    while has_more:
+        page, has_more = pages.next():
+        pool.apply_async(render_aovs, (input_node, page))
+```
+
+
 #### List provided to a callback
+
+Without `hasMore` callback argument
 
 ```python
 RelatedEntitiesSuccessCallback = Callable[[List[EntityReference]], None]
@@ -530,9 +696,9 @@ class RelatedEntitiesPageIter:
              errorCb: RelatedEntitiesErrorCallback): ...
 ```
 ```python
-pages = manager.getWithRelationship("asset://my/render/bundle", relationship.traitsData(), context)
-
 kPageSize = 20
+pages = manager.getWithRelationship(
+    "asset://my/render/bundle", relationship.traitsData(), context, kPageSize)
 
 has_more_pages = True
 
@@ -550,7 +716,42 @@ with multiprocessing.Pool() as pool:
 
 
     while has_more_pages:
-        pages.next(kPageSize, on_page_success, on_page_error)
+        pages.next(on_page_success, on_page_error)
+```
+
+With `hasMore` callback argument
+
+```python
+RelatedEntitiesSuccessCallback = Callable[[List[EntityReference], bool], None]
+RelatedEntitiesErrorCallback = Callable[[PageError], None]
+
+class RelatedEntitiesPageIter:
+    def next(self, pageSize,
+             successCb: RelatedEntitiesSuccessCallback,
+             errorCb: RelatedEntitiesErrorCallback): ...
+```
+```python
+kPageSize = 20
+pages = manager.getWithRelationship(
+    "asset://my/render/bundle", relationship.traitsData(), context, kPageSize)
+
+with multiprocessing.Pool() as pool:
+    has_more_pages = False
+
+    def on_page_success(entity_refs, still_has_more_pages):
+        global has_more_pages
+        has_more_pages = still_has_more_pages
+        if entity_refs:
+            pool.apply_async(render_aovs, (input_node, entity_refs))
+
+
+    def on_page_error(page_error):
+        raise Exception("Failed to get related entities: %s" % str(page_error))
+
+
+    pages.next(on_page_success, on_page_error)
+    while has_more_pages:
+        pages.next(on_page_success, on_page_error)
 ```
 
 #### Return a single record
@@ -675,6 +876,11 @@ Decisions:
 * Error handling via exceptions.
 
 ManagerInterface:
+```c++
+TraitsDataPtr Manager::entityVersions(
+    const EntityReference &entityReference, const trait::TraitSet &traitSet,
+    const ContextConstPtr &context,
+```
 
 ```c++
 template <class Elem>
@@ -683,6 +889,8 @@ class PagerInterface {
     // Still need shared_ptr because Python.
     using Ptr = std::shared_ptr<PagerInterface<Elem>>;
     using Page = std::vector<Elem>;
+
+    PagerInterface() = default;
 
     // Explicitly disallow copying.
     PagerInterface(const& PagerInterface) = delete;
@@ -694,12 +902,9 @@ class PagerInterface {
     virtual ~PagerInterface() = default;
 
     // Really very useful in many workflows
-    virtual bool hasMore();
+    virtual bool hasMore(const HostSessionPtr&) = 0;
 
-    virtual Page nextPage(
-            const ContextConstPtr& context,
-            const HostSessionPtr& hostSession,
-            std::size_t pageSize) = 0;
+    virtual Page nextPage(const HostSessionPtr&) = 0;
 };
 ```
 
@@ -713,13 +918,9 @@ class Pager {
     using Page = PagerInterface<Elem>::Page;
 
     Pager(log::AuditorPtr auditor,
-          ContextConstPtr context,  // <- manager.createChildContext(context)
-          HostSessionPtr hostSession,
-          PagerInterface<Elem>::Ptr PagerInterface)
+          pagerInterface<Elem>::Ptr PagerInterface)
      : auditor_{std::move(auditor)},
-       context_{std::move{context}},
-       hostSession_{std::move(hostSession)},
-       PagerInterface_{std::move(PagerInterface)} { }
+       pagerInterface_{std::move(pagerInterface)} { }
 
     Pager(const Pager&) = delete;
     Pager<Elem>& operator=(const Pager<Elem>&) = delete;
@@ -728,24 +929,20 @@ class Pager {
     ~Pager() = default;
 
     bool hasMore() {
-        return auditor_->audit(__FUNCTION__, context_, hostSession_, [&] {
-            return PagerInterface_->hasMore(context_, hostSession_);
+        return auditor_->audit(__FUNCTION__, [&] {
+            return pagerInterface_->hasMore();
         });
     }
 
-    Page nextPage(std::size_t pageSize) {
-        return auditor_->audit(
-            __FUNCTION__, context_, hostSession_, pageSize,
-            [&] {
-                return PagerInterface_->nextPage(context_, hostSession_, pageSize);
-            });
+    Page nextPage() {
+        return auditor_->audit( __FUNCTION__, [&] {
+            return pagerInterface_->nextPage();
+        });
     }
 
  private:
-    ContextConstPtr context_;
-    HostSessionPtr hostSession_;
     log::AuditorPtr auditor_;
-    PagerInterface<Elem>::Ptr PagerInterface_;
+    PagerInterface<Elem>::Ptr pagerInterface_;
 };
 ```
 
