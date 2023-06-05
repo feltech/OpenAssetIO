@@ -123,7 +123,7 @@ def GetRows(Rows: int, Start: None, Fields: None)
 
 #### Return a list of versions
 
-With a separate `get` methods:
+With a separate `get` method:
 
 ```python
 class MyVersionPagerInterface(VersionPagerInterface):
@@ -212,20 +212,35 @@ class MyVersionPagerInterface(VersionPagerInterface):
                 for elem in pageData]
 ```
 
+ManagerInterface implementation:
+
 ```python
 class MyManagerInterface(ManagerInterface):
 
     ...
 
-    def entityVersions(self, entityRef, pageSize, context, hostSession, successCb, errorCb):
+def entityVersions(self, entityRefs, pageSize, context, hostSession, successCb, errorCb):
+
+    def createPager(idx, ref):
         firstPage = MyVersionPagerInterface.fetchPage(
-            f"https://api.ams.com/{entityRef}/versions?page_size={pageSize}")
+            f"https://api.ams.com/{ref}/versions?page_size={pageSize}")
 
         error = validateFirstPage(firstPage)
-        if error is None:
-            successCb(MyVersionPagerInterface(firstPage))
-        else:
-            errorCb(error)
+        if error is not None:
+            return idx, error
+        return idx, MyVersionPagerInterface(firstPage)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_connections) as executor:
+        futures = (
+            executor.submit(createPager, idx, ref)
+            for idx, ref in enumerate(entityRefs))
+
+        for future in concurrent.futures_as_completed(futures):
+            idx, result = future.result()
+            if isinstance(result, BatchElementError):
+                errorCb(idx, result)
+            else:
+                successCb(idx, result)
 ```
 
 ### Version dropdown
@@ -388,7 +403,7 @@ combo_box.on_option_chosen(on_option_chosen_cb)
 ```python
 class RelatedEntitiesPageIter:
     def __init__(self, pageSize): ...
-    def next(self) -> VersionInfo: ...
+    def next(self) -> List[EntityReference]: ...
 ```
 ```python
 kPageSize = 20
@@ -918,16 +933,23 @@ Decisions:
 * `Context` created using `createChildContext`.
 
 
+#### Batched cursor construction
+
+```c++
+using VersionSuccessCallback = std::function<void(std::size_t, PagerInterface<VersionInfo>)>;
+using VersionErrorCallback = std::function<void(std::size_t, BatchElementError)>;
+
+void ManagerInterface::entityVersions(
+    const EntityReferences &entityReferences, const TraitsData &predicate,
+    const ContextConstPtr &context, const HostSessionPtr& hostSession,
+    const VersionsSuccessCallback& successCb, const VersionsErrorCallback& errorCb);
+```
+
 #### Return a list
 
 * Error handling via exceptions.
 
 ManagerInterface:
-```c++
-TraitsDataPtr Manager::entityVersions(
-    const EntityReference &entityReference, const trait::TraitSet &traitSet,
-    const ContextConstPtr &context,
-```
 
 ```c++
 template <class Elem>
