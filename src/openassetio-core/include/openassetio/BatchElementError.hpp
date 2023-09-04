@@ -180,6 +180,9 @@ struct OPENASSETIO_CORE_EXPORT BatchElementException : std::runtime_error {
  * @ref BatchElementError.ErrorCode.kUnknown
  */
 struct OPENASSETIO_CORE_EXPORT UnknownBatchElementException : BatchElementException {
+    /**
+     * @param idx
+     */
   using BatchElementException::BatchElementException;
 };
 
@@ -189,6 +192,10 @@ struct OPENASSETIO_CORE_EXPORT UnknownBatchElementException : BatchElementExcept
  */
 struct OPENASSETIO_CORE_EXPORT InvalidEntityReferenceBatchElementException
     : BatchElementException {
+  /**
+   * @param idx
+   * @param entity reference.
+   */
   using BatchElementException::BatchElementException;
 };
 
@@ -198,6 +205,10 @@ struct OPENASSETIO_CORE_EXPORT InvalidEntityReferenceBatchElementException
  */
 struct OPENASSETIO_CORE_EXPORT MalformedEntityReferenceBatchElementException
     : BatchElementException {
+  /**
+   * @param idx
+   * @param entity reference.
+   */
   using BatchElementException::BatchElementException;
 };
 
@@ -206,6 +217,11 @@ struct OPENASSETIO_CORE_EXPORT MalformedEntityReferenceBatchElementException
  * @ref BatchElementError.ErrorCode.kEntityAccessError
  */
 struct OPENASSETIO_CORE_EXPORT EntityAccessErrorBatchElementException : BatchElementException {
+  /**
+   * @param idx
+   * @param access
+   * @param entity reference.
+   */
   using BatchElementException::BatchElementException;
 };
 
@@ -214,6 +230,10 @@ struct OPENASSETIO_CORE_EXPORT EntityAccessErrorBatchElementException : BatchEle
  * @ref BatchElementError.ErrorCode.kEntityResolutionError
  */
 struct OPENASSETIO_CORE_EXPORT EntityResolutionErrorBatchElementException : BatchElementException {
+  /**
+   * @param idx
+   * @param entity reference.
+   */
   using BatchElementException::BatchElementException;
 };
 
@@ -222,6 +242,11 @@ struct OPENASSETIO_CORE_EXPORT EntityResolutionErrorBatchElementException : Batc
  * @ref BatchElementError.ErrorCode.kInvalidPreflightHint
  */
 struct OPENASSETIO_CORE_EXPORT InvalidPreflightHintBatchElementException : BatchElementException {
+  /**
+   * @param idx
+   * @param traitsData
+   * @param Entity reference.
+   */
   using BatchElementException::BatchElementException;
 };
 
@@ -230,6 +255,11 @@ struct OPENASSETIO_CORE_EXPORT InvalidPreflightHintBatchElementException : Batch
  * @ref BatchElementError.ErrorCode.kInvalidTraitSet
  */
 struct OPENASSETIO_CORE_EXPORT InvalidTraitSetBatchElementException : BatchElementException {
+  /**
+   * @param idx
+   * @param traitSet
+   * @param (optional) entity reference.
+   */
   using BatchElementException::BatchElementException;
 };
 /**
