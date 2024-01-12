@@ -38,6 +38,8 @@ class OpenAssetIOConan(ConanFile):
         self.requires("tomlplusplus/3.2.0")
         # URL processing
         self.requires("ada/2.7.4")
+        # Regex
+        self.requires("pcre2/10.42")
         # Test framework
         self.requires("catch2/2.13.8")
         # Mocking library
@@ -51,3 +53,14 @@ class OpenAssetIOConan(ConanFile):
         self.options["fmt"].header_only = True
         self.options["ada"].fPIC = True
         self.options["ada"].shared = False
+
+        self.options["pcre2"].shared = False
+        self.options["pcre2"].fPIC = True
+        # Unnecessary - we only do UTF-8
+        self.options["pcre2"].build_pcre2_16 = False
+        self.options["pcre2"].build_pcre2_32 = False
+        # Unnecessary - we don't need the command-line tool.
+        self.options["pcre2"].build_pcre2grep = False
+        # Enable optimising patterns with additional compile step.
+        self.options["pcre2"].support_jit = True
+

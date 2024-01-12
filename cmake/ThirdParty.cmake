@@ -17,6 +17,12 @@ find_package(ada REQUIRED)
 
 
 #-----------------------------------------------------------------------
+# Regex
+
+find_package(PCRE2 REQUIRED)
+
+
+#-----------------------------------------------------------------------
 # Python
 
 if (OPENASSETIO_ENABLE_PYTHON)
