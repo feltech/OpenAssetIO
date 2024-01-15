@@ -17,7 +17,10 @@
 Tests that cover the openassetio.utils namespace.
 """
 import collections
+import json
 import os
+import re
+from pathlib import Path
 
 # pylint: disable=invalid-name,redefined-outer-name, too-few-public-methods
 # pylint: disable=missing-class-docstring,missing-function-docstring
@@ -35,6 +38,20 @@ non_file_scheme_error_message = "Must be a 'file' scheme URL ('{}')"
 server_invalid_on_posix_error_message = (
     "Server name components are invalid on POSIX for file scheme URLs ('{}')"
 )
+
+error_messages = {
+    "relative-path": "Path is relative ('{}')",
+    "empty-input": "Path is empty",
+    "invalid-namespaced-path": "Path is ill-formed ('{}')",
+    "invalid-hostname": "Path references an invalid hostname ('{}')",
+    "unsupported-namespaced-path": "Unsupported Win32 namespaced path ('{}')",
+    "upwards-traversal": "Path contains upwards traversal ('{}')",
+    "null-byte": "Path contains NULL bytes",
+    "unsupported-non-local-file": "Unsupported non-local file ('{}')",
+    "not-a-file-url": "Not a file URL ('{}')",
+    "encoded-separator": "Percent-encoded path separator ('{}')",
+    "unsupported-hostname": "Unsupported hostname ('{}')"
+}
 
 test_data = (
     # Standard POSIX path with some %-encoding.
@@ -207,7 +224,8 @@ class Test_PathType_enum:
 
 class Test_pathToFileURL_pathFromFileURL_roundtrip:
     @pytest.mark.parametrize("url_map", test_data)
-    def test_when_input_valid_then_produces_expected_values(self, url_map):
+    @pytest.mark.skip("TODO(DF): focussing on tests from upstream JSON DB")
+    def test(self, url_map):
         os_path_type = PathType.kWindows if os.name == "nt" else PathType.kPOSIX
 
         # Happy.
@@ -224,24 +242,160 @@ class Test_pathToFileURL_pathFromFileURL_roundtrip:
         # Bad path.
         elif isinstance(url_map.path, str) and isinstance(url_map.url, Exception):
 
-            with pytest.raises(type(url_map.url), match=str(url_map.url)):
-                utils.pathToUrl(url_map.path, url_map.path_type)
+            with pytest.raises(type(url_map.url), match=exc_to_regex(url_map.url)):
+                _ = utils.pathToUrl(url_map.path, url_map.path_type)
 
             if os_path_type == url_map.path_type:
-                with pytest.raises(type(url_map.url), match=str(url_map.url)):
+                with pytest.raises(type(url_map.url), match=exc_to_regex(url_map.url)):
                     utils.pathToUrl(url_map.path, PathType.kSystem)
-                with pytest.raises(type(url_map.url), match=str(url_map.url)):
+                with pytest.raises(type(url_map.url), match=exc_to_regex(url_map.url)):
                     utils.pathToUrl(url_map.path)
 
         # Bad URL.
         elif isinstance(url_map.path, Exception) and isinstance(url_map.url, str):
-            with pytest.raises(type(url_map.path), match=str(url_map.path)):
-                utils.pathFromUrl(url_map.url, url_map.path_type)
+            with pytest.raises(type(url_map.path), match=exc_to_regex(url_map.path)):
+                _unexpected = utils.pathFromUrl(url_map.url, url_map.path_type)
 
             if os_path_type == url_map.path_type:
-                with pytest.raises(type(url_map.path), match=str(url_map.path)):
+                with pytest.raises(type(url_map.path), match=exc_to_regex(url_map.path)):
                     utils.pathFromUrl(url_map.url, PathType.kSystem)
-                with pytest.raises(type(url_map.path), match=str(url_map.path)):
+                with pytest.raises(type(url_map.path), match=exc_to_regex(url_map.path)):
                     utils.pathFromUrl(url_map.url)
         else:
             raise RuntimeError("Unhandled URL mapping")
+
+
+class Test_pathToUrl:
+    def test_posix(self, subtests, file_path_to_url_json):
+        for case in file_path_to_url_json:
+            with subtests.test(msg=case["comment"], path=case["file_path"], url=case["URL_posix"]):
+                self.assert_valid_url_map(
+                    URLMap(
+                        PathType.kPOSIX,
+                        case["file_path"],
+                        str_or_error(case["URL_posix"], case["file_path"]),
+                    )
+                )
+
+    def test_windows(self, subtests, file_path_to_url_json):
+        for case in file_path_to_url_json:
+            with subtests.test(
+                msg=case["comment"], path=case["file_path"], url=case["URL_windows"]
+            ):
+                self.assert_valid_url_map(
+                    URLMap(
+                        PathType.kWindows,
+                        case["file_path"],
+                        str_or_error(case["URL_windows"], case["file_path"]),
+                    )
+                )
+
+    def assert_valid_url_map(self, url_map):
+        os_path_type = PathType.kWindows if os.name == "nt" else PathType.kPOSIX
+
+        # Happy.
+        if isinstance(url_map.path, str) and isinstance(url_map.url, str):
+            assert utils.pathToUrl(url_map.path, url_map.path_type) == url_map.url
+
+            if os_path_type == url_map.path_type:
+                assert utils.pathToUrl(url_map.path, PathType.kSystem) == url_map.url
+                assert utils.pathToUrl(url_map.path) == url_map.url
+
+        # Bad path.
+        elif isinstance(url_map.path, str) and isinstance(url_map.url, Exception):
+
+            with pytest.raises(type(url_map.url), match=exc_to_regex(url_map.url)):
+                _unexpected = utils.pathToUrl(url_map.path, url_map.path_type)
+
+            if os_path_type == url_map.path_type:
+                with pytest.raises(type(url_map.url), match=exc_to_regex(url_map.url)):
+                    utils.pathToUrl(url_map.path, PathType.kSystem)
+                with pytest.raises(type(url_map.url), match=exc_to_regex(url_map.url)):
+                    utils.pathToUrl(url_map.path)
+        else:
+            raise RuntimeError("Unhandled URL mapping")
+
+
+class Test_pathFromUrl:
+    def test_posix(self, subtests, url_to_file_path_json):
+        for case in url_to_file_path_json:
+            with subtests.test(msg=case["comment"], path=case["file_path_posix"], url=case["URL"]):
+                self.assert_valid_url_map(
+                    URLMap(
+                        PathType.kPOSIX,
+                        str_or_error(case["file_path_posix"], case["URL"]),
+                        case["URL"],
+                    )
+                )
+
+    def test_windows(self, subtests, url_to_file_path_json):
+        for case in url_to_file_path_json:
+            with subtests.test(
+                msg=case["comment"], path=case["file_path_windows"], url=case["URL"]
+            ):
+                self.assert_valid_url_map(
+                    URLMap(
+                        PathType.kWindows,
+                        str_or_error(case["file_path_windows"], case["URL"]),
+                        case["URL"],
+                    )
+                )
+
+    def assert_valid_url_map(self, url_map):
+        os_path_type = PathType.kWindows if os.name == "nt" else PathType.kPOSIX
+
+        # Happy.
+        if isinstance(url_map.path, str) and isinstance(url_map.url, str):
+            assert utils.pathFromUrl(url_map.url, url_map.path_type) == url_map.path
+
+            if os_path_type == url_map.path_type:
+                assert utils.pathFromUrl(url_map.url, PathType.kSystem) == url_map.path
+                assert utils.pathFromUrl(url_map.url) == url_map.path
+
+        # Bad URL.
+        elif isinstance(url_map.path, Exception) and isinstance(url_map.url, str):
+            with pytest.raises(type(url_map.path), match=exc_to_regex(url_map.path)):
+                _ = utils.pathFromUrl(url_map.url, url_map.path_type)
+
+            if os_path_type == url_map.path_type:
+                with pytest.raises(type(url_map.path), match=exc_to_regex(url_map.path)):
+                    utils.pathFromUrl(url_map.url, PathType.kSystem)
+                with pytest.raises(type(url_map.path), match=exc_to_regex(url_map.path)):
+                    utils.pathFromUrl(url_map.url)
+
+        else:
+            raise RuntimeError("Unhandled URL mapping")
+
+
+def exc_to_regex(exc):
+    return re.escape(str(exc))
+
+
+def str_or_error(maybe_error, path_or_url):
+    if isinstance(maybe_error, dict):
+        return InputValidationException(
+            error_messages[maybe_error["failure-reason"]].format(path_or_url)
+        )
+    return maybe_error
+
+
+@pytest.fixture
+def file_path_to_url_json(file_url_path_tests_json):
+    return (
+        case for case in file_url_path_tests_json["file_path_to_url"] if "__section__" not in case
+    )
+
+
+@pytest.fixture
+def url_to_file_path_json(file_url_path_tests_json):
+    return (
+        case for case in file_url_path_tests_json["url_to_file_path"] if "__section__" not in case
+    )
+
+
+@pytest.fixture(scope="session")
+def file_url_path_tests_json():
+    with open(
+        Path(__file__).parent / "resources" / "file_url_path_tests.json", "r", encoding="utf-8"
+    ) as json_file:
+        return json.load(json_file)
