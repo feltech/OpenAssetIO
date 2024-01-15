@@ -80,6 +80,7 @@ target_sources(
     src/managerApi/ManagerInterface.cpp
     src/managerApi/EntityReferencePagerInterface.cpp
     src/utils/path.cpp
+    src/utils/Regex.cpp
 )
 
 # Public header dependency.

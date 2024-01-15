@@ -6,10 +6,10 @@
 
 #include <ada.h>
 #include <fmt/format.h>
-#define PCRE2_CODE_UNIT_WIDTH 8
-#include <pcre2.h>
 
 #include <openassetio/errors/exceptions.hpp>
+
+#include "./Regex.hpp"
 
 namespace openassetio {
 inline namespace OPENASSETIO_CORE_ABI_VERSION {
@@ -31,7 +31,7 @@ namespace utils {
 //      \\.\C:\Test\Foo.txt \\?\C:\Test\Foo.txt
 //    The confusion in swift-url seems to come from
 //    > If the path is a legacy DOS device such as CON, COM1, or LPT1,
-//      it is converted into a device path by prepending \\.\
+//      it is converted into a device path by prepending `\\.\`
 //    If we add support, note that
 //    > Unless the path starts exactly with \\?\ [...], it is normalized
 //    i.e. we need to treat `\\.\` similar to `\\`, but only allow
@@ -66,125 +66,6 @@ constexpr StrView kErrorUpwardsTraversal = "Path contains upwards traversal";
 constexpr StrView kErrorNullByte = "Path contains NULL bytes";
 constexpr StrView kErrorUnsupportedHostname = "Unsupported hostname";
 constexpr StrView kErrorEncodedSeparator = "Percent-encoded path separator";
-
-class Regex {
-  struct LastMatch {
-    StrView subject;
-    int numMatches{0};
-  };
-
- public:
-  explicit Regex(const StrView pattern) {
-    int errorNo;
-    std::size_t errorOffset;
-
-    code_ = pcre2_compile(
-        reinterpret_cast<PCRE2_SPTR8>(pattern.data()), pattern.size(),
-        PCRE2_CASELESS | PCRE2_DOLLAR_ENDONLY |
-            PCRE2_DOTALL, /* case-insensitive; `$` matches end of string; `.` matches newlines */
-        &errorNo,         /* error number */
-        &errorOffset,     /* error offset */
-        nullptr);         /* use default compile context */
-
-    assert(code_ != nullptr);
-
-    // Extra performance JIT compile. We don't care about partial
-    // matches.
-    int errorCode = pcre2_jit_compile(code_, PCRE2_JIT_COMPLETE);
-
-    assert(errorCode == 0);
-
-    matchData_ = pcre2_match_data_create_from_pattern(code_, nullptr);
-
-    assert(matchData_ != nullptr);
-  }
-
-  ~Regex() {
-    pcre2_code_free(code_);
-    pcre2_match_data_free(matchData_);
-  }
-
-  bool match(const StrView subject) {
-    lastMatch_.subject = subject;
-    lastMatch_.numMatches =
-        pcre2_jit_match(code_,                                         /* regex object */
-                        reinterpret_cast<PCRE2_SPTR8>(subject.data()), /* subject */
-                        subject.size(),                                /* length of subject */
-                        0,          /* start at offset 0 in the subject */
-                        0,          /* default options */
-                        matchData_, /* block for storing the result */
-                        nullptr);   /* use default match context */
-
-    if (lastMatch_.numMatches < 0 && lastMatch_.numMatches != PCRE2_ERROR_NOMATCH) {
-      // TODO(DF): Unit test.
-      static constexpr Str::size_type kErrorMessageMaxLength = 1000;
-      Str errorMessage(kErrorMessageMaxLength, '\0');
-      const auto errorMessageLength = pcre2_get_error_message(
-          lastMatch_.numMatches, reinterpret_cast<PCRE2_UCHAR8*>(errorMessage.data()),
-          errorMessage.size());
-      errorMessage.resize(static_cast<Str::size_type>(errorMessageLength));
-      throw errors::InputValidationException{fmt::format(
-          "Regex parse error {} matching '{}': {}", lastMatch_.numMatches, subject, errorMessage)};
-    }
-
-    return lastMatch_.numMatches > 0;
-  }
-
-  StrView lastMatchGroup(const std::size_t groupNum) {
-    // Precondition.
-    assert(groupNum < pcre2_get_ovector_count(matchData_));
-
-    PCRE2_SIZE* matches = pcre2_get_ovector_pointer(matchData_);
-
-    const std::size_t startIdx = matches[groupNum * 2];
-    const std::size_t endIdx = matches[groupNum * 2 + 1];
-    return lastMatch_.subject.substr(startIdx, endIdx - startIdx);
-  }
-
-  Str substituteToReduceSize(const StrView& subject, const StrView& replacement) {
-    if (subject.empty()) {
-      // Zero-size buffer is immediately an error in pcre, so just short-circuit.
-      return {};
-    }
-    // `+ 1` so pcre knows it has enough space for a null terminator.
-    Str result(subject.size() + 1, '\0');
-    std::size_t resultSize = result.size();
-
-    int numSubstitutions =
-        pcre2_substitute(code_,                                         /* regex object */
-                         reinterpret_cast<PCRE2_SPTR8>(subject.data()), /* subject */
-                         subject.size(),                                /* length of subject */
-                         0,                       /* start at offset 0 in the subject */
-                         PCRE2_SUBSTITUTE_GLOBAL, /* substitute all matches */
-                         matchData_,              /* block for storing the result */
-                         nullptr,                 /* use default match context */
-                         reinterpret_cast<PCRE2_SPTR8>(replacement.data()), /* replacement */
-                         replacement.size(),                             /* replacement length */
-                         reinterpret_cast<PCRE2_UCHAR8*>(result.data()), /* output buffer */
-                         &resultSize                                     /* output buffer size */
-        );
-
-    if (numSubstitutions < 0) {
-      // TODO(DF): Unit test.
-      static constexpr Str::size_type kErrorMessageMaxLength = 1000;
-      Str errorMessage(kErrorMessageMaxLength, '\0');
-      const auto errorMessageLength = pcre2_get_error_message(
-          numSubstitutions, reinterpret_cast<PCRE2_UCHAR8*>(errorMessage.data()),
-          errorMessage.size());
-      errorMessage.resize(static_cast<Str::size_type>(errorMessageLength));
-      throw errors::InputValidationException{fmt::format("Regex parse error {} matching '{}': {}",
-                                                         numSubstitutions, subject, errorMessage)};
-    }
-
-    result.resize(resultSize);
-    return result;
-  }
-
- private:
-  pcre2_code* code_{nullptr};
-  pcre2_match_data* matchData_{nullptr};
-  LastMatch lastMatch_;
-};
 
 #ifdef _WIN32
 constexpr PathType kSystemPathType = PathType::kWindows;
