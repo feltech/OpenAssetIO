@@ -522,11 +522,6 @@ std::optional<Str> ip6ToValidHostname(const StrView& host) {
   // Precondition.
   assert(!windowsPath.empty());
 
-  // TODO(DF): Debugging, remove
-  if (windowsPath == "\\\\my_pc\\\\\\\\share.\\dir.\\") {  // NOLINT
-    [[maybe_unused]] volatile int dummy = 0;
-  }
-
   ada::url url;
   // Note: url.set_protocol(...) is a no-op, see https://github.com/ada-url/ada/issues/573
   url.type = ada::scheme::FILE;
@@ -543,18 +538,10 @@ std::optional<Str> ip6ToValidHostname(const StrView& host) {
     setUrlPathFromDrivePath(windowsPath, url);
   }
 
-  // TODO(DF): Debugging, remove.
-  [[maybe_unused]] Str json = url.to_string();
-  [[maybe_unused]] Str href{url.get_href()};
-
   return url.get_href();
 }
 
 [[nodiscard]] Str pathFromUrl(const StrView url) {
-  // TODO(DF): Debugging, remove
-  if (url == "file:///C:/foo/bar%5Cbaz") {  // NOLINT
-    [[maybe_unused]] volatile int dummy = 0;
-  }
   ada::result<ada::url_aggregator> adaUrl = ada::parse(url);
   if (!adaUrl) {
     throwError("Failed to parse URL", url);
@@ -684,10 +671,7 @@ Str collapseForwardSlashes(const StrView& path) {
 [[nodiscard]] Str pathToUrl(const StrView linuxPath) {
   // Precondition.
   assert(!linuxPath.empty());
-  // TODO(DF): Debugging, remove
-  if (linuxPath == "/\\\\C:/bAr/BaZ/qux.txt") {  // NOLINT
-    [[maybe_unused]] volatile int dummy = 0;
-  }
+
   if (containsUpwardsTraversal(linuxPath)) {
     throwError(kErrorUpwardsTraversal, linuxPath);
   }
@@ -720,10 +704,6 @@ Str collapseForwardSlashes(const StrView& path) {
 }
 
 [[nodiscard]] Str pathFromUrl(const StrView url) {
-  // TODO(DF): Debugging, remove
-  if (url == "file:///%5CC:/bAr/BaZ/qux.txt") {  // NOLINT
-    [[maybe_unused]] volatile int dummy = 0;
-  }
   ada::result<ada::url_aggregator> adaUrl = ada::parse(url);
   if (!adaUrl) {
     throwError("Failed to parse URL", url);
