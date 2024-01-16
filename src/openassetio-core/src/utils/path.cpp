@@ -151,7 +151,6 @@ Regex kInvalidHostnameRegex{R"(^[.?]$|[^[:ascii:]]|%)"};
 
 Regex kPathHeadAndTailRegex{R"(^([\\/]+[^\\/]+)([\\/].*)$)"};
 Regex kDevicePathHeadAndTailRegex{R"(^(\\[^\\]+)(.+)$)"};
-Regex kTrailingUpwardsTraversalRegex{R"([\\/]\.\.$)"};
 Regex kTrailingDotsAsFileRegex{R"([\\/](\.{3,})$)"};
 Regex kTrailingDotsInFileRegex{R"([^.\\/](\.+)$)"};
 Regex kTrailingDotsAndSpacesRegex{R"([\\/][^\\/ ]*( [. ]*)$)"};
