@@ -155,6 +155,7 @@ Regex kTrailingDotsAsFileRegex{R"([\\/](\.{3,})$)"};
 Regex kTrailingDotsInFileRegex{R"([^.\\/](\.+)$)"};
 Regex kTrailingDotsAndSpacesRegex{R"([\\/][^\\/ ]*( [. ]*)$)"};
 Regex kTrailingSlashesRegex{R"([\\/]([\\/]+)$)"};
+Regex kDeviceTrailingSlashesRegex{R"(\\(\\+)$)"};
 
 Regex kTrailingSingleDotInSegmentRegex{R"((?<![.\\/])\.(?=[/\\]))"};
 Regex kTrailingSlashesInSegmentRegex{R"(([\\/])[\\/]+)"};
@@ -201,6 +202,13 @@ constexpr std::array kPercentEncodeCharacterSet = [] {
   return path.substr(0, path.size() - kTrailingSlashesRegex.lastMatchGroup(1).size());
 }
 
+[[nodiscard]] StrView withoutDeviceTrailingSlashes(const StrView& path) {
+  if (!kDeviceTrailingSlashesRegex.match(path)) {
+    return path;
+  }
+  return path.substr(0, path.size() - kDeviceTrailingSlashesRegex.lastMatchGroup(1).size());
+}
+
 [[nodiscard]] StrView withoutTrailingDotsAsFile(const StrView& path) {
   if (!kTrailingDotsAsFileRegex.match(path)) {
     return path;
@@ -239,7 +247,8 @@ struct UncDetails {
     const bool isUncDevicePath = true;
     const StrView hostOrDrive = kUncDevicePathRegex.lastMatchGroup(1);
     const bool isDrivePath = kDriveRegex.match(hostOrDrive);
-    const StrView shareNameAndPath = withoutTrailingSlashes(kUncDevicePathRegex.lastMatchGroup(2));
+    const StrView shareNameAndPath =
+        withoutDeviceTrailingSlashes(kUncDevicePathRegex.lastMatchGroup(2));
     StrView shareName{shareNameAndPath};
     StrView sharePath;
     if (kDevicePathHeadAndTailRegex.match(shareNameAndPath)) {
@@ -256,7 +265,8 @@ struct UncDetails {
     const bool isUncDevicePath = false;
     const StrView hostOrDrive = kDevicePathRegex.lastMatchGroup(1);
     const bool isDrivePath = kDriveRegex.match(hostOrDrive);
-    const StrView shareNameAndPath = withoutTrailingSlashes(kDevicePathRegex.lastMatchGroup(2));
+    const StrView shareNameAndPath =
+        withoutDeviceTrailingSlashes(kDevicePathRegex.lastMatchGroup(2));
     const StrView fullPath =
         path.substr(kDevicePathPrefixLength, hostOrDrive.size() + shareNameAndPath.size());
     return UncDetails{isDevicePath, isUncDevicePath,  isDrivePath, hostOrDrive, {},
