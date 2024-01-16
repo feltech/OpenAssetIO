@@ -388,7 +388,7 @@ void validateUncPath(const StrView& windowsPath, const UncDetails& uncDetails) {
       // Disallow drive letters as UNC host e.g. `\\C:\`
       throwError(kErrorInvalidHostname, windowsPath);
     }
-    if (kInvalidHostnameRegex.match(uncDetails.hostOrDrive)) {
+    if (isInvalidHostname(uncDetails.hostOrDrive)) {
       // Host is empty or contains disallowed characters.
       throwError(kErrorInvalidHostname, windowsPath);
     }
