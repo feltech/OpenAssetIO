@@ -480,7 +480,7 @@ void setUrlPathFromUncPath(const StrView& originalPath, const UncDetails& uncDet
   };
   if (uncDetails.isUncDevicePath) {
     // `\\?\UNC\host\share\path`
-    encodeAndSetPath(replaceTrailingSlashesInPathSegments(uncDetails.shareNameAndPath));
+    encodeAndSetPath(uncDetails.shareNameAndPath);
   } else if (uncDetails.isDevicePath) {
     // `\\?\C:\path` - `C:` part should not be %-encoded.
     if (Str encodedPath{uncDetails.hostOrDrive}; maybePercentEncodeAndAppendTo(
