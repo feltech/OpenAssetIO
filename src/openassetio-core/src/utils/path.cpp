@@ -21,6 +21,7 @@ namespace utils {
 //  * Refactor to FileURL class - thread-safety + avoiding expensive
 //  dangerous statics (i.e. pre-compile regex in constructor).
 //    - Regexes are not constants, shouldn't start with `k`
+//    - Customise error messages, e.g. "namespaced"->"device path"
 //  * Should we support `\\.\` and `\\.\UNC\`?
 //    swift-url says:
 //    > Windows UNC paths with the hostname "`.`" would be interpreted
@@ -57,6 +58,37 @@ namespace utils {
 //    normalised to `C:`.
 
 namespace {
+
+struct ForwardSlashSeparatedString {
+  Regex kTrailingForwardSlashesInSegmentRegex{R"(//+)"};
+  Str replaceTrailingForwardSlashesInPathSegments(const StrView& str) {
+    return kTrailingForwardSlashesInSegmentRegex.substituteToReduceSize(str, "/");
+  }
+};
+struct Path {
+#ifdef _WIN32
+  static constexpr PathType kSystemPathType = PathType::kWindows;
+#else
+  static constexpr PathType kSystemPathType = PathType::kPOSIX;
+#endif
+  static constexpr StrView kErrorEmptyPath = "Path is empty";
+  static constexpr StrView kErrorRelativePath = "Path is relative";
+  static constexpr StrView kErrorUpwardsTraversal = "Path contains upwards traversal";
+  static constexpr StrView kErrorNullByte = "Path contains NULL bytes";
+  [[nodiscard]] static constexpr PathType resolveSystemPathType(PathType pathType) {
+    return pathType == PathType::kSystem ? kSystemPathType : pathType;
+  }
+  [[nodiscard]] static constexpr bool containsNullByte(const StrView path) {
+    return path.find_first_of('\0') != StrView::npos;
+  }
+};
+struct Url {
+  static constexpr StrView kErrorNotAFileUrl = "Not a file URL";
+  static constexpr StrView kErrorEncodedSeparator = "Percent-encoded path separator";
+  Regex kFileUrlRegex{R"(^file://)"};
+  [[nodiscard]] bool isFileUrl(const StrView& url) { return kFileUrlRegex.match(url); }
+};
+
 // TODO(DF): Customise error messages, e.g. "namespaced"->"device path"
 constexpr StrView kErrorNotAFileUrl = "Not a file URL";
 constexpr StrView kErrorEmptyPath = "Path is empty";
@@ -114,6 +146,361 @@ Str replaceTrailingForwardSlashesInPathSegments(const StrView& str) {
 }
 
 namespace win {
+
+struct UncDetails {
+  bool isDevicePath;     // i.e. if starts with `\\?\`
+  bool isUncDevicePath;  // i.e. if starts with `\\?\UNC\`
+  bool isDrivePath;      // i.e. if server part is drive letter e.g. \\?\C:
+  StrView hostOrDrive;
+  StrView shareName;
+  StrView sharePath;
+  StrView shareNameAndPath;
+  StrView fullPath;
+};
+struct Path {
+  static constexpr StrView kErrorInvalidPath = "Path is ill-formed";
+};
+
+struct NormalisedPath {
+  Regex kUpwardsTraversalRegex{R"((^|[\\/])\.\.([\\/]|$))"};
+  Regex kTrailingDotsAsFileRegex{R"([\\/](\.{3,})$)"};
+  Regex kTrailingDotsInFileRegex{R"([^.\\/](\.+)$)"};
+  Regex kTrailingDotsAndSpacesRegex{R"([\\/][^\\/ ]*( [. ]*)$)"};
+  Regex kTrailingSlashesRegex{R"([\\/]([\\/]+)$)"};
+  Regex kTrailingSingleDotInSegmentRegex{R"((?<![.\\/])\.(?=[/\\]))"};
+  Regex kTrailingSlashesInSegmentRegex{R"(([\\/])[\\/]+)"};
+
+  [[nodiscard]] StrView withoutTrailingSlashes(const StrView& path) {
+    if (!kTrailingSlashesRegex.match(path)) {
+      return path;
+    }
+    return path.substr(0, path.size() - kTrailingSlashesRegex.lastMatchGroup(1).size());
+  }
+  [[nodiscard]] StrView withoutTrailingDotsAsFile(const StrView& path) {
+    if (!kTrailingDotsAsFileRegex.match(path)) {
+      return path;
+    }
+    return path.substr(0, path.size() - kTrailingDotsAsFileRegex.lastMatchGroup(1).size());
+  }
+  [[nodiscard]] StrView withoutTrailingDotsInFile(const StrView& path) {
+    if (!kTrailingDotsInFileRegex.match(path)) {
+      return path;
+    }
+    return path.substr(0, path.size() - kTrailingDotsInFileRegex.lastMatchGroup(1).size());
+  }
+  [[nodiscard]] StrView withoutTrailingDotsOrSpaces(const StrView& path) {
+    if (!kTrailingDotsAndSpacesRegex.match(path)) {
+      return path;
+    }
+    return path.substr(0, path.size() - kTrailingDotsAndSpacesRegex.lastMatchGroup(1).size());
+  }
+  [[nodiscard]] bool containsUpwardsTraversal(const StrView str) {
+    return kUpwardsTraversalRegex.match(str);
+  }
+};
+struct DrivePath {
+  Regex kDriveRegex{R"(^[A-Z][\|:])"};
+  Regex kAbsoluteDrivePathRegex{R"(^[A-Z]:[/\\])"};
+
+  bool isDrive(const StrView& str) { return kDriveRegex.match(str); }
+  [[nodiscard]] bool isAbsoluteDrivePath(const StrView& str) {
+    return kAbsoluteDrivePathRegex.match(str);
+  }
+};
+struct UncPath {
+  static constexpr StrView kDoubleBackSlash = R"(\\)";
+};
+struct UncHost {
+  /**
+   * Invalid UNC hostname regex.
+   *
+   * - Unicode domains are unsupported, so ensure ASCII.
+   * - Ensure no %-encoding.
+   * - Reject "?" and "." as UNC hostnames. From swift-url code comments:
+   *   > Otherwise we might create something which looks like a Win32 file
+   *     namespace/local device path
+   */
+  Regex kInvalidHostnameRegex{R"(^[.?]$|[^[:ascii:]]|%)"};
+
+  [[nodiscard]] bool isInvalidHostname(const StrView& str) {
+    return kInvalidHostnameRegex.match(str);
+  }
+};
+struct UncSharePath {
+  DrivePath& drivePathHandler;
+  NormalisedPath& normalisedPathHandler;
+
+  static constexpr StrView kErrorInvalidHostname = "Path references an invalid hostname";
+  static constexpr StrView kLocalHostIP = "127.0.0.1";
+  static constexpr StrView kIp6HostSuffix = ".ipv6-literal.net";
+  Regex kUncPathRegex{R"(^([\\/]{2,})([^\\/]*)(.*)$)"};
+  Regex kPathHeadAndTailRegex{R"(^([\\/]+[^\\/]+)([\\/].*)$)"};
+
+  [[nodiscard]] std::optional<UncDetails> extractUncDetails(const StrView path) {
+    if (!kUncPathRegex.match(path)) {
+      return std::nullopt;
+    }
+    const bool isDevicePath = false;
+    const bool isUncDevicePath = false;
+    const StrView prefix = kUncPathRegex.lastMatchGroup(1);
+    const StrView hostOrDrive = kUncPathRegex.lastMatchGroup(2);
+    const bool isDrivePath = drivePathHandler.isDrive(path);
+    const auto [shareName, sharePath, shareNameAndPath] =
+        extractShareNameAndPath(kUncPathRegex.lastMatchGroup(3));
+    const StrView fullPath =
+        path.substr(prefix.size(), hostOrDrive.size() + shareNameAndPath.size());
+    return UncDetails{isDevicePath, isUncDevicePath, isDrivePath,      hostOrDrive,
+                      shareName,    sharePath,       shareNameAndPath, fullPath};
+  }
+
+  std::tuple<StrView, StrView, StrView> extractShareNameAndPath(StrView shareNameAndPath) {
+    shareNameAndPath = normalisedPathHandler.withoutTrailingSlashes(shareNameAndPath);
+    if (!kPathHeadAndTailRegex.match(shareNameAndPath)) {
+      return {{}, shareNameAndPath, shareNameAndPath};
+    }
+    const StrView shareName = kPathHeadAndTailRegex.lastMatchGroup(1);
+    const StrView sharePath = normalisedPathHandler.withoutTrailingDotsInFile(
+        normalisedPathHandler.withoutTrailingDotsAsFile(
+            normalisedPathHandler.withoutTrailingDotsOrSpaces(
+                kPathHeadAndTailRegex.lastMatchGroup(2))));
+    // In case shareNameAndPath is now shorter due to trimming trailing
+    // dots/spaces.
+    shareNameAndPath = shareNameAndPath.substr(0, shareName.size() + sharePath.size());
+    return {shareName, sharePath, shareNameAndPath};
+  }
+};
+struct UncUnnormalisedDevicePath {
+  // E.g. Device path with forward slashes - technically allowed (as a
+  // literal rather than path separator) but unsupported by us.
+  static constexpr StrView kErrorUnsupportedDevicePath = "Unsupported Win32 namespaced path";
+  Regex kDeviceUpwardsTraversalRegex{R"((^|\\)\.\.(\\|$))"};
+  Regex kDeviceTrailingSlashesRegex{R"(\\(\\+)$)"};
+  Regex kDeviceTrailingSlashesInSegmentRegex{R"((\\\\+))"};
+
+  [[nodiscard]] StrView withoutDeviceTrailingSlashes(const StrView& path) {
+    if (!kDeviceTrailingSlashesRegex.match(path)) {
+      return path;
+    }
+    return path.substr(0, path.size() - kDeviceTrailingSlashesRegex.lastMatchGroup(1).size());
+  }
+  [[nodiscard]] constexpr static bool containsForwardSlash(const StrView path) {
+    return path.find_first_of(kForwardSlash) != StrView::npos;
+  }
+  [[nodiscard]] bool containsDeviceUpwardsTraversal(const StrView& str) {
+    return kDeviceUpwardsTraversalRegex.match(str);
+  }
+};
+struct UncUnnormalisedDeviceDrivePath {
+  DrivePath& drivePathHandler;
+  UncUnnormalisedDevicePath& uncUnnormalisedDevicePathHandler;
+
+  static constexpr std::size_t kDevicePathPrefixLength = StrView{R"(\\?\)"}.size();
+  Regex kDevicePathRegex{R"(^\\\\\?\\([^\\]*)(.*)$)"};
+
+  [[nodiscard]] std::optional<UncDetails> extractUncDetails(const StrView path) {
+    if (!kDevicePathRegex.match(path)) {
+      return std::nullopt;
+    }
+    const bool isDevicePath = true;
+    const bool isUncDevicePath = false;
+    const StrView hostOrDrive = kDevicePathRegex.lastMatchGroup(1);
+    const bool isDrivePath = drivePathHandler.isDrive(hostOrDrive);
+    const StrView shareNameAndPath = uncUnnormalisedDevicePathHandler.withoutDeviceTrailingSlashes(
+        kDevicePathRegex.lastMatchGroup(2));
+    const StrView fullPath =
+        path.substr(kDevicePathPrefixLength, hostOrDrive.size() + shareNameAndPath.size());
+    return UncDetails{isDevicePath, isUncDevicePath,  isDrivePath, hostOrDrive, {},
+                      {},           shareNameAndPath, fullPath};
+  }
+};
+struct UncUnnormalisedDeviceSharePath {
+  DrivePath& drivePathHandler;
+  UncUnnormalisedDevicePath& uncUnnormalisedDevicePathHandler;
+
+  static constexpr std::size_t kUncDevicePathPrefixLength = StrView{R"(\\?\UNC\)"}.size();
+  Regex kUncDevicePathRegex{R"(^\\\\\?\\UNC\\([^\\]*)(.*)$)"};
+  Regex kDevicePathHeadAndTailRegex{R"(^(\\[^\\]+)(.+)$)"};
+
+  [[nodiscard]] std::optional<UncDetails> extractUncDetails(const StrView path) {
+    if (!kUncDevicePathRegex.match(path)) {
+      return std::nullopt;
+    }
+    const bool isDevicePath = true;
+    const bool isUncDevicePath = true;
+    const StrView hostOrDrive = kUncDevicePathRegex.lastMatchGroup(1);
+    const bool isDrivePath = drivePathHandler.isDrive(hostOrDrive);
+    const auto [shareName, sharePath, shareNameAndPath] =
+        extractShareNameAndPath(kUncDevicePathRegex.lastMatchGroup(2));
+    const StrView fullPath =
+        path.substr(kUncDevicePathPrefixLength, hostOrDrive.size() + shareNameAndPath.size());
+    return UncDetails{isDevicePath, isUncDevicePath, isDrivePath,      hostOrDrive,
+                      shareName,    sharePath,       shareNameAndPath, fullPath};
+  }
+
+  std::tuple<StrView, StrView, StrView> extractShareNameAndPath(StrView shareNameAndPath) {
+    shareNameAndPath =
+        uncUnnormalisedDevicePathHandler.withoutDeviceTrailingSlashes(shareNameAndPath);
+    if (!kDevicePathHeadAndTailRegex.match(shareNameAndPath)) {
+      return {{}, shareNameAndPath, shareNameAndPath};
+    }
+    return {kDevicePathHeadAndTailRegex.lastMatchGroup(1),
+            kDevicePathHeadAndTailRegex.lastMatchGroup(2), shareNameAndPath};
+  }
+};
+
+struct PathToUrl {
+  DrivePath drivePathHandler{};
+  UncUnnormalisedDevicePath uncUnnormalisedDevicePathHandler{};
+  UncUnnormalisedDeviceSharePath uncUnnormalisedDeviceSharePathHandler{
+      drivePathHandler, uncUnnormalisedDevicePathHandler};
+  UncUnnormalisedDeviceDrivePath uncUnnormalisedDeviceDrivePathHandler{
+      drivePathHandler, uncUnnormalisedDevicePathHandler};
+  NormalisedPath normalisedPathHandler{};
+  UncSharePath uncSharePathHandler{drivePathHandler, normalisedPathHandler};
+
+  [[nodiscard]] std::optional<UncDetails> extractUncDetails(const StrView path) {
+    if (auto uncDetails = uncUnnormalisedDeviceSharePathHandler.extractUncDetails(path)) {
+      return uncDetails;
+    }
+    if (auto uncDetails = uncUnnormalisedDeviceDrivePathHandler.extractUncDetails(path)) {
+      return uncDetails;
+    }
+    if (auto uncDetails = uncSharePathHandler.extractUncDetails(path)) {
+      return uncDetails;
+    }
+    return std::nullopt;
+  }
+};
+
+struct Url {
+  static constexpr StrView kErrorUnsupportedHostname = "Unsupported hostname";
+  static constexpr StrView kDoubleBackSlash = R"(\\)";
+  static constexpr StrView kLocalHostIP = "127.0.0.1";
+  static constexpr StrView kIp6HostSuffix = ".ipv6-literal.net";
+  Regex kIp6HostRegex{R"(^\[([A-Z0-9:]+)\]$)"};
+  Regex kLocalHostRegex{"^localhost$"};
+  Regex kPercentEncodedSlashRegex{R"(%(:?5C|2F))"};
+  /**
+   * Augment default percent encoded set for paths.
+   *
+   * From swift-url's` `WindowsPathEncodeSet` docstring:
+   *
+   * - The '%' sign itself. Filesystem paths do not contain
+   * percent-encoding, and any character sequences which look like
+   * percent-encoding are just coincidences.
+   * - Note that the colon character (`:`) is also included, so this
+   * encode-set is not appropriate for Windows drive letter components.
+   * Drive letters should not be percent-encoded.
+   */
+  static constexpr std::array kPercentEncodeCharacterSet = [] {
+    constexpr std::uint8_t kByteSize = 8;
+    constexpr std::size_t kArrSize = 32;  // 0xFF/kByteSize + 1;
+
+    constexpr std::uint8_t kPercentHex = 0x25;
+    constexpr std::uint8_t kColonHex = 0x3A;
+    constexpr std::uint8_t kVerticalBarHex = 0x7C;
+
+    std::array<uint8_t, kArrSize> charSet{};
+    // Copy Ada's default %-encode set for URL path components.
+    for (std::size_t idx = 0; idx < charSet.size(); ++idx) {
+      charSet[idx] = ada::character_sets::PATH_PERCENT_ENCODE[idx];
+    }
+    // Augment the %-encode set with additional characters.
+    for (std::uint8_t charCode : {kPercentHex, kColonHex, kVerticalBarHex}) {
+      charSet[charCode / kByteSize] |= static_cast<std::uint8_t>(1 << (charCode % kByteSize));
+    }
+
+    return charSet;
+  }();
+
+  [[nodiscard]] bool containsPercentEncodedSlash(const StrView& str) {
+    // Using regex for case-insensitivity.
+    return kPercentEncodedSlashRegex.match(str);
+  }
+  [[nodiscard]] bool isLocalHost(const StrView& str) { return kLocalHostRegex.match(str); }
+};
+}  // namespace win
+namespace posix {
+struct Path {
+  Regex kUpwardsTraversalRegex{R"((^|/)\.\.(/|$))"};
+
+  [[nodiscard]] bool containsUpwardsTraversal(const StrView& str) {
+    return kUpwardsTraversalRegex.match(str);
+  }
+
+  [[nodiscard]] static bool startsWithForwardSlash(const StrView str) {
+    // Precondition
+    assert(!str.empty());
+    return str.front() == '/';
+  }
+  [[nodiscard]] static Str collapseForwardSlashes(const StrView& path) {
+    if (path.size() <= 2) {
+      return Str{path};
+    }
+    Str normalisedPath;
+    normalisedPath.reserve(path.size());
+    if (path[0] == kForwardSlash && path[1] == kForwardSlash && path[2] != kForwardSlash) {
+      // Apparently two leading `/`s are implementation defined, so should
+      // be retained. Any more than two should be collapsed to one.
+      const StrView pathView{path};
+      normalisedPath += pathView.substr(0, 2);
+      normalisedPath += replaceTrailingForwardSlashesInPathSegments(pathView.substr(2));
+    } else {
+      normalisedPath = replaceTrailingForwardSlashesInPathSegments(path);
+    }
+    return normalisedPath;
+  }
+};
+struct Url {
+  Regex kPercentEncodedForwardSlashRegex{R"(%2F)"};
+  [[nodiscard]] bool containsPercentEncodedForwardSlash(const StrView& str) {
+    // Using regex for case-insensitivity.
+    return kPercentEncodedForwardSlashRegex.match(str);
+  }
+};
+struct PathToUrl {
+  Path pathHandler{};
+  ForwardSlashSeparatedString forwardSlashSeparatedStringHandler{};
+
+  [[nodiscard]] Str pathToUrl(const StrView linuxPath) {
+    // Precondition.
+    assert(!linuxPath.empty());
+
+    if (pathHandler.containsUpwardsTraversal(linuxPath)) {
+      throwError(kErrorUpwardsTraversal, linuxPath);
+    }
+    if (!Path::startsWithForwardSlash(linuxPath)) {
+      throwError(kErrorRelativePath, linuxPath);
+    }
+
+    ada::url adaUrl;
+    adaUrl.type = ada::scheme::FILE;
+    // Must explicitly set empty host to get `file://` rather than
+    // `file:`.
+    adaUrl.set_host("");
+
+    Str processedPath;
+    // Ada will %-encode, but with a more limited set that we want.
+    ada::unicode::percent_encode<false>(linuxPath, kPercentEncodeCharacterSet.data(),
+                                        processedPath);
+
+    if (processedPath.empty()) {
+      processedPath = linuxPath;
+    }
+    // Collapse multiple `/` to single, except at the beginning, where
+    // `//` is valid.
+    processedPath = Path::collapseForwardSlashes(processedPath);
+
+    if (!adaUrl.set_pathname(processedPath)) {
+      throwError("Failed to create URL path from UNC path", linuxPath);
+    }
+
+    return adaUrl.get_href();
+  }
+};
+}  // namespace posix
+namespace win {
+
 constexpr StrView kErrorInvalidHostname = "Path references an invalid hostname";
 // E.g. Device path with forward slashes - technically allowed (as a
 // literal rather than path separator) but unsupported by us.
@@ -230,18 +617,6 @@ constexpr std::array kPercentEncodeCharacterSet = [] {
   }
   return path.substr(0, path.size() - kTrailingDotsAndSpacesRegex.lastMatchGroup(1).size());
 }
-
-struct UncDetails {
-  bool isDevicePath;     // i.e. if starts with `\\?\`
-  bool isUncDevicePath;  // i.e. if starts with `\\?\UNC\`
-  bool isDrivePath;      // i.e. if server part is drive letter e.g. \\?\C:
-  StrView hostOrDrive;
-  StrView shareName;
-  StrView sharePath;
-  StrView shareNameAndPath;
-  StrView fullPath;
-};
-
 [[nodiscard]] std::optional<UncDetails> extractUncDetails(const StrView path) {
   if (kUncDevicePathRegex.match(path)) {
     const bool isDevicePath = true;
