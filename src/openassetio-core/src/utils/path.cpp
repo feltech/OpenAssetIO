@@ -230,7 +230,7 @@ struct UncDetails {
   StrView hostOrDrive;
   StrView shareName;
   StrView sharePath;
-  StrView absPath;
+  StrView shareNameAndPath;
   StrView fullPath;
 };
 
@@ -240,28 +240,28 @@ struct UncDetails {
     const bool isUncDevicePath = true;
     const StrView hostOrDrive = kUncDevicePathRegex.lastMatchGroup(1);
     const bool isDrivePath = kDriveRegex.match(hostOrDrive);
-    const StrView absPath = withoutTrailingSlashes(kUncDevicePathRegex.lastMatchGroup(2));
-    StrView shareName{absPath};
+    const StrView shareNameAndPath = withoutTrailingSlashes(kUncDevicePathRegex.lastMatchGroup(2));
+    StrView shareName{shareNameAndPath};
     StrView sharePath;
-    if (kDevicePathHeadAndTailRegex.match(absPath)) {
+    if (kDevicePathHeadAndTailRegex.match(shareNameAndPath)) {
       shareName = kDevicePathHeadAndTailRegex.lastMatchGroup(1);
       sharePath = kDevicePathHeadAndTailRegex.lastMatchGroup(2);
     }
     const StrView fullPath =
-        path.substr(kUncDevicePathPrefixLength, hostOrDrive.size() + absPath.size());
-    return UncDetails{isDevicePath, isUncDevicePath, isDrivePath, hostOrDrive,
-                      shareName,    sharePath,       absPath,     fullPath};
+        path.substr(kUncDevicePathPrefixLength, hostOrDrive.size() + shareNameAndPath.size());
+    return UncDetails{isDevicePath, isUncDevicePath, isDrivePath,      hostOrDrive,
+                      shareName,    sharePath,       shareNameAndPath, fullPath};
   }
   if (kDevicePathRegex.match(path)) {
     const bool isDevicePath = true;
     const bool isUncDevicePath = false;
     const StrView hostOrDrive = kDevicePathRegex.lastMatchGroup(1);
     const bool isDrivePath = kDriveRegex.match(hostOrDrive);
-    const StrView absPath = withoutTrailingSlashes(kDevicePathRegex.lastMatchGroup(2));
+    const StrView shareNameAndPath = withoutTrailingSlashes(kDevicePathRegex.lastMatchGroup(2));
     const StrView fullPath =
-        path.substr(kDevicePathPrefixLength, hostOrDrive.size() + absPath.size());
-    return UncDetails{isDevicePath, isUncDevicePath, isDrivePath, hostOrDrive, {},
-                      {},           absPath,         fullPath};
+        path.substr(kDevicePathPrefixLength, hostOrDrive.size() + shareNameAndPath.size());
+    return UncDetails{isDevicePath, isUncDevicePath,  isDrivePath, hostOrDrive, {},
+                      {},           shareNameAndPath, fullPath};
   }
   if (kUncPathRegex.match(path)) {
     const bool isDevicePath = false;
@@ -269,20 +269,21 @@ struct UncDetails {
     const StrView prefix = kUncPathRegex.lastMatchGroup(1);
     const StrView hostOrDrive = kUncPathRegex.lastMatchGroup(2);
     const bool isDrivePath = kDriveRegex.match(hostOrDrive);
-    StrView absPath = withoutTrailingSlashes(kUncPathRegex.lastMatchGroup(3));
-    StrView shareName{absPath};
+    StrView shareNameAndPath = withoutTrailingSlashes(kUncPathRegex.lastMatchGroup(3));
+    StrView shareName{shareNameAndPath};
     StrView sharePath;
-    if (kPathHeadAndTailRegex.match(absPath)) {
+    if (kPathHeadAndTailRegex.match(shareNameAndPath)) {
       shareName = kPathHeadAndTailRegex.lastMatchGroup(1);
       sharePath = withoutTrailingDotsInFile(withoutTrailingDotsAsFile(
           withoutTrailingDotsOrSpaces(kPathHeadAndTailRegex.lastMatchGroup(2))));
-      // In case absPath is now shorter due to trimming trailing
+      // In case shareNameAndPath is now shorter due to trimming trailing
       // dots/spaces.
-      absPath = absPath.substr(0, shareName.size() + sharePath.size());
+      shareNameAndPath = shareNameAndPath.substr(0, shareName.size() + sharePath.size());
     }
-    const StrView fullPath = path.substr(prefix.size(), hostOrDrive.size() + absPath.size());
-    return UncDetails{isDevicePath, isUncDevicePath, isDrivePath, hostOrDrive,
-                      shareName,    sharePath,       absPath,     fullPath};
+    const StrView fullPath =
+        path.substr(prefix.size(), hostOrDrive.size() + shareNameAndPath.size());
+    return UncDetails{isDevicePath, isUncDevicePath, isDrivePath,      hostOrDrive,
+                      shareName,    sharePath,       shareNameAndPath, fullPath};
   }
 
   return std::nullopt;
@@ -333,7 +334,7 @@ void validateDevicePath(const StrView& windowsPath, const UncDetails& uncDetails
     // Don't support verbatim `/` in UNC device paths, for now.
     throwError(kErrorUnsupportedDevicePath, windowsPath);
   }
-  if (containsDeviceUpwardsTraversal(uncDetails.absPath)) {
+  if (containsDeviceUpwardsTraversal(uncDetails.shareNameAndPath)) {
     // Disallow `..`, except for hostnames.
     throwError(kErrorUpwardsTraversal, windowsPath);
   }
@@ -357,7 +358,7 @@ void validateDevicePath(const StrView& windowsPath, const UncDetails& uncDetails
       throwError(kErrorInvalidPath, windowsPath);
     }
     // `\\?\C:\path`
-    if (uncDetails.absPath.empty()) {
+    if (uncDetails.shareNameAndPath.empty()) {
       // Must be followed by an absolute path e.g. `\\?\C:\`.
       throwError(kErrorInvalidPath, windowsPath);
     }
@@ -380,7 +381,7 @@ void validateUncPath(const StrView& windowsPath, const UncDetails& uncDetails) {
   if (uncDetails.isDevicePath) {
     validateDevicePath(windowsPath, uncDetails);
   } else {
-    if (containsUpwardsTraversal(uncDetails.absPath)) {
+    if (containsUpwardsTraversal(uncDetails.shareNameAndPath)) {
       // Disallow `..`, except for hostnames.
       throwError(kErrorUpwardsTraversal, windowsPath);
     }
@@ -479,11 +480,11 @@ void setUrlPathFromUncPath(const StrView& originalPath, const UncDetails& uncDet
   };
   if (uncDetails.isUncDevicePath) {
     // `\\?\UNC\host\share\path`
-    encodeAndSetPath(replaceTrailingSlashesInPathSegments(uncDetails.absPath));
+    encodeAndSetPath(replaceTrailingSlashesInPathSegments(uncDetails.shareNameAndPath));
   } else if (uncDetails.isDevicePath) {
     // `\\?\C:\path` - `C:` part should not be %-encoded.
     if (Str encodedPath{uncDetails.hostOrDrive}; maybePercentEncodeAndAppendTo(
-            replaceTrailingSlashesInPathSegments(uncDetails.absPath), encodedPath)) {
+            replaceTrailingSlashesInPathSegments(uncDetails.shareNameAndPath), encodedPath)) {
       setPath(encodedPath);
     } else {
       setPath(replaceTrailingSlashesInPathSegments(uncDetails.fullPath));
