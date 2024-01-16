@@ -159,6 +159,7 @@ Regex kDeviceTrailingSlashesRegex{R"(\\(\\+)$)"};
 
 Regex kTrailingSingleDotInSegmentRegex{R"((?<![.\\/])\.(?=[/\\]))"};
 Regex kTrailingSlashesInSegmentRegex{R"(([\\/])[\\/]+)"};
+Regex kDeviceTrailingSlashesInSegmentRegex{R"((\\\\+))"};
 
 Regex kIp6HostRegex{R"(^\[([A-Z0-9:]+)\]$)"};
 
@@ -334,6 +335,10 @@ Str replaceTrailingSlashesInPathSegments(const StrView& path) {
   return kTrailingSlashesInSegmentRegex.substituteToReduceSize(path, "$1");
 }
 
+Str replaceDeviceTrailingSlashesInPathSegments(const StrView& path) {
+  return kDeviceTrailingSlashesInSegmentRegex.substituteToReduceSize(path, R"(\)");
+}
+
 void validateDevicePath(const StrView& windowsPath, const UncDetails& uncDetails) {
   if (uncDetails.fullPath.empty()) {
     // Must have something after the `\\?\` or `\\?\UNC\`
@@ -478,31 +483,30 @@ void setUrlPathFromUncPath(const StrView& originalPath, const UncDetails& uncDet
     }
   };
   const auto encodeAndSetPath = [&setPath](const auto& path) {
-    // Collapse multiple separating slashes down to one.
-    const Str normalisedPath = replaceTrailingSlashesInPathSegments(path);
     // Percent encode what's left.
-    if (Str encodedPath; maybePercentEncodeAndAppendTo(normalisedPath, encodedPath)) {
+    if (Str encodedPath; maybePercentEncodeAndAppendTo(path, encodedPath)) {
       setPath(encodedPath);
     } else {
-      setPath(normalisedPath);
+      setPath(path);
     }
   };
   if (uncDetails.isUncDevicePath) {
     // `\\?\UNC\host\share\path`
-    encodeAndSetPath(uncDetails.shareNameAndPath);
+    encodeAndSetPath(replaceDeviceTrailingSlashesInPathSegments(uncDetails.shareNameAndPath));
   } else if (uncDetails.isDevicePath) {
     // `\\?\C:\path` - `C:` part should not be %-encoded.
     if (Str encodedPath{uncDetails.hostOrDrive}; maybePercentEncodeAndAppendTo(
-            replaceTrailingSlashesInPathSegments(uncDetails.shareNameAndPath), encodedPath)) {
-      setPath(encodedPath);
+            replaceDeviceTrailingSlashesInPathSegments(uncDetails.shareNameAndPath),
+            encodedPath)) {
+      setPath(replaceDeviceTrailingSlashesInPathSegments(encodedPath));
     } else {
-      setPath(replaceTrailingSlashesInPathSegments(uncDetails.fullPath));
+      setPath(replaceDeviceTrailingSlashesInPathSegments(uncDetails.fullPath));
     }
   } else {
     // `\\host\share\path`
     Str normalisedPath{uncDetails.shareName};
     normalisedPath += replaceTrailingDotsInPathSegments(uncDetails.sharePath);
-    encodeAndSetPath(normalisedPath);
+    encodeAndSetPath(replaceTrailingSlashesInPathSegments(normalisedPath));
   }
 }
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
