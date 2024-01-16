@@ -217,10 +217,6 @@ constexpr std::array kPercentEncodeCharacterSet = [] {
 }
 
 [[nodiscard]] StrView withoutTrailingDotsOrSpaces(const StrView& path) {
-  if (kTrailingUpwardsTraversalRegex.match(path)) {
-    // Upwards traversals aren't trimmed.
-    return path;
-  }
   if (!kTrailingDotsAndSpacesRegex.match(path)) {
     return path;
   }
