@@ -8,6 +8,7 @@
 #include <openassetio/hostApi/EntityReferencePager.hpp>
 #include <openassetio/managerApi/EntityReferencePagerInterface.hpp>
 #include <openassetio/managerApi/ManagerInterface.hpp>
+#include <openassetio/managerApi/ManagerUIBase.hpp>
 #include <openassetio/trait/TraitsData.hpp>
 
 namespace openassetio {
@@ -188,6 +189,19 @@ void ManagerInterface::register_(
   throw errors::NotImplementedException{
       UNIMPLEMENTED_ERROR(ManagerInterface::Capability::kPublishing)};
 }
+
+ManagerUIBasePtr ManagerInterface::uiDelegate([[maybe_unused]] const trait::TraitSet& traitSet,
+                                              [[maybe_unused]] access::ResolveAccess resolveAccess,
+                                              [[maybe_unused]] const HostSessionPtr& hostSession) {
+  throw errors::NotImplementedException{
+      UNIMPLEMENTED_ERROR(ManagerInterface::Capability::kResolution)};
+}
+
+void ManagerUIBase::setEntityChosenCallback(
+    // NOLINTNEXTLINE(*-unnecessary-value-param)
+    [[maybe_unused]] std::function<void(EntityReference)> callback) {}
+
+ManagerUIBase::~ManagerUIBase() = default;
 
 }  // namespace managerApi
 }  // namespace OPENASSETIO_CORE_ABI_VERSION

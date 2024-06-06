@@ -22,6 +22,7 @@
 OPENASSETIO_FWD_DECLARE(managerApi, ManagerInterface)
 OPENASSETIO_FWD_DECLARE(managerApi, HostSession)
 OPENASSETIO_FWD_DECLARE(Context)
+OPENASSETIO_FWD_DECLARE(managerApi, ManagerUIBase)
 
 namespace openassetio {
 inline namespace OPENASSETIO_CORE_ABI_VERSION {
@@ -2670,6 +2671,9 @@ class OPENASSETIO_CORE_EXPORT Manager final {
       const BatchElementErrorPolicyTag::Variant& errorPolicyTag);
 
   /// @}
+
+  managerApi::ManagerUIBasePtr uiDelegate(const trait::TraitSet& traitSet,
+                                          access::ResolveAccess resolveAccess);
 
  private:
   explicit Manager(managerApi::ManagerInterfacePtr managerInterface,

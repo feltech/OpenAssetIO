@@ -26,4 +26,5 @@ ManagerInterface = _openassetio.managerApi.ManagerInterface
 Host = _openassetio.managerApi.Host
 HostSession = _openassetio.managerApi.HostSession
 ManagerStateBase = _openassetio.managerApi.ManagerStateBase
+ManagerUIBase = _openassetio.managerApi.ManagerUIBase
 EntityReferencePagerInterface = _openassetio.managerApi.EntityReferencePagerInterface

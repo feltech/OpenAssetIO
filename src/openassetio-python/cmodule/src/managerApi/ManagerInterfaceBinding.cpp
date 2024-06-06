@@ -10,6 +10,7 @@
 #include <openassetio/managerApi/HostSession.hpp>
 #include <openassetio/managerApi/ManagerInterface.hpp>
 #include <openassetio/managerApi/ManagerStateBase.hpp>
+#include <openassetio/managerApi/ManagerUIBase.hpp>
 #include <openassetio/trait/TraitsData.hpp>
 #include <openassetio/trait/collection.hpp>
 #include <openassetio/typedefs.hpp>
@@ -29,6 +30,7 @@ struct PyManagerInterface : ManagerInterface {
   using ManagerInterface::ManagerInterface;
 
   using PyRetainingManagerStateBasePtr = PyRetainingSharedPtr<ManagerStateBase>;
+  using PyRetainingManagerUIBasePtr = PyRetainingSharedPtr<ManagerUIBase>;
 
   [[nodiscard]] Identifier identifier() const override {
     OPENASSETIO_PYBIND11_OVERRIDE_PURE(Identifier, ManagerInterface, identifier, /* no args */);
@@ -188,6 +190,12 @@ struct PyManagerInterface : ManagerInterface {
                                        hostSession, successCallback, errorCallback);
   }
 
+  ManagerUIBasePtr uiDelegate(const trait::TraitSet& traitSet, access::ResolveAccess resolveAccess,
+                              const HostSessionPtr& hostSession) override {
+    OPENASSETIO_PYBIND11_OVERRIDE(PyRetainingManagerUIBasePtr, ManagerInterface, uiDelegate,
+                                  traitSet, resolveAccess, hostSession);
+  };
+
   // Hoist protected members
   using ManagerInterface::createEntityReference;
 };
@@ -295,5 +303,7 @@ void registerManagerInterface(const py::module& mod) {
            py::arg("successCallback"), py::arg("errorCallback"),
            py::call_guard<py::gil_scoped_release>{})
       .def("_createEntityReference", &PyManagerInterface::createEntityReference,
-           py::arg("entityReferenceString"));
+           py::arg("entityReferenceString"))
+      .def("uiDelegate", &ManagerInterface::uiDelegate, py::arg("traitSet"),
+           py::arg("resolveAccess"), py::arg("hostSession"));
 }

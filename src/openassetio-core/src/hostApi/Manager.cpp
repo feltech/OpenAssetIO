@@ -321,6 +321,10 @@ void Manager::register_(const EntityReferences &entityReferences,
                                       context, hostSession_, successCallback, errorCallback);
 }
 
+managerApi::ManagerUIBasePtr Manager::uiDelegate(const trait::TraitSet &traitSet,
+                                                 access::ResolveAccess resolveAccess) {
+  return managerInterface_->uiDelegate(traitSet, resolveAccess, hostSession_);
+}
 }  // namespace hostApi
 }  // namespace OPENASSETIO_CORE_ABI_VERSION
 }  // namespace openassetio

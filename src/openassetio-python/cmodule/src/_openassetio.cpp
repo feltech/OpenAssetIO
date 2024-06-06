@@ -42,6 +42,7 @@ PYBIND11_MODULE(_openassetio, mod) {
   registerBatchElementError(errors);
   registerExceptions(errors);
   registerEntityReference(mod);
+  registerManagerUIBase(managerApi);
   registerHostInterface(hostApi);
   registerHost(managerApi);
   registerHostSession(managerApi);

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <any>
 #include <functional>
 #include <memory>
 #include <optional>
@@ -22,6 +23,7 @@
 OPENASSETIO_FWD_DECLARE(managerApi, EntityReferencePagerInterface)
 OPENASSETIO_FWD_DECLARE(managerApi, ManagerStateBase)
 OPENASSETIO_FWD_DECLARE(managerApi, HostSession)
+OPENASSETIO_FWD_DECLARE(managerApi, ManagerUIBase)
 OPENASSETIO_FWD_DECLARE(Context)
 
 namespace openassetio {
@@ -1724,6 +1726,11 @@ class OPENASSETIO_CORE_EXPORT ManagerInterface {
                          const BatchElementErrorCallback& errorCallback);
 
   /// @}
+
+  virtual ManagerUIBasePtr uiDelegate(const trait::TraitSet& traitSet,
+                                      access::ResolveAccess resolveAccess,
+                                      const HostSessionPtr& hostSession);
+
  protected:
   /**
    * Create an @ref EntityReference object wrapping a given @ref

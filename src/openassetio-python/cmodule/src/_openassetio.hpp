@@ -117,3 +117,5 @@ void registerCppPluginSystem(const py::module& mod);
 
 // Register the C++ plugin system manager factory
 void registerCppPluginSystemManagerImplementationFactory(const py::module& mod);
+
+void registerManagerUIBase(const py::module& mod);
