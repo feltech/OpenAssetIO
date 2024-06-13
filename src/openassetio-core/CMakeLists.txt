@@ -93,6 +93,7 @@ target_sources(
     src/utils/path/windows/pathTypes.cpp
     src/utils/path/posix.cpp
     src/utils/path/posix/detail.cpp
+    src/utils/substitute.cpp
 )
 
 # Public header dependency.
@@ -160,4 +161,7 @@ install(
 
 if (OPENASSETIO_ENABLE_TESTS)
     add_subdirectory(tests)
+    if (OPENASSETIO_ENABLE_TEST_ABI)
+        openassetio_add_abi_test_target(openassetio-core)
+    endif ()
 endif ()
