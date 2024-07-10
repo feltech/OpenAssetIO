@@ -103,8 +103,14 @@ cmake --install build
 The artifacts are installed to `/build/dist`. This default location can
 be overridden by setting `CMAKE_INSTALL_PREFIX` prior to build.
 
-By default, OpenAssetIO builds as a shared library. This can be
-overridden by setting `BUILD_SHARED_LIBS` prior to build.
+By default, OpenAssetIO builds as a shared library.
+
+> **Warning**
+>
+> It is strongly recommended that OpenAssetIO is built as a shared
+> library, to ensure that OpenAssetIO C++ manager plugins can load
+> correctly.
+
 If shared library builds are disabled, then the core library will
 be built and installed as a static library, and statically linked into
 the Python module.
@@ -163,7 +169,6 @@ behaviour of the build.
 
 | Option                                            | Description                                                           | Default |
 |---------------------------------------------------|-----------------------------------------------------------------------|---------|
-| `BUILD_SHARED_LIBS`                               | `ON` to build shared libraries. `OFF` to build static libraries.      | `ON`    |
 | `OPENASSETIO_ENABLE_PYTHON`                       | Additionally build python bindings                                    | `ON`    |
 | `OPENASSETIO_PYTHON_SITEDIR`                      | Python site-packages install prefix subdirectory                      | auto    |
 | `OPENASSETIO_ENABLE_PYTHON_STUBGEN`               | Enable Python .pyi stub file generation                               | `ON`    |
