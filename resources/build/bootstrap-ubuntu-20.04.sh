@@ -14,10 +14,12 @@ export CONAN_USER_HOME="$HOME/conan"
 # Create default conan profile so we can configure it before install.
 # Use --force so that if it already exists we don't error out.
 conan profile new default --detect --force
-# Use old C++11 ABI as per VFX Reference Platform CY2022. Not strictly
-# necessary as this is the default for conan, but we can't be certain
-# it'll remain the default in future.
-conan profile update settings.compiler.libcxx=libstdc++ default
+# Use non-deprecated libstdc++ ABI. This is a bit of a mismatch between
+# VFX Reference Platform. Ubuntu 20.04 ships with GCC 9, which seems to
+# imply VFX CY22 and thus deprecated ABI. However, OpenAssetIO will, by
+# default, use the system default ABI, which on Ubuntu 20.04 is the
+# non-deprecated ABI.
+conan profile update settings.compiler.libcxx=libstdc++11 default
 # If we need to pin a package to a specific Conan recipe revision, then
 # we need to explicitly opt-in to this functionality.
 conan config set general.revisions_enabled=True

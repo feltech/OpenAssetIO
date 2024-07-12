@@ -152,8 +152,7 @@ option(OPENASSETIO_ENABLE_IPO
 option(OPENASSETIO_ENABLE_POSITION_INDEPENDENT_CODE
     "Enable position independent code for static library builds" ON)
 
-# Disable C++11 ABI by default, as per current VFX reference
-# platform(s), but allow optionally enabling.
+# Allow overriding the libstdc++ ABI from the system default.
 # For reference, note that the default varies by platform, e.g.
 # * CentOS 7.9.2009's GCC 6.3, `_GLIBCXX_USE_CXX11_ABI` is
 #   always `0` and cannot be overridden.
@@ -161,7 +160,8 @@ option(OPENASSETIO_ENABLE_POSITION_INDEPENDENT_CODE
 #   to `1`, but can be overridden.
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
     CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 5.0)
-    option(OPENASSETIO_GLIBCXX_USE_CXX11_ABI "For gcc, use the new C++11 library ABI" OFF)
+    set(OPENASSETIO_GLIBCXX_USE_CXX11_ABI "" CACHE STRING
+        "For libstdc++, use the non-deprecated library ABI - blank for auto (default)")
 endif ()
 
 # Whether to use RPATH or RUNPATH runtime search path behavior.
@@ -351,7 +351,9 @@ message(STATUS "Warnings as errors                 = ${OPENASSETIO_WARNINGS_AS_E
 message(STATUS "Interprocedural optimization       = ${OPENASSETIO_ENABLE_IPO}")
 message(STATUS "Enable PIC for static libs         = ${OPENASSETIO_ENABLE_POSITION_INDEPENDENT_CODE}")
 if (IS_GCC_OR_CLANG)
-    message(STATUS "New C++11 ABI for gcc              = ${OPENASSETIO_GLIBCXX_USE_CXX11_ABI}")
+    if (DEFINED OPENASSETIO_GLIBCXX_USE_CXX11_ABI)
+        message(STATUS "libstdc++ non-deprecated ABI       = ${OPENASSETIO_GLIBCXX_USE_CXX11_ABI}")
+    endif ()
     message(STATUS "RUNPATH rather than RPATH          = ${OPENASSETIO_ENABLE_NEW_DTAGS}")
     message(STATUS "Coverage reports                   = ${OPENASSETIO_ENABLE_COVERAGE}")
     message(STATUS "libstdc++ debug mode               = ${OPENASSETIO_ENABLE_GLIBCXX_DEBUG}")

@@ -72,9 +72,10 @@ function(openassetio_set_default_target_properties target_name)
         target_link_options(${target_name} PRIVATE ${_exclude_all_libs_linker_flag})
     endif ()
 
-    # Whether to use the old or new C++ ABI with gcc.
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
-        CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 5.0)
+    # Whether to use the old or new C++ ABI with libstdc++. Not defined
+    # means not relevant, blank means use the system/compiler default.
+    if (DEFINED OPENASSETIO_GLIBCXX_USE_CXX11_ABI AND
+        NOT OPENASSETIO_GLIBCXX_USE_CXX11_ABI STREQUAL "")
         if (OPENASSETIO_GLIBCXX_USE_CXX11_ABI)
             target_compile_definitions(${target_name} PRIVATE _GLIBCXX_USE_CXX11_ABI=1)
         else ()

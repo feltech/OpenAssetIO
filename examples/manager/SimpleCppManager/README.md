@@ -46,7 +46,7 @@ project, and assuming a POSIX host
 
 ```sh
 export CMAKE_PREFIX_PATH=/path/to/OpenAssetIO/dist
-cmake -S . -B build -DOPENASSETIO_GLIBCXX_USE_CXX11_ABI=OFF
+cmake -S . -B build
 cmake --build build --parallel
 cmake --install build --prefix /path/to/OpenAssetIO/plugins
 ```
