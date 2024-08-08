@@ -161,7 +161,7 @@ jobs:
     # reference platform compatible Docker image, which we have
     # pre-installed libabigail into for performing the ABI diff checks.
     container:
-      image: ghcr.io/openassetio/openassetio-build
+      image: ghcr.io/openassetio/openassetio-build:2024.5.rc1
 
     steps:
       - uses: actions/checkout@v3 # Needs to be V3 because of GLIBC ver.
