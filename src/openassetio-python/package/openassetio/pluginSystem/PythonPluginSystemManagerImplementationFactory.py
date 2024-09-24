@@ -96,7 +96,7 @@ class PythonPluginSystemManagerImplementationFactory(ManagerImplementationFactor
 
         if paths is None:
             paths = os.environ.get(self.kPluginEnvVar, "")
-        self.__paths = paths
+        self.__fixedPaths = paths
 
         if disableEntryPointsPlugins is None:
             disableEntryPointsPlugins = os.environ.get(self.kDisableEntryPointsEnvVar, False)
@@ -128,6 +128,20 @@ class PythonPluginSystemManagerImplementationFactory(ManagerImplementationFactor
             self._logger.debug("Entry point based plugins are disabled")
         else:
             self.__pluginManager.scan_entry_points(self.kPackageEntryPointGroup)
+
+    @property
+    def __paths(self):
+        """
+        Returns the paths to search for plugins.
+
+        If paths were passed during construction, then use those,
+        otherwise use the value of the @ref kPluginEnvVar environment
+        variable.
+
+        @return `str` A **PATH**-style list of directories to search
+        for plugins.
+        """
+        return self.__fixedPaths or os.environ.get(self.kPluginEnvVar, "")
 
     def identifiers(self):
         """

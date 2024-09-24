@@ -59,19 +59,39 @@ class Test_CppPluginSystemManagerImplementationFactory_lazy_scanning:
 
         mock_logger.mock.log.assert_called_once_with(expected_severity, expected_msg)
 
-    def test_when_no_args_and_path_env_then_path_plugins_loaded(
+    def test_when_no_args_and_path_env_then_plugin_identifiers_available(
         self,
         a_cpp_manager_plugin_path,
         plugin_a_identifier,
         mock_logger,
         monkeypatch,
     ):
+        factory = CppPluginSystemManagerImplementationFactory(mock_logger)
+        # Set env var _after_ construction, since env var might be
+        # modified in-process, see
+        # ManagerFactory.defaultManagerForInterface.
         monkeypatch.setenv(
             CppPluginSystemManagerImplementationFactory.kPluginEnvVar,
             a_cpp_manager_plugin_path,
         )
-        factory = CppPluginSystemManagerImplementationFactory(mock_logger)
         assert factory.identifiers() == [plugin_a_identifier]
+
+    def test_when_no_args_and_path_env_then_plugin_instantiation_available(
+        self,
+        a_cpp_manager_plugin_path,
+        plugin_a_identifier,
+        mock_logger,
+        monkeypatch,
+    ):
+        factory = CppPluginSystemManagerImplementationFactory(mock_logger)
+        # Set env var _after_ construction, since env var might be
+        # modified in-process, see
+        # ManagerFactory.defaultManagerForInterface.
+        monkeypatch.setenv(
+            CppPluginSystemManagerImplementationFactory.kPluginEnvVar,
+            a_cpp_manager_plugin_path,
+        )
+        assert factory.instantiate(plugin_a_identifier)
 
     def test_when_path_arg_set_then_overrides_path_env(
         self,

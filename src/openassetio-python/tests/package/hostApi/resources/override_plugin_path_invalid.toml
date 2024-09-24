@@ -1,0 +1,3 @@
+[manager]
+identifier = "identifier.from.toml.file"
+plugin_paths = 123

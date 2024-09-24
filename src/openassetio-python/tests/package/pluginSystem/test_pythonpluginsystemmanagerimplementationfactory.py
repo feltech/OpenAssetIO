@@ -91,18 +91,37 @@ class Test_PythonPluginSystemManagerImplementationFactory_init:
         factory = PythonPluginSystemManagerImplementationFactory(ConsoleLogger())
         assert factory.identifiers() == []
 
-    def test_when_no_args_and_path_env_then_path_plugins_loaded(
+    def test_when_no_args_and_path_env_then_identifiers_available(
         self,
         a_python_module_plugin_path,
         plugin_a_identifier,
         monkeypatch,
     ):
+        factory = PythonPluginSystemManagerImplementationFactory(ConsoleLogger())
+        # Set env var _after_ construction, since env var might be
+        # modified in-process, see
+        # ManagerFactory.defaultManagerForInterface.
         monkeypatch.setenv(
             PythonPluginSystemManagerImplementationFactory.kPluginEnvVar,
             a_python_module_plugin_path,
         )
-        factory = PythonPluginSystemManagerImplementationFactory(ConsoleLogger())
         assert factory.identifiers() == [plugin_a_identifier]
+
+    def test_when_no_args_and_path_env_then_instantiation_available(
+        self,
+        a_python_module_plugin_path,
+        plugin_a_identifier,
+        monkeypatch,
+    ):
+        factory = PythonPluginSystemManagerImplementationFactory(ConsoleLogger())
+        # Set env var _after_ construction, since env var might be
+        # modified in-process, see
+        # ManagerFactory.defaultManagerForInterface.
+        monkeypatch.setenv(
+            PythonPluginSystemManagerImplementationFactory.kPluginEnvVar,
+            a_python_module_plugin_path,
+        )
+        assert factory.instantiate(plugin_a_identifier)
 
     def test_when_path_arg_set_then_overrides_path_env(
         self,

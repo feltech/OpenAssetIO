@@ -19,6 +19,8 @@
 #include <openassetio/pluginSystem/CppPluginSystem.hpp>
 #include <openassetio/pluginSystem/CppPluginSystemPlugin.hpp>
 
+#include "./platform.hpp"
+
 namespace openassetio {
 inline namespace OPENASSETIO_CORE_ABI_VERSION {
 namespace pluginSystem {
@@ -78,17 +80,6 @@ std::string dlerror() {
 }
 #endif
 
-#if defined(_WIN32)
-// Shared module library file extension.
-constexpr std::string_view kLibExt = ".dll";
-// Path separator for encoding multiple search paths in a single string.
-constexpr char kPathSep = ';';
-#else
-// Shared module library file extension.
-constexpr std::string_view kLibExt = ".so";
-// Path separator for encoding multiple search paths in a single string.
-constexpr char kPathSep = ':';
-#endif
 }  // namespace
 
 CppPluginSystemPtr CppPluginSystem::make(log::LoggerInterfacePtr logger) {

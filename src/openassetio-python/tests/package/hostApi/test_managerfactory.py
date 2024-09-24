@@ -26,6 +26,7 @@ from unittest import mock
 import pytest
 
 from openassetio import _openassetio, errors  # pylint: disable=no-name-in-module
+from openassetio.errors import ConfigurationException
 from openassetio.hostApi import ManagerFactory, Manager, ManagerImplementationFactoryInterface
 from openassetio.log import LoggerInterface
 
@@ -424,6 +425,121 @@ class Test_ManagerFactory_defaultManagerForInterface:
                 mock_logger,
             )
 
+    @pytest.mark.parametrize("use_env_var_for_config_file", [True, False])
+    def test_when_plugin_path_in_config_and_env_var_not_set_then_env_var_updated_for_factory(
+        self,
+        monkeypatch,
+        use_env_var_for_config_file,
+        override_plugin_path_config,
+        resources_dir,
+        mock_manager_implementation_factory,
+        mock_host_interface,
+        mock_logger,
+        create_mock_manager_interface,
+    ):
+        expected_manager_identifier = "identifier.from.toml.file"
+        mock_manager_interface = create_mock_manager_interface()
+        mock_manager_interface.mock.identifier.return_value = expected_manager_identifier
+        monkeypatch.delenv("OPENASSETIO_PLUGIN_PATH", raising=False)
+
+        def assert_env_var_updated(*args):
+            assert os.getenv("OPENASSETIO_PLUGIN_PATH") == os.pathsep.join(
+                (f"{resources_dir}/my/🐈/{resources_dir}", "/another/path")
+            )
+            return mock.DEFAULT
+
+        mock_manager_implementation_factory.mock.instantiate.side_effect = assert_env_var_updated
+        mock_manager_implementation_factory.mock.instantiate.return_value = mock_manager_interface
+
+        if use_env_var_for_config_file:
+            ManagerFactory.defaultManagerForInterface(
+                mock_host_interface, mock_manager_implementation_factory, mock_logger
+            )
+        else:
+            ManagerFactory.defaultManagerForInterface(
+                override_plugin_path_config,
+                mock_host_interface,
+                mock_manager_implementation_factory,
+                mock_logger,
+            )
+
+        # Env var reset after use.
+        assert os.environ.get("OPENASSETIO_PLUGIN_PATH") is None
+        mock_manager_implementation_factory.mock.instantiate.assert_called_once_with(
+            expected_manager_identifier
+        )
+
+    @pytest.mark.parametrize("use_env_var_for_config_file", [True, False])
+    def test_when_plugin_path_in_config_and_env_var_set_then_env_var_not_updated_for_factory(
+        self,
+        monkeypatch,
+        use_env_var_for_config_file,
+        override_plugin_path_config,
+        mock_manager_implementation_factory,
+        mock_host_interface,
+        mock_logger,
+        create_mock_manager_interface,
+    ):
+        expected_manager_identifier = "identifier.from.toml.file"
+        mock_manager_interface = create_mock_manager_interface()
+        mock_manager_interface.mock.identifier.return_value = expected_manager_identifier
+        monkeypatch.setenv("OPENASSETIO_PLUGIN_PATH", "/some/path")
+
+        def assert_env_var_not_updated(*args):
+            assert os.environ["OPENASSETIO_PLUGIN_PATH"] == "/some/path"
+            return mock.DEFAULT
+
+        mock_manager_implementation_factory.mock.instantiate.side_effect = (
+            assert_env_var_not_updated
+        )
+        mock_manager_implementation_factory.mock.instantiate.return_value = mock_manager_interface
+
+        if use_env_var_for_config_file:
+            ManagerFactory.defaultManagerForInterface(
+                mock_host_interface, mock_manager_implementation_factory, mock_logger
+            )
+        else:
+            ManagerFactory.defaultManagerForInterface(
+                override_plugin_path_config,
+                mock_host_interface,
+                mock_manager_implementation_factory,
+                mock_logger,
+            )
+
+        mock_logger.mock.log.assert_called_with(
+            LoggerInterface.Severity.kWarning,
+            "OPENASSETIO_PLUGIN_PATH environment variable overrides plugin paths in config file",
+        )
+        # Env var remains unmodified.
+        assert os.environ["OPENASSETIO_PLUGIN_PATH"] == "/some/path"
+        mock_manager_implementation_factory.mock.instantiate.assert_called_once_with(
+            expected_manager_identifier
+        )
+
+    @pytest.mark.parametrize("use_env_var_for_config_file", [True, False])
+    def test_when_invalid_plugin_path_in_config_then_raises(
+        self,
+        use_env_var_for_config_file,
+        invalid_override_plugin_path_config,
+        mock_manager_implementation_factory,
+        mock_host_interface,
+        mock_logger,
+    ):
+        expected_error = "Invalid 'plugin_paths' value, must be an array of strings."
+
+        with pytest.raises(ConfigurationException, match=expected_error):
+            if use_env_var_for_config_file:
+                ManagerFactory.defaultManagerForInterface(
+                    mock_host_interface, mock_manager_implementation_factory, mock_logger
+                )
+            else:
+                ManagerFactory.defaultManagerForInterface(
+                    invalid_override_plugin_path_config,
+                    mock_host_interface,
+                    mock_manager_implementation_factory,
+                    mock_logger,
+                )
+
 
 class Test_ManagerFactory_createManager:
     def test_returns_a_manager(self, a_manager_factory):
@@ -537,6 +653,22 @@ def resources_dir():
 @pytest.fixture()
 def valid_manager_config(resources_dir, monkeypatch, use_env_var_for_config_file):
     toml_path = os.path.join(resources_dir, "default_manager.toml")
+    if use_env_var_for_config_file:
+        monkeypatch.setenv("OPENASSETIO_DEFAULT_CONFIG", toml_path)
+    return toml_path
+
+
+@pytest.fixture
+def override_plugin_path_config(resources_dir, monkeypatch, use_env_var_for_config_file):
+    toml_path = os.path.join(resources_dir, "override_plugin_path.toml")
+    if use_env_var_for_config_file:
+        monkeypatch.setenv("OPENASSETIO_DEFAULT_CONFIG", toml_path)
+    return toml_path
+
+
+@pytest.fixture
+def invalid_override_plugin_path_config(resources_dir, monkeypatch, use_env_var_for_config_file):
+    toml_path = os.path.join(resources_dir, "override_plugin_path_invalid.toml")
     if use_env_var_for_config_file:
         monkeypatch.setenv("OPENASSETIO_DEFAULT_CONFIG", toml_path)
     return toml_path

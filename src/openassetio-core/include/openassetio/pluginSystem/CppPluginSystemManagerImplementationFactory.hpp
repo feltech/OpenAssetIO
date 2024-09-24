@@ -103,11 +103,11 @@ class OPENASSETIO_CORE_EXPORT CppPluginSystemManagerImplementationFactory
   /// Private constructor. See @ref make.
   explicit CppPluginSystemManagerImplementationFactory(log::LoggerInterfacePtr logger);
   /// Private constructor. See @ref make.
-  CppPluginSystemManagerImplementationFactory(openassetio::Str paths,
+  CppPluginSystemManagerImplementationFactory(openassetio::Str fixedPaths,
                                               log::LoggerInterfacePtr logger);
 
   /// Search paths provided on construction.
-  openassetio::Str paths_;
+  openassetio::Str fixedPaths_;
 
   /**
    * Underlying plugin system for loading generic OpenAssetIO plugins.
