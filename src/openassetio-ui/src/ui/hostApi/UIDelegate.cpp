@@ -16,15 +16,15 @@ namespace ui::hostApi {
 
 using HostSessionPtr = openassetio::managerApi::HostSessionPtr;
 
-UIDelegatePtr UIDelegate::make(managerApi::UIDelegateInterfacePtr managerInterface,
+UIDelegatePtr UIDelegate::make(managerApi::UIDelegateInterfacePtr uiDelegateInterface,
                                HostSessionPtr hostSession) {
   return std::shared_ptr<UIDelegate>(
-      new UIDelegate(std::move(managerInterface), std::move(hostSession)));
+      new UIDelegate(std::move(uiDelegateInterface), std::move(hostSession)));
 }
 
-UIDelegate::UIDelegate(managerApi::UIDelegateInterfacePtr managerInterface,
+UIDelegate::UIDelegate(managerApi::UIDelegateInterfacePtr uiDelegateInterface,
                        HostSessionPtr hostSession)
-    : uiDelegateInterface_{std::move(managerInterface)}, hostSession_{std::move(hostSession)} {}
+    : uiDelegateInterface_{std::move(uiDelegateInterface)}, hostSession_{std::move(hostSession)} {}
 
 Identifier UIDelegate::identifier() const { return uiDelegateInterface_->identifier(); }
 
@@ -32,8 +32,8 @@ Str UIDelegate::displayName() const { return uiDelegateInterface_->displayName()
 
 InfoDictionary UIDelegate::settings() { return uiDelegateInterface_->settings(hostSession_); }
 
-void UIDelegate::initialize(InfoDictionary managerSettings) {
-  uiDelegateInterface_->initialize(std::move(managerSettings), hostSession_);
+void UIDelegate::initialize(InfoDictionary uiDelegateSettings) {
+  uiDelegateInterface_->initialize(std::move(uiDelegateSettings), hostSession_);
 }
 
 void UIDelegate::flushCaches() { uiDelegateInterface_->flushCaches(hostSession_); }

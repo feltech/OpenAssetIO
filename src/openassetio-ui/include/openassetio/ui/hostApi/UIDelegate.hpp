@@ -32,7 +32,7 @@ class OPENASSETIO_UI_EXPORT UIDelegate final {
    * Constructs a new UIDelegate wrapping the supplied UI delegate
    * interface and host session.
    */
-  [[nodiscard]] static UIDelegatePtr make(managerApi::UIDelegateInterfacePtr managerInterface,
+  [[nodiscard]] static UIDelegatePtr make(managerApi::UIDelegateInterfacePtr uiDelegateInterface,
                                           openassetio::managerApi::HostSessionPtr hostSession);
 
   /**
@@ -127,7 +127,7 @@ class OPENASSETIO_UI_EXPORT UIDelegate final {
    *
    * @note This method may block for extended periods of time.
    */
-  void initialize(InfoDictionary managerSettings);
+  void initialize(InfoDictionary uiDelegateSettings);
 
   /**
    * Clears any internal caches.
@@ -142,7 +142,7 @@ class OPENASSETIO_UI_EXPORT UIDelegate final {
    * @}
    */
  private:
-  explicit UIDelegate(managerApi::UIDelegateInterfacePtr managerInterface,
+  explicit UIDelegate(managerApi::UIDelegateInterfacePtr uiDelegateInterface,
                       openassetio::managerApi::HostSessionPtr hostSession);
 
   managerApi::UIDelegateInterfacePtr uiDelegateInterface_;
