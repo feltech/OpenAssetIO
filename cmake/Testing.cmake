@@ -210,8 +210,9 @@ if (OPENASSETIO_ENABLE_PYTHON)
     #-------------------------------------------------------------------
     # Add target that runs pytest.
     #
-    # Add `--capture=tee-sys` to ensure output shows sanitizer errors
-    # (and is useful for debugging regardless).
+    # * `--capture=tee-sys` to ensure output shows sanitizer errors
+    #   (and is useful for debugging regardless).#
+    # * `-vv` prints full diff in failures.
     function(openassetio_add_pytest_target
         target_name description target_directory working_directory)
         if (WIN32)
@@ -225,7 +226,7 @@ if (OPENASSETIO_ENABLE_PYTHON)
             ${target_name}
             COMMAND ${CMAKE_COMMAND} -E echo -- ${description}
             COMMAND ${CMAKE_COMMAND} -E env ${pytest_env}
-            ${OPENASSETIO_PYTHON_EXE} -m pytest -v --capture=tee-sys
+            ${OPENASSETIO_PYTHON_EXE} -m pytest -vv --capture=tee-sys
             ${target_directory}
             WORKING_DIRECTORY "${working_directory}"
             USES_TERMINAL
