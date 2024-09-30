@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <any>
 #include <functional>
 #include <memory>
 #include <optional>
@@ -193,6 +194,9 @@ class OPENASSETIO_UI_EXPORT UIDelegateInterface {
    */
   virtual void flushCaches(const HostSessionPtr& hostSession);
 
+  virtual std::any populateUI(const std::any& container, const trait::TraitsDataConstPtr& uiTraits,
+                              const trait::TraitsDataConstPtr& entityTraits,
+                              const std::any& nativeData, const HostSessionPtr& hostSession);
   /**
    * @}
    */

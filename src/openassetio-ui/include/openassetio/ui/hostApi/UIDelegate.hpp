@@ -2,6 +2,7 @@
 // Copyright 2024 The Foundry Visionmongers Ltd
 #pragma once
 
+#include <any>
 #include <memory>
 #include <optional>
 #include <string>
@@ -9,6 +10,7 @@
 #include <openassetio/export.h>
 #include <openassetio/ui/export.h>
 #include <openassetio/InfoDictionary.hpp>
+#include <openassetio/trait/TraitsData.hpp>
 #include <openassetio/typedefs.hpp>
 
 OPENASSETIO_FWD_DECLARE(ui::managerApi, UIDelegateInterface)
@@ -137,6 +139,10 @@ class OPENASSETIO_UI_EXPORT UIDelegate final {
    * retained data to be discarded to ensure future queries are fresh.
    */
   void flushCaches();
+
+  std::any populateUI(const std::any& container, const trait::TraitsDataConstPtr& uiTraits,
+                      const trait::TraitsDataConstPtr& entityTraits,
+                      const std::any& nativeData = {});
 
   /**
    * @}

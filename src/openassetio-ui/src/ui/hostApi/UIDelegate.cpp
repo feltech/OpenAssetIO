@@ -38,6 +38,14 @@ void UIDelegate::initialize(InfoDictionary uiDelegateSettings) {
 
 void UIDelegate::flushCaches() { uiDelegateInterface_->flushCaches(hostSession_); }
 
+std::any UIDelegate::populateUI(const std::any& container,
+                                const trait::TraitsDataConstPtr& uiTraits,
+                                const trait::TraitsDataConstPtr& entityTraits,
+                                const std::any& nativeData) {
+  return uiDelegateInterface_->populateUI(container, uiTraits, entityTraits, nativeData,
+                                          hostSession_);
+}
+
 InfoDictionary UIDelegate::info() { return uiDelegateInterface_->info(); }
 
 }  // namespace ui::hostApi

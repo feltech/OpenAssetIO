@@ -14,6 +14,7 @@ target_sources(
     PyRetainingSharedPtrTest.cpp
     errorsTest.cpp
     gilTest.cpp
+    UIDelegateTest.cpp
 )
 
 # Give access to private headers.
@@ -27,6 +28,8 @@ target_link_libraries(
     trompeloeil::trompeloeil
     # Core C++ library.
     openassetio-core
+    # UI delegate library.
+    openassetio-ui
     # Python C++ bridge library.
     openassetio-python-bridge
     # pybind, including its handy transitive Python-specific properties.

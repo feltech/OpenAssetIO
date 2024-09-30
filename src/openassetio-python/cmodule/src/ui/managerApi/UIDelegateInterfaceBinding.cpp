@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2024 The Foundry Visionmongers Ltd
+#include <fmt/format.h>
 #include <pybind11/functional.h>
 #include <pybind11/stl.h>
 
@@ -15,11 +16,11 @@
 
 #include "../../_openassetio.hpp"
 #include "../../overrideMacros.hpp"
+#include "../anyCastToPyObject.hpp"
 
 namespace openassetio {
 inline namespace OPENASSETIO_CORE_ABI_VERSION {
 namespace ui::managerApi {
-
 /**
  * Trampoline class required for pybind to bind pure virtual methods
  * and allow C++ -> Python calls via a C++ instance.
@@ -51,6 +52,17 @@ struct PyUIDelegateInterface : UIDelegateInterface {
   void flushCaches(const HostSessionPtr& hostSession) override {
     OPENASSETIO_PYBIND11_OVERRIDE(void, UIDelegateInterface, flushCaches, hostSession);
   }
+  std::any populateUI(const std::any& container, const trait::TraitsDataConstPtr& uiTraits,
+                      const trait::TraitsDataConstPtr& entityTraits, const std::any& nativeData,
+                      const HostSessionPtr& hostSession) override {
+    py::object pyContainer = anyCastToPyObject(container);
+    py::object pyNativeData = anyCastToPyObject(nativeData);
+
+    OPENASSETIO_PYBIND11_OVERRIDE_ARGS(
+        py::object, UIDelegateInterface, populateUI,
+        (container, uiTraits, entityTraits, nativeData, hostSession), std::move(pyContainer),
+        uiTraits, entityTraits, std::move(pyNativeData), hostSession);
+  }
 };
 
 }  // namespace ui::managerApi
@@ -62,6 +74,7 @@ void registerUIDelegateInterface(const py::module& mod) {
   using openassetio::EntityReference;
   using openassetio::EntityReferences;
   using openassetio::managerApi::HostSessionPtr;
+  using openassetio::trait::TraitsDataConstPtr;
   using openassetio::trait::TraitsDataPtr;
   using openassetio::ui::managerApi::PyUIDelegateInterface;
   using openassetio::ui::managerApi::UIDelegateInterface;
@@ -81,5 +94,17 @@ void registerUIDelegateInterface(const py::module& mod) {
       .def("initialize", &UIDelegateInterface::initialize, py::arg("managerSettings"),
            py::arg("hostSession").none(false), py::call_guard<py::gil_scoped_release>{})
       .def("flushCaches", &UIDelegateInterface::flushCaches, py::arg("hostSession").none(false),
-           py::call_guard<py::gil_scoped_release>{});
+           py::call_guard<py::gil_scoped_release>{})
+      .def(
+          "populateUI",
+          [](UIDelegateInterface& self, const py::object& container,
+             const TraitsDataConstPtr& uiTraits, const TraitsDataConstPtr& entityTraits,
+             const py::object& nativeData, const HostSessionPtr& hostSession) {
+            const std::any result =
+                self.populateUI(container, uiTraits, entityTraits, nativeData, hostSession);
+            return anyCastToPyObject(result);
+          },
+          py::arg("container"), py::arg("uiTraits").none(false),
+          py::arg("entityTraits").none(false), py::arg("nativeData"),
+          py::arg("hostSession").none(false), py::call_guard<py::gil_scoped_release>{});
 }

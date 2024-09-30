@@ -29,6 +29,16 @@ InfoDictionary UIDelegateInterface::settings([[maybe_unused]] const HostSessionP
 
 void UIDelegateInterface::flushCaches([[maybe_unused]] const HostSessionPtr& hostSession) {}
 
+std::any UIDelegateInterface::populateUI(
+    [[maybe_unused]] const std::any& container,
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+    [[maybe_unused]] const trait::TraitsDataConstPtr& uiTraits,
+    [[maybe_unused]] const trait::TraitsDataConstPtr& entityTraits,
+    [[maybe_unused]] const std::any& nativeData,
+    [[maybe_unused]] const HostSessionPtr& hostSession) {
+  return {};
+}
+
 }  // namespace ui::managerApi
 }  // namespace OPENASSETIO_CORE_ABI_VERSION
 }  // namespace openassetio
