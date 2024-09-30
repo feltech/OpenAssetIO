@@ -1,5 +1,5 @@
 #
-#   Copyright 2013-2021 The Foundry Visionmongers Ltd
+#   Copyright 2013-2024 The Foundry Visionmongers Ltd
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -46,8 +46,8 @@ class PythonPluginSystemManagerPlugin(PythonPluginSystemPlugin):
     attribute called 'plugin', that holds a class derived from this.
     """
 
-    @staticmethod
-    def identifier():
+    @classmethod
+    def identifier(cls):
         """
         Returns an identifier to uniquely identify the plug-in.
         Generally, this should be the identifier used by the manager.
