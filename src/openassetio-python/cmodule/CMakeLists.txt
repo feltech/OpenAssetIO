@@ -81,12 +81,20 @@ target_sources(
     src/pluginSystem/HybridPluginSystemManagerImplementationFactoryBinding.cpp
     src/trait/TraitsDataBinding.cpp
     src/utilsBinding.cpp
+    src/ui/hostApi/UIDelegateBinding.cpp
+    src/ui/hostApi/UIDelegateFactoryBinding.cpp
+    src/ui/hostApi/UIDelegateImplementationFactoryInterfaceBinding.cpp
+    src/ui/managerApi/UIDelegateInterfaceBinding.cpp
+    src/ui/pluginSystem/CppPluginSystemUIDelegateImplementationFactoryBinding.cpp
+    src/ui/pluginSystem/HybridPluginSystemUIDelegateImplementationFactoryBinding.cpp
 )
 
 target_link_libraries(openassetio-python-module
     PRIVATE
     # Core C++ library.
     openassetio-core
+    # UI delegation library.
+    openassetio-ui
     # pybind, including its handy transitive Python-specific properties.
     pybind11::module pybind11::windows_extras
     $<BUILD_INTERFACE:fmt::fmt-header-only>

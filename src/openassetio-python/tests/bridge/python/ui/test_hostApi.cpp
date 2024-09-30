@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2022-2024 The Foundry Visionmongers Ltd
+// Copyright 2024 The Foundry Visionmongers Ltd
 
 #include <pybind11/pybind11.h>
 #include <catch2/catch.hpp>
 #include <catch2/trompeloeil.hpp>
 
-#include <openassetio/hostApi/ManagerImplementationFactoryInterface.hpp>
 #include <openassetio/log/LoggerInterface.hpp>
-#include <openassetio/python/hostApi.hpp>
+#include <openassetio/python/ui/hostApi.hpp>
+#include <openassetio/ui/hostApi/UIDelegateImplementationFactoryInterface.hpp>
 
 namespace {
 struct MockLogger : trompeloeil::mock_interface<openassetio::log::LoggerInterface> {
@@ -16,7 +16,7 @@ struct MockLogger : trompeloeil::mock_interface<openassetio::log::LoggerInterfac
 using trompeloeil::_;
 }  // namespace
 
-SCENARIO("Accessing the Python manager plugin system from C++") {
+SCENARIO("Accessing the Python UI delegate plugin system from C++") {
   GIVEN("a logger") {
     // Release the GIL to ensure GIL-safe handling of Python import.
     const pybind11::gil_scoped_release gil{};
@@ -26,18 +26,18 @@ SCENARIO("Accessing the Python manager plugin system from C++") {
 
     ALLOW_CALL(mockLogger, log(_, _));
 
-    AND_GIVEN("a Python plugin system manager factory") {
-      const openassetio::hostApi::ManagerImplementationFactoryInterfacePtr factory =
-          openassetio::python::hostApi::createPythonPluginSystemManagerImplementationFactory(
-              logger);
+    AND_GIVEN("a Python plugin system UI delegate factory") {
+      const openassetio::ui::hostApi::UIDelegateImplementationFactoryInterfacePtr factory =
+          openassetio::python::ui::hostApi::
+              createPythonPluginSystemUIDelegateImplementationFactory(logger);
 
       WHEN("the list of plugin identifiers is queried") {
         const openassetio::Identifiers identifiers = factory->identifiers();
 
         THEN("identifiers list is contains expected entry") {
           // Assumes
-          CHECK(identifiers == openassetio::Identifiers{
-                                   "org.openassetio.test.pluginSystem.resources.managerPlugin"});
+          CHECK(identifiers ==
+                openassetio::Identifiers{"org.openassetio.test.pluginSystem.resources.uiPlugin"});
         }
       }
     }
