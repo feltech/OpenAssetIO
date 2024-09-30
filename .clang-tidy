@@ -26,6 +26,10 @@
 #      cpp core guidelines recommends against unless the parameter is
 #      nullable: https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#f60-prefer-t-over-t-when-no-argument-is-a-valid-option
 #
+#  -bugprone-suspicious-stringview-data-usage: Wrapping a string literal
+#      in a `constexpr string_view` is common and useful, but many APIs
+#      expect a (null-terminated) `const char*`. In these cases
+#      `string_view::data()` is perfectly safe.
 #
 Checks: >
     -*,
@@ -39,6 +43,8 @@ Checks: >
     -modernize-return-braced-init-list,
     -modernize-use-trailing-return-type,
     -modernize-avoid-c-arrays,
+    -bugprone-suspicious-stringview-data-usage
+
 
 # Turn all the warnings from the checks above into errors.
 WarningsAsErrors: "*"
@@ -72,6 +78,8 @@ CheckOptions:
     - { key: readability-identifier-naming.MemberConstantPrefix,     value: k         }
     - { key: readability-identifier-naming.StaticConstantCase,       value: CamelCase }
     - { key: readability-identifier-naming.StaticConstantPrefix,     value: k         }
+    # Allow common variable names that are less than 3 characters.
+    - { key: readability-identifier-length.IgnoredVariableNames,     value: ui        }
     - { key: readability-implicit-bool-conversion.AllowIntegerConditions,  value: 1   }
     - { key: readability-implicit-bool-conversion.AllowPointerConditions,  value: 1   }
     # Allow structs where (all) member variables are public, even if
