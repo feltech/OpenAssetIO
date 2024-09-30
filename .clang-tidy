@@ -34,6 +34,11 @@
 #      index is trusted and tested. In addition, this check only works
 #      for std::array and not for e.g. std::vector, so introduces
 #      inconsistencies.
+#
+#  -bugprone-suspicious-stringview-data-usage: Wrapping a string literal
+#      in a `constexpr string_view` is common and useful, but many APIs
+#      expect a (null-terminated) `const char*`. In these cases
+#      `string_view::data()` is perfectly safe.
 Checks: >
     -*,
     bugprone-*,
@@ -49,6 +54,8 @@ Checks: >
     -modernize-avoid-c-arrays,
     -cppcoreguidelines-macro-usage,
     -cppcoreguidelines-pro-bounds-constant-array-index,
+    -bugprone-suspicious-stringview-data-usage
+
 
 # Turn all the warnings from the checks above into errors.
 WarningsAsErrors: "*"
@@ -77,6 +84,8 @@ CheckOptions:
     - { key: readability-identifier-naming.MemberConstantPrefix,     value: k         }
     - { key: readability-identifier-naming.StaticConstantCase,       value: CamelCase }
     - { key: readability-identifier-naming.StaticConstantPrefix,     value: k         }
+    # Allow common variable names that are less than 3 characters.
+    - { key: readability-identifier-length.IgnoredVariableNames,     value: ui        }
     - { key: readability-implicit-bool-conversion.AllowIntegerConditions,  value: 1   }
     - { key: readability-implicit-bool-conversion.AllowPointerConditions,  value: 1   }
     # Allow structs where (all) member variables are public, even if

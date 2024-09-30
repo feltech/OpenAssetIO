@@ -33,6 +33,7 @@ target_sources(
     main.cpp
     python/test_converter.cpp
     python/test_hostApi.cpp
+    python/ui/test_hostApi.cpp
 )
 
 target_link_libraries(
@@ -69,7 +70,10 @@ list(APPEND _envvars PYTHONHOME=${Python_PREFIX})
 # Add the openassetio package to the Python search path.
 list(APPEND _envvars PYTHONPATH=${CMAKE_INSTALL_PREFIX}/${OPENASSETIO_PYTHON_SITEDIR})
 # Set OpenAssetIO's plugin search path.
-list(APPEND _envvars OPENASSETIO_PLUGIN_PATH=${CMAKE_CURRENT_LIST_DIR}/resources)
+list(APPEND _envvars.plugin_path ${CMAKE_CURRENT_LIST_DIR}/resources)
+list(APPEND _envvars.plugin_path ${CMAKE_CURRENT_LIST_DIR}/resources/ui)
+list(JOIN _envvars.plugin_path $<IF:$<BOOL:${WIN32}>,$<SEMICOLON>,":"> _envvars.plugin_path)
+list(APPEND _envvars OPENASSETIO_PLUGIN_PATH=${_envvars.plugin_path})
 # Augment the PATH on Windows to find Python library dll, if it was
 # linked as a shared library.
 if (WIN32 AND Python_RUNTIME_LIBRARY_DIRS)
@@ -84,19 +88,6 @@ if (OPENASSETIO_ENABLE_SANITIZER_ADDRESS AND IS_GCC_OR_CLANG)
     list(APPEND _envvars LSAN_OPTIONS=suppressions=${CMAKE_CURRENT_LIST_DIR}/lsan_suppressions.txt)
 endif ()
 
-# Stitch environment variables together as a series of platform-specific
-# commands to set them in the environment.
-set(_export_cmd $<IF:$<PLATFORM_ID:Windows>,set,export>)
-# Note: we must be careful with whitespace - any trailing whitespace on
-# a Windows `set` command is included in the env vars value.
-list(JOIN _envvars "&& ${_export_cmd} " _envvars)
-set(_envvars "${_export_cmd} ${_envvars}")
-# Transform to a CMake list which will then be expanded again in
-# add_custom_target. This dance is necessary to avoid CMake quoting the
-# whole string.
-separate_arguments(_envvars NATIVE_COMMAND ${_envvars})
-
-
 #-----------------------------------------------------------------------
 # Create CTest target for tests that may import _openassetio
 add_custom_target(
@@ -107,9 +98,7 @@ add_custom_target(
     # environment is affected. In particular, PYTHONHOME can interfere
     # with CMake itself (if installed as a pip package and so
     # /usr/local/cmake is actually a Python console_script).
-    # Note: as above, we must not have trailing whitespace after setting
-    # an env var on Windows.
-    ${_envvars}&&
+    ${CMAKE_COMMAND} -E env ${_envvars}
     "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/\
 $<TARGET_FILE_NAME:openassetio-python-bridge-test-exe>"
 )

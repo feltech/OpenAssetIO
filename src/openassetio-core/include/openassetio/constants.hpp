@@ -29,8 +29,6 @@ namespace constants {
 // General
 
 // NOLINTBEGIN(readability-identifier-naming): requires source breaking change.
-inline constexpr std::string_view kInfoKey_SmallIcon = "smallIcon";
-inline constexpr std::string_view kInfoKey_Icon = "icon";
 
 // Entity Reference Properties
 

@@ -142,3 +142,32 @@ class Test_test_manager_imports:
 
     def test_importing_harness_succeeds(self):
         from openassetio.test.manager import harness
+
+
+class Test_test_ui_hostApi_imports:
+    def test_importing_UIDelegate_succeeds(self):
+        from openassetio.ui.hostApi import UIDelegate
+
+    def test_importing_UIDelegateFactory_succeeds(self):
+        from openassetio.ui.hostApi import UIDelegateFactory
+
+    def test_importing_UIDelegateImplementationFactoryInterface_succeeds(self):
+        from openassetio.ui.hostApi import UIDelegateImplementationFactoryInterface
+
+
+class Test_test_ui_managerApi_imports:
+    def test_importing_UIDelegateInterface_succeeds(self):
+        from openassetio.ui.managerApi import UIDelegateInterface
+
+
+class Test_test_ui_pluginSystem_imports:
+    def test_importing_CppPluginSystemUIDelegateImplementationFactory_succeeds(self):
+        from openassetio.ui.pluginSystem import CppPluginSystemUIDelegateImplementationFactory
+
+    def test_importing_HybridPluginSystemUIDelegateImplementationFactory_succeeds(self):
+        from openassetio.ui.pluginSystem import HybridPluginSystemUIDelegateImplementationFactory
+
+    def test_importing_PythonPluginSystemUIDelegatePlugin_succeeds(self):
+        from openassetio.ui.pluginSystem import PythonPluginSystemUIDelegatePlugin
+    def test_importing_PythonPluginSystemUIDelegateImplementationFactory_succeeds(self):
+        from openassetio.ui.pluginSystem import PythonPluginSystemUIDelegateImplementationFactory
