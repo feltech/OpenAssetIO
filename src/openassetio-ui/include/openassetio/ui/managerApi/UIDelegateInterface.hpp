@@ -3,21 +3,19 @@
 
 #pragma once
 
-#include <any>
 #include <functional>
-#include <memory>
 #include <optional>
-#include <string>
-#include <type_traits>
 
 #include <openassetio/export.h>
 #include <openassetio/ui/export.h>
+#include <openassetio/Context.hpp>
 #include <openassetio/InfoDictionary.hpp>
 #include <openassetio/trait/collection.hpp>
 #include <openassetio/typedefs.hpp>
 
 OPENASSETIO_FWD_DECLARE(managerApi, HostSession)
 OPENASSETIO_FWD_DECLARE(Context)
+OPENASSETIO_FWD_DECLARE(ui, UIDelegateState)
 
 namespace openassetio {
 inline namespace OPENASSETIO_CORE_ABI_VERSION {
@@ -194,9 +192,12 @@ class OPENASSETIO_UI_EXPORT UIDelegateInterface {
    */
   virtual void flushCaches(const HostSessionPtr& hostSession);
 
-  virtual std::any populateUI(const std::any& container, const trait::TraitsDataConstPtr& uiTraits,
-                              const trait::TraitsDataConstPtr& entityTraits,
-                              const std::any& nativeData, const HostSessionPtr& hostSession);
+  using DispatchStateCallback = std::function<void(UIDelegateState)>;
+
+  virtual std::optional<DispatchStateCallback> populateUI(
+      const trait::TraitsDataConstPtr& uiTraitsData, UIDelegateState initialState,
+      const ContextConstPtr& context, const HostSessionPtr& hostSession,
+      DispatchStateCallback stateChangedCallback);
   /**
    * @}
    */

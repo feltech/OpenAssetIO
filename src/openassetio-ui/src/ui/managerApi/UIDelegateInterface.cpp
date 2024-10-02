@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2013-2024 The Foundry Visionmongers Ltd
+#include <optional>
+
 #include <openassetio/export.h>
+#include <openassetio/Context.hpp>
 #include <openassetio/InfoDictionary.hpp>
 #include <openassetio/errors/exceptions.hpp>
+#include <openassetio/trait/TraitsData.hpp>
+#include <openassetio/ui/UIDelegateState.hpp>
 #include <openassetio/ui/managerApi/UIDelegateInterface.hpp>
 
 namespace openassetio {
@@ -29,14 +34,14 @@ InfoDictionary UIDelegateInterface::settings([[maybe_unused]] const HostSessionP
 
 void UIDelegateInterface::flushCaches([[maybe_unused]] const HostSessionPtr& hostSession) {}
 
-std::any UIDelegateInterface::populateUI(
-    [[maybe_unused]] const std::any& container,
-    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-    [[maybe_unused]] const trait::TraitsDataConstPtr& uiTraits,
-    [[maybe_unused]] const trait::TraitsDataConstPtr& entityTraits,
-    [[maybe_unused]] const std::any& nativeData,
-    [[maybe_unused]] const HostSessionPtr& hostSession) {
-  return {};
+std::optional<UIDelegateInterface::DispatchStateCallback> UIDelegateInterface::populateUI(
+    [[maybe_unused]] const trait::TraitsDataConstPtr& uiTraitsData,
+    // NOLINTNEXTLINE(performance-unnecessary-value-param)
+    [[maybe_unused]] UIDelegateState initialState, [[maybe_unused]] const ContextConstPtr& context,
+    [[maybe_unused]] const HostSessionPtr& hostSession,
+    // NOLINTNEXTLINE(performance-unnecessary-value-param)
+    [[maybe_unused]] DispatchStateCallback stateChangedCallback) {
+  return std::nullopt;
 }
 
 }  // namespace ui::managerApi

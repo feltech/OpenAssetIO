@@ -1,22 +1,28 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2024 The Foundry Visionmongers Ltd
+#include <optional>
+#include <utility>
+
 #include <fmt/format.h>
 #include <pybind11/functional.h>
+#include <pybind11/gil.h>
+#include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <openassetio/export.h>
 #include <openassetio/Context.hpp>
+#include <openassetio/EntityReference.hpp>
 #include <openassetio/InfoDictionary.hpp>
-#include <openassetio/hostApi/EntityReferencePager.hpp>
 #include <openassetio/managerApi/EntityReferencePagerInterface.hpp>
 #include <openassetio/managerApi/HostSession.hpp>
 #include <openassetio/trait/TraitsData.hpp>
 #include <openassetio/trait/collection.hpp>
 #include <openassetio/typedefs.hpp>
+#include <openassetio/ui/UIDelegateState.hpp>
 #include <openassetio/ui/managerApi/UIDelegateInterface.hpp>
 
 #include "../../_openassetio.hpp"
 #include "../../overrideMacros.hpp"
-#include "../anyCastToPyObject.hpp"
 
 namespace openassetio {
 inline namespace OPENASSETIO_CORE_ABI_VERSION {
@@ -52,16 +58,13 @@ struct PyUIDelegateInterface : UIDelegateInterface {
   void flushCaches(const HostSessionPtr& hostSession) override {
     OPENASSETIO_PYBIND11_OVERRIDE(void, UIDelegateInterface, flushCaches, hostSession);
   }
-  std::any populateUI(const std::any& container, const trait::TraitsDataConstPtr& uiTraits,
-                      const trait::TraitsDataConstPtr& entityTraits, const std::any& nativeData,
-                      const HostSessionPtr& hostSession) override {
-    py::object pyContainer = anyCastToPyObject(container);
-    py::object pyNativeData = anyCastToPyObject(nativeData);
-
-    OPENASSETIO_PYBIND11_OVERRIDE_ARGS(
-        py::object, UIDelegateInterface, populateUI,
-        (container, uiTraits, entityTraits, nativeData, hostSession), std::move(pyContainer),
-        uiTraits, entityTraits, std::move(pyNativeData), hostSession);
+  std::optional<DispatchStateCallback> populateUI(
+      const trait::TraitsDataConstPtr& uiTraitsData, UIDelegateState initialState,
+      const ContextConstPtr& context, const HostSessionPtr& hostSession,
+      DispatchStateCallback stateChangedCallback) override {
+    OPENASSETIO_PYBIND11_OVERRIDE(std::optional<DispatchStateCallback>, UIDelegateInterface,
+                                  populateUI, uiTraitsData, std::move(initialState), context,
+                                  hostSession, std::move(stateChangedCallback));
   }
 };
 
@@ -78,6 +81,9 @@ void registerUIDelegateInterface(const py::module& mod) {
   using openassetio::trait::TraitsDataPtr;
   using openassetio::ui::managerApi::PyUIDelegateInterface;
   using openassetio::ui::managerApi::UIDelegateInterface;
+  using DispatchStateCallback =
+      openassetio::ui::managerApi::UIDelegateInterface::DispatchStateCallback;
+  using openassetio::ui::UIDelegateState;
   using openassetio::ui::managerApi::UIDelegateInterfacePtr;
 
   py::class_<UIDelegateInterface, PyUIDelegateInterface, UIDelegateInterfacePtr>
@@ -97,12 +103,11 @@ void registerUIDelegateInterface(const py::module& mod) {
            py::call_guard<py::gil_scoped_release>{})
       .def(
           "populateUI",
-          [](UIDelegateInterface& self, const py::object& container,
-             const TraitsDataConstPtr& uiTraits, const TraitsDataConstPtr& entityTraits,
-             const py::object& nativeData, const HostSessionPtr& hostSession) {
-            const std::any result =
-                self.populateUI(container, uiTraits, entityTraits, nativeData, hostSession);
-            return anyCastToPyObject(result);
+          [](UIDelegateInterface& self, const TraitsDataConstPtr& uiTraits,
+             UIDelegateState initialState, const ContextConstPtr& context,
+             const HostSessionPtr& hostSession, DispatchStateCallback stateChangedCallback) {
+            return self.populateUI(uiTraits, std::move(initialState), context, hostSession,
+                                   std::move(stateChangedCallback));
           },
           py::arg("container"), py::arg("uiTraits").none(false),
           py::arg("entityTraits").none(false), py::arg("nativeData"),

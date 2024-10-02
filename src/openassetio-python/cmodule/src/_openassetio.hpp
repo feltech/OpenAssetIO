@@ -121,6 +121,7 @@ void registerCppPluginSystemManagerImplementationFactory(const py::module& mod);
 // Register the hybrid plugin system manager factory
 void registerHybridPluginSystemManagerImplementationFactory(const py::module& mod);
 
+void registerUIDelegateState(const py::module& mod);
 void registerUIDelegate(const py::module& mod);
 void registerUIDelegateFactory(const py::module& mod);
 void registerUIDelegateImplementationFactoryInterface(const py::module& mod);

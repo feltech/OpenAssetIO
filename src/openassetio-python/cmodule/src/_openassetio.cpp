@@ -61,6 +61,7 @@ PYBIND11_MODULE(_openassetio, mod) {
   const py::module uiHostApi = ui.def_submodule("hostApi");
   const py::module uiManagerApi = ui.def_submodule("managerApi");
   const py::module uiPluginSystem = ui.def_submodule("pluginSystem");
+  registerUIDelegateState(ui);
   registerUIDelegateInterface(uiManagerApi);
   registerUIDelegate(uiHostApi);
   registerUIDelegateImplementationFactoryInterface(uiHostApi);

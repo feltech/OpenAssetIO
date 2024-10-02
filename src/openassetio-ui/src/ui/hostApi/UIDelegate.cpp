@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2013-2024 The Foundry Visionmongers Ltd
 #include <memory>
+#include <optional>
 #include <utility>
 
 #include <openassetio/export.h>
@@ -9,6 +10,7 @@
 #include <openassetio/typedefs.hpp>
 #include <openassetio/ui/hostApi/UIDelegate.hpp>
 #include <openassetio/ui/managerApi/UIDelegateInterface.hpp>
+#include "openassetio/trait/TraitsData.hpp"
 
 namespace openassetio {
 inline namespace OPENASSETIO_CORE_ABI_VERSION {
@@ -38,12 +40,11 @@ void UIDelegate::initialize(InfoDictionary uiDelegateSettings) {
 
 void UIDelegate::flushCaches() { uiDelegateInterface_->flushCaches(hostSession_); }
 
-std::any UIDelegate::populateUI(const std::any& container,
-                                const trait::TraitsDataConstPtr& uiTraits,
-                                const trait::TraitsDataConstPtr& entityTraits,
-                                const std::any& nativeData) {
-  return uiDelegateInterface_->populateUI(container, uiTraits, entityTraits, nativeData,
-                                          hostSession_);
+std::optional<UIDelegate::DispatchStateCallback> UIDelegate::populateUI(
+    const trait::TraitsDataConstPtr& uiTraitsData, UIDelegateState initialState,
+    const ContextConstPtr& context, DispatchStateCallback stateChangedCallback) {
+  return uiDelegateInterface_->populateUI(uiTraitsData, std::move(initialState), context,
+                                          hostSession_, std::move(stateChangedCallback));
 }
 
 InfoDictionary UIDelegate::info() { return uiDelegateInterface_->info(); }
