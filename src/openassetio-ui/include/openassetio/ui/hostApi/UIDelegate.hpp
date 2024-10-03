@@ -143,12 +143,9 @@ class OPENASSETIO_UI_EXPORT UIDelegate final {
    */
   void flushCaches();
 
-  using DispatchStateCallback = std::function<void(UIDelegateState)>;
-
-  std::optional<DispatchStateCallback> populateUI(const trait::TraitsDataConstPtr& uiTraitsData,
-                                                  UIDelegateState initialState,
-                                                  const ContextConstPtr& context,
-                                                  DispatchStateCallback stateChangedCallback);
+  std::optional<UIDelegateState> populateUI(const trait::TraitsDataConstPtr& uiTraitsData,
+                                            const UIDelegateRequest& requestState,
+                                            const ContextConstPtr& context);
 
   /**
    * @}

@@ -12,10 +12,11 @@
 #include <openassetio/InfoDictionary.hpp>
 #include <openassetio/trait/collection.hpp>
 #include <openassetio/typedefs.hpp>
+#include <openassetio/ui/UIDelegateState.hpp>
 
 OPENASSETIO_FWD_DECLARE(managerApi, HostSession)
 OPENASSETIO_FWD_DECLARE(Context)
-OPENASSETIO_FWD_DECLARE(ui, UIDelegateState)
+OPENASSETIO_FWD_DECLARE(ui, UIDelegateRequest)
 
 namespace openassetio {
 inline namespace OPENASSETIO_CORE_ABI_VERSION {
@@ -192,12 +193,10 @@ class OPENASSETIO_UI_EXPORT UIDelegateInterface {
    */
   virtual void flushCaches(const HostSessionPtr& hostSession);
 
-  using DispatchStateCallback = std::function<void(UIDelegateState)>;
-
-  virtual std::optional<DispatchStateCallback> populateUI(
-      const trait::TraitsDataConstPtr& uiTraitsData, UIDelegateState initialState,
-      const ContextConstPtr& context, const HostSessionPtr& hostSession,
-      DispatchStateCallback stateChangedCallback);
+  virtual std::optional<UIDelegateState> populateUI(const trait::TraitsDataConstPtr& uiTraitsData,
+                                                    const UIDelegateRequest& requestState,
+                                                    const ContextConstPtr& context,
+                                                    const HostSessionPtr& hostSession);
   /**
    * @}
    */

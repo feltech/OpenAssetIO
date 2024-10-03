@@ -7,10 +7,11 @@
 #include <openassetio/export.h>
 #include <openassetio/InfoDictionary.hpp>
 #include <openassetio/managerApi/HostSession.hpp>
+#include <openassetio/trait/TraitsData.hpp>
 #include <openassetio/typedefs.hpp>
+#include <openassetio/ui/UIDelegateState.hpp>
 #include <openassetio/ui/hostApi/UIDelegate.hpp>
 #include <openassetio/ui/managerApi/UIDelegateInterface.hpp>
-#include "openassetio/trait/TraitsData.hpp"
 
 namespace openassetio {
 inline namespace OPENASSETIO_CORE_ABI_VERSION {
@@ -40,11 +41,10 @@ void UIDelegate::initialize(InfoDictionary uiDelegateSettings) {
 
 void UIDelegate::flushCaches() { uiDelegateInterface_->flushCaches(hostSession_); }
 
-std::optional<UIDelegate::DispatchStateCallback> UIDelegate::populateUI(
-    const trait::TraitsDataConstPtr& uiTraitsData, UIDelegateState initialState,
-    const ContextConstPtr& context, DispatchStateCallback stateChangedCallback) {
-  return uiDelegateInterface_->populateUI(uiTraitsData, std::move(initialState), context,
-                                          hostSession_, std::move(stateChangedCallback));
+std::optional<UIDelegateState> UIDelegate::populateUI(
+    const trait::TraitsDataConstPtr& uiTraitsData, const UIDelegateRequest& requestState,
+    const ContextConstPtr& context) {
+  return uiDelegateInterface_->populateUI(uiTraitsData, requestState, context, hostSession_);
 }
 
 InfoDictionary UIDelegate::info() { return uiDelegateInterface_->info(); }

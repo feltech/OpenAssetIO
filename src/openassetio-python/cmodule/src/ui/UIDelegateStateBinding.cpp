@@ -4,8 +4,8 @@
 #include <iterator>
 #include <utility>
 
+#include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/pytypes.h>
 #include <pybind11/stl.h>
 
 #include <openassetio/EntityReference.hpp>
@@ -20,18 +20,46 @@ void registerUIDelegateState(const py::module& mod) {
   using openassetio::EntityReferences;
   using openassetio::trait::TraitsDataPtr;
   using openassetio::trait::TraitsDatas;
+  using openassetio::ui::UIDelegateRequest;
   using openassetio::ui::UIDelegateState;
 
-  py::class_<UIDelegateState>(mod, "UIDelegateState")
-      .def(py::init())
+  py::class_<UIDelegateRequest> pyUIDelegateRequest{mod, "UIDelegateRequest"};
+  py::class_<UIDelegateState> pyUIDelegateState{mod, "UIDelegateState"};
+
+  pyUIDelegateRequest
       .def(py::init([](py::object nativeData, EntityReferences entityReferences,
-                       TraitsDatas entityTraitsDatas, TraitsDataPtr relationshipTraitsData) {
+                       TraitsDatas entityTraitsDatas, TraitsDataPtr relationshipTraitsData,
+                       UIDelegateRequest::StateChangedCallback stateChangedCallback) {
+             return UIDelegateRequest{
+                 std::move(nativeData), std::move(entityReferences), std::move(entityTraitsDatas),
+                 std::move(relationshipTraitsData), std::move(stateChangedCallback)};
+           }),
+           py::arg("nativeData") = py::none{}, py::arg("entityReferences") = EntityReferences{},
+           py::arg("entityTraitsDatas") = TraitsDatas{},
+           py::arg("relationshipTraitsData") = py::none{},
+           py::arg("stateChangedCallback") = py::none{})
+      .def_property(
+          "nativeData",
+          [](const UIDelegateRequest& self) { return anyCastToPyObject(self.nativeData); },
+          [](UIDelegateRequest& self, py::object nativeData) {
+            self.nativeData = std::move(nativeData);
+          })
+      .def_readwrite("entityReferences", &UIDelegateRequest::entityReferences)
+      .def_readwrite("entityTraitsDatas", &UIDelegateRequest::entityTraitsDatas)
+      .def_readwrite("relationshipTraitsData", &UIDelegateRequest::relationshipTraitsData)
+      .def_readwrite("stateChangedCallback", &UIDelegateRequest::stateChangedCallback);
+
+  pyUIDelegateState
+      .def(py::init([](py::object nativeData, EntityReferences entityReferences,
+                       TraitsDatas entityTraitsDatas,
+                       UIDelegateState::UpdateRequestCallback updateRequestCallback) {
              return UIDelegateState{std::move(nativeData), std::move(entityReferences),
                                     std::move(entityTraitsDatas),
-                                    std::move(relationshipTraitsData)};
+                                    std::move(updateRequestCallback)};
            }),
-           py::arg("nativeData"), py::arg("entityReferences"), py::arg("entityTraitsDatas"),
-           py::arg("relationshipTraitsData"))
+           py::arg("nativeData") = py::none{}, py::arg("entityReferences") = EntityReferences{},
+           py::arg("entityTraitsDatas") = TraitsDatas{},
+           py::arg("updateRequestCallback") = py::none{})
       .def_property(
           "nativeData",
           [](const UIDelegateState& self) { return anyCastToPyObject(self.nativeData); },
@@ -40,23 +68,5 @@ void registerUIDelegateState(const py::module& mod) {
           })
       .def_readwrite("entityReferences", &UIDelegateState::entityReferences)
       .def_readwrite("entityTraitsDatas", &UIDelegateState::entityTraitsDatas)
-      .def_readwrite("relationshipTraitsData", &UIDelegateState::relationshipTraitsData)
-      .def("__eq__", [](const UIDelegateState& self, const UIDelegateState& other) {
-        // Note: equality is possible in Python but not C++, due to the
-        // `std::any` `nativeData` (which in Python is constrained to be
-        // a PyObject).
-        const py::object& pyNativeData = anyCastToPyObject(self.nativeData);
-        const py::object& pyOtherNativeData = anyCastToPyObject(other.nativeData);
-
-        constexpr auto areTraitsDatasEqual =  // NOLINT(readability-identifier-naming)
-            [](const TraitsDataPtr& lhs, const TraitsDataPtr& rhs) {
-              return lhs.get() == rhs.get() || (lhs && rhs && *lhs == *rhs);
-            };
-
-        return pyNativeData.equal(pyOtherNativeData) &&
-               self.entityReferences == other.entityReferences &&
-               equal(cbegin(self.entityTraitsDatas), cend(self.entityTraitsDatas),
-                     cbegin(other.entityTraitsDatas), areTraitsDatasEqual) &&
-               areTraitsDatasEqual(self.relationshipTraitsData, other.relationshipTraitsData);
-      });
+      .def_readwrite("updateRequestCallback", &UIDelegateState::updateRequestCallback);
 }

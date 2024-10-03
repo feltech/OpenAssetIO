@@ -15,19 +15,19 @@ namespace py = pybind11;
 
 void registerUIDelegateTestUtils(py::module& mod) {
   using openassetio::trait::TraitsData;
-  using openassetio::ui::UIDelegateState;
+  using openassetio::ui::UIDelegateRequest;
   using openassetio::ui::hostApi::UIDelegatePtr;
   using openassetio::ui::managerApi::UIDelegateInterfacePtr;
 
   auto ui = mod.def_submodule("ui");
 
   ui.def("createUIDelegateStateWithNonPyObjectNativeData", [] {
-    UIDelegateState state;
+    UIDelegateRequest state;
     state.nativeData = double{};
     return state;
   });
   ui.def("createUIDelegateStateWithRawCPythonNativeData", [] {
-    UIDelegateState state;
+    UIDelegateRequest state;
     state.nativeData = PyLong_FromLong(42);  // NOLINT(readability-magic-numbers)
     return state;
   });

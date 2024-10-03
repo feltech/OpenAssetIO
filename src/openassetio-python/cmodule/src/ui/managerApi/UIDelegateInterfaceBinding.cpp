@@ -5,7 +5,6 @@
 
 #include <fmt/format.h>
 #include <pybind11/functional.h>
-#include <pybind11/gil.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -58,13 +57,12 @@ struct PyUIDelegateInterface : UIDelegateInterface {
   void flushCaches(const HostSessionPtr& hostSession) override {
     OPENASSETIO_PYBIND11_OVERRIDE(void, UIDelegateInterface, flushCaches, hostSession);
   }
-  std::optional<DispatchStateCallback> populateUI(
-      const trait::TraitsDataConstPtr& uiTraitsData, UIDelegateState initialState,
-      const ContextConstPtr& context, const HostSessionPtr& hostSession,
-      DispatchStateCallback stateChangedCallback) override {
-    OPENASSETIO_PYBIND11_OVERRIDE(std::optional<DispatchStateCallback>, UIDelegateInterface,
-                                  populateUI, uiTraitsData, std::move(initialState), context,
-                                  hostSession, std::move(stateChangedCallback));
+  std::optional<UIDelegateState> populateUI(const trait::TraitsDataConstPtr& uiTraitsData,
+                                            const UIDelegateRequest& requestState,
+                                            const ContextConstPtr& context,
+                                            const HostSessionPtr& hostSession) override {
+    OPENASSETIO_PYBIND11_OVERRIDE(std::optional<UIDelegateState>, UIDelegateInterface, populateUI,
+                                  uiTraitsData, requestState, context, hostSession);
   }
 };
 
@@ -79,17 +77,14 @@ void registerUIDelegateInterface(const py::module& mod) {
   using openassetio::managerApi::HostSessionPtr;
   using openassetio::trait::TraitsDataConstPtr;
   using openassetio::trait::TraitsDataPtr;
+  using openassetio::ui::UIDelegateRequest;
   using openassetio::ui::managerApi::PyUIDelegateInterface;
   using openassetio::ui::managerApi::UIDelegateInterface;
-  using DispatchStateCallback =
-      openassetio::ui::managerApi::UIDelegateInterface::DispatchStateCallback;
-  using openassetio::ui::UIDelegateState;
   using openassetio::ui::managerApi::UIDelegateInterfacePtr;
 
-  py::class_<UIDelegateInterface, PyUIDelegateInterface, UIDelegateInterfacePtr>
-      pyUIDelegateInterface(mod, "UIDelegateInterface");
-
-  pyUIDelegateInterface.def(py::init())
+  py::class_<UIDelegateInterface, PyUIDelegateInterface, UIDelegateInterfacePtr>(
+      mod, "UIDelegateInterface")
+      .def(py::init())
       .def("identifier", &UIDelegateInterface::identifier,
            py::call_guard<py::gil_scoped_release>{})
       .def("displayName", &UIDelegateInterface::displayName,
@@ -101,15 +96,7 @@ void registerUIDelegateInterface(const py::module& mod) {
            py::arg("hostSession").none(false), py::call_guard<py::gil_scoped_release>{})
       .def("flushCaches", &UIDelegateInterface::flushCaches, py::arg("hostSession").none(false),
            py::call_guard<py::gil_scoped_release>{})
-      .def(
-          "populateUI",
-          [](UIDelegateInterface& self, const TraitsDataConstPtr& uiTraits,
-             UIDelegateState initialState, const ContextConstPtr& context,
-             const HostSessionPtr& hostSession, DispatchStateCallback stateChangedCallback) {
-            return self.populateUI(uiTraits, std::move(initialState), context, hostSession,
-                                   std::move(stateChangedCallback));
-          },
-          py::arg("container"), py::arg("uiTraits").none(false),
-          py::arg("entityTraits").none(false), py::arg("nativeData"),
-          py::arg("hostSession").none(false), py::call_guard<py::gil_scoped_release>{});
+      .def("populateUI", &UIDelegateInterface::populateUI, py::arg("uiTraitsData").none(false),
+           py::arg("requestState"), py::arg("context").none(false),
+           py::arg("hostSession").none(false), py::call_guard<py::gil_scoped_release>{});
 }

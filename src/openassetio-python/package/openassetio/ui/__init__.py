@@ -16,3 +16,4 @@
 from .. import _openassetio
 
 UIDelegateState = _openassetio.ui.UIDelegateState
+UIDelegateRequest = _openassetio.ui.UIDelegateRequest

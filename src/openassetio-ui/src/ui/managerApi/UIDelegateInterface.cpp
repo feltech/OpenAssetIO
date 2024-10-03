@@ -34,13 +34,11 @@ InfoDictionary UIDelegateInterface::settings([[maybe_unused]] const HostSessionP
 
 void UIDelegateInterface::flushCaches([[maybe_unused]] const HostSessionPtr& hostSession) {}
 
-std::optional<UIDelegateInterface::DispatchStateCallback> UIDelegateInterface::populateUI(
+std::optional<UIDelegateState> UIDelegateInterface::populateUI(
     [[maybe_unused]] const trait::TraitsDataConstPtr& uiTraitsData,
-    // NOLINTNEXTLINE(performance-unnecessary-value-param)
-    [[maybe_unused]] UIDelegateState initialState, [[maybe_unused]] const ContextConstPtr& context,
-    [[maybe_unused]] const HostSessionPtr& hostSession,
-    // NOLINTNEXTLINE(performance-unnecessary-value-param)
-    [[maybe_unused]] DispatchStateCallback stateChangedCallback) {
+    [[maybe_unused]] const UIDelegateRequest& requestState,
+    [[maybe_unused]] const ContextConstPtr& context,
+    [[maybe_unused]] const HostSessionPtr& hostSession) {
   return std::nullopt;
 }
 
