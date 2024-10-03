@@ -22,11 +22,9 @@ PythonPluginSystemUIDelegateImplementationFactory class.
 
 import os
 
-from ...errors import InputValidationException
 from ..hostApi import UIDelegateImplementationFactoryInterface
 
 from ...pluginSystem.PythonPluginSystem import PythonPluginSystem
-from .PythonPluginSystemUIDelegatePlugin import PythonPluginSystemUIDelegatePlugin
 
 
 __all__ = [
@@ -142,11 +140,7 @@ class PythonPluginSystemUIDelegateImplementationFactory(UIDelegateImplementation
         if not self.__pluginSystem:
             self.__scan()
 
-        identifiers = set()
-        for identifier, plugin, path in self.__pluginSystem.plugins():
-            if issubclass(plugin, PythonPluginSystemUIDelegatePlugin):
-                identifiers.add(identifier)
-        return list(identifiers)
+        return self.__pluginSystem.identifiers()
 
     def instantiate(self, identifier):
         """
@@ -170,29 +164,7 @@ class PythonPluginSystemUIDelegateImplementationFactory(UIDelegateImplementation
             self.__scan()
 
         self._logger.log(self._logger.Severity.kDebug, f"Instantiating {identifier}")
-
-        plugin = None
-        path = None
-        for (
-            candidateIdentifier,
-            candidatePlugin,
-            candidatePath,
-        ) in self.__pluginSystem.plugins():
-            if candidateIdentifier == identifier and issubclass(
-                candidatePlugin, PythonPluginSystemUIDelegatePlugin
-            ):
-                if plugin is None:
-                    plugin = candidatePlugin
-                    path = candidatePath
-                else:
-                    self._logger.debug(
-                        f"PythonPluginSystem: Skipping class '{candidatePlugin}' defined in"
-                        f" '{candidatePath}'. Already registered by '{path}'"
-                    )
-
-        if plugin is None:
-            msg = f"PythonPluginSystem: No plug-in registered with the identifier '{identifier}'"
-            raise InputValidationException(msg)
-
+        plugin = self.__pluginSystem.plugin(identifier)
         interface = plugin.interface()
+
         return interface
