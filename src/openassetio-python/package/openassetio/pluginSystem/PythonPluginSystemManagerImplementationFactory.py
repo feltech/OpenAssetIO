@@ -1,3 +1,6 @@
+#  SPDX-License-Identifier: Apache-2.0
+#  Copyright 2024 The Foundry Visionmongers Ltd
+
 #
 #   Copyright 2013-2022 The Foundry Visionmongers Ltd
 #
@@ -21,9 +24,11 @@ PythonPluginSystemManagerImplementationFactory class.
 
 import os
 
+from ..errors import InputValidationException
 from ..hostApi import ManagerImplementationFactoryInterface
 
 from .PythonPluginSystem import PythonPluginSystem
+from .PythonPluginSystemManagerPlugin import PythonPluginSystemManagerPlugin
 
 
 __all__ = [
@@ -138,7 +143,11 @@ class PythonPluginSystemManagerImplementationFactory(ManagerImplementationFactor
         if not self.__pluginManager:
             self.__scan()
 
-        return self.__pluginManager.identifiers()
+        identifiers = set()
+        for identifier, plugin, path in self.__pluginManager.plugins():
+            if issubclass(plugin, PythonPluginSystemManagerPlugin):
+                identifiers.add(identifier)
+        return list(identifiers)
 
     def instantiate(self, identifier):
         """
@@ -162,7 +171,29 @@ class PythonPluginSystemManagerImplementationFactory(ManagerImplementationFactor
             self.__scan()
 
         self._logger.log(self._logger.Severity.kDebug, f"Instantiating {identifier}")
-        plugin = self.__pluginManager.plugin(identifier)
-        interface = plugin.interface()
 
+        plugin = None
+        path = None
+        for (
+            candidateIdentifier,
+            candidatePlugin,
+            candidatePath,
+        ) in self.__pluginManager.plugins():
+            if candidateIdentifier == identifier and issubclass(
+                candidatePlugin, PythonPluginSystemManagerPlugin
+            ):
+                if plugin is None:
+                    plugin = candidatePlugin
+                    path = candidatePath
+                else:
+                    self._logger.debug(
+                        f"PythonPluginSystem: Skipping class '{candidatePlugin}' defined in"
+                        f" '{candidatePath}'. Already registered by '{path}'"
+                    )
+
+        if plugin is None:
+            msg = f"PythonPluginSystem: No plug-in registered with the identifier '{identifier}'"
+            raise InputValidationException(msg)
+
+        interface = plugin.interface()
         return interface

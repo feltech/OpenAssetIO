@@ -51,7 +51,7 @@ class PythonPluginSystem(object):
         """
         Clears any previously loaded plugins.
         """
-        self.__map = {}
+        self.__plugins = []
         self.__paths = {}
 
     def scan(self, paths):
@@ -159,7 +159,7 @@ class PythonPluginSystem(object):
 
         @return `List[str]`
         """
-        return list(self.__map.keys())
+        return list(set(identifier for identifier, _, __ in self.plugins()))
 
     def plugin(self, identifier):
         """
@@ -172,11 +172,15 @@ class PythonPluginSystem(object):
         provides the specified identifier.
         """
 
-        if identifier not in self.__map:
-            msg = "PythonPluginSystem: No plug-in registered with the identifier '%s'" % identifier
-            raise InputValidationException(msg)
+        for candidateIdentifier, plugin, _ in self.plugins():
+            if candidateIdentifier == identifier:
+                return plugin
 
-        return self.__map[identifier]
+        msg = f"PythonPluginSystem: No plug-in registered with the identifier '{identifier}'"
+        raise InputValidationException(msg)
+
+    def plugins(self):
+        return self.__plugins
 
     def register(self, cls, path="<unknown>"):
         """
@@ -194,17 +198,10 @@ class PythonPluginSystem(object):
         registrations of the same identifier are encountered.
         """
         identifier = cls.identifier()
-        if identifier in self.__map:
-            self.__logger.debug(
-                f"PythonPluginSystem: Skipping class '{cls}' defined in '{path}'. "
-                f"Already registered by '{self.__paths[identifier]}'"
-            )
-            return
 
         self.__logger.debug(f"PythonPluginSystem: Registered plug-in '{cls}' from '{path}'")
 
-        self.__map[identifier] = cls
-        self.__paths[identifier] = path
+        self.__plugins.append((identifier, cls, path))
 
     def __load(self, path):
         """
