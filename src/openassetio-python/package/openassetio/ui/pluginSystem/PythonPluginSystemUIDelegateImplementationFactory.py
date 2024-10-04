@@ -66,7 +66,7 @@ class PythonPluginSystemUIDelegateImplementationFactory(UIDelegateImplementation
     """
 
     ## The Environment Variable to read the plug-in search path from
-    kPluginEnvVar = "OPENASSETIO_UI_PLUGIN_PATH"
+    kPluginEnvVar = "OPENASSETIO_PLUGIN_PATH"
     ## The Environment Variable to control the discovery of entry point based plugins
     kDisableEntryPointsEnvVar = "OPENASSETIO_DISABLE_ENTRYPOINTS_PLUGINS"
 
@@ -110,7 +110,7 @@ class PythonPluginSystemUIDelegateImplementationFactory(UIDelegateImplementation
         with the factory instance.
         """
         # Construct this here, so we have this even if we early out
-        self.__pluginSystem = PythonPluginSystem(self._logger)
+        self.__pluginSystem = PythonPluginSystem(self._logger, "openassetioUIPlugin")
 
         if not self.__paths and self.__disableEntryPointsPlugins:
             self._logger.log(

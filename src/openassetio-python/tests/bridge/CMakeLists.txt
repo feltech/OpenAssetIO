@@ -70,9 +70,10 @@ list(APPEND _envvars PYTHONHOME=${Python_PREFIX})
 # Add the openassetio package to the Python search path.
 list(APPEND _envvars PYTHONPATH=${CMAKE_INSTALL_PREFIX}/${OPENASSETIO_PYTHON_SITEDIR})
 # Set OpenAssetIO's manager plugin search path.
-list(APPEND _envvars OPENASSETIO_PLUGIN_PATH=${CMAKE_CURRENT_LIST_DIR}/resources)
-# Set OpenAssetIO's UI delegate plugin search path.
-list(APPEND _envvars OPENASSETIO_UI_PLUGIN_PATH=${CMAKE_CURRENT_LIST_DIR}/resources/ui)
+list(APPEND _envvars.plugin_path ${CMAKE_CURRENT_LIST_DIR}/resources)
+list(APPEND _envvars.plugin_path ${CMAKE_CURRENT_LIST_DIR}/resources/ui)
+list(JOIN _envvars.plugin_path $<IF:$<BOOL:${WIN32}>,$<SEMICOLON>,":"> _envvars.plugin_path)
+list(APPEND _envvars OPENASSETIO_PLUGIN_PATH=${_envvars.plugin_path})
 # Augment the PATH on Windows to find Python library dll, if it was
 # linked as a shared library.
 if (WIN32 AND Python_RUNTIME_LIBRARY_DIRS)

@@ -43,8 +43,9 @@ class PythonPluginSystem(object):
 
     __validModuleExtensions = (".py", ".pyc")
 
-    def __init__(self, logger):
+    def __init__(self, logger, hookMemberName="openassetioPlugin"):
         self.__logger = logger
+        self.__hookMemberName = hookMemberName
         self.reset()
 
     def reset(self):
@@ -135,17 +136,18 @@ class PythonPluginSystem(object):
                 )
                 continue
 
-            if hasattr(module, "openassetioPlugin"):
-                self.register(module.openassetioPlugin, module.__file__)
+            if hasattr(module, self.__hookMemberName):
+                pluginCls = getattr(module, self.__hookMemberName)
+                self.register(pluginCls, module.__file__)
             elif hasattr(module, "plugin"):
                 self.__logger.warning(
                     "PythonPluginSystem: Use of top-level 'plugin' variable is deprecated, "
-                    f"use `openassetioPlugin` instead. {module.__file__}"
+                    f"use `{self.__hookMemberName}` instead. {module.__file__}"
                 )
                 self.register(module.plugin, module.__file__)
             else:
                 self.__logger.error(
-                    "PythonPluginSystem: No top-level 'openassetioPlugin' variable "
+                    f"PythonPluginSystem: No top-level '{self.__hookMemberName}' variable "
                     f"{module.__file__}"
                 )
 
@@ -238,16 +240,17 @@ class PythonPluginSystem(object):
             )
             return
 
-        if hasattr(module, "openassetioPlugin"):
+        if hasattr(module, self.__hookMemberName):
             # Store where this plugin was loaded from. Not entirely
             # accurate, but more useful for debugging than it not being
             # there.
-            module.openassetioPlugin.__file__ = path
-            self.register(module.openassetioPlugin, module.__file__)
+            pluginCls = getattr(module, self.__hookMemberName)
+            pluginCls.__file__ = path
+            self.register(pluginCls, module.__file__)
         elif hasattr(module, "plugin"):
             self.__logger.warning(
                 "PythonPluginSystem: Use of top-level 'plugin' variable is deprecated, "
-                f"use `openassetioPlugin` instead. {module.__file__}"
+                f"use `{self.__hookMemberName}` instead. {module.__file__}"
             )
             # Store where this plugin was loaded from. Not entirely
             # accurate, but more useful for debugging than it not being
@@ -256,5 +259,6 @@ class PythonPluginSystem(object):
             self.register(module.plugin, module.__file__)
         else:
             self.__logger.error(
-                f"PythonPluginSystem: No top-level 'openassetioPlugin' variable {module.__file__}"
+                f"PythonPluginSystem: No top-level '{self.__hookMemberName}'"
+                f" variable {module.__file__}"
             )

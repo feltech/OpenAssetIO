@@ -17,4 +17,4 @@ class Plugin(PythonPluginSystemUIDelegatePlugin):
 
 
 # pylint: disable=invalid-name
-openassetioPlugin = Plugin
+openassetioUIPlugin = Plugin
