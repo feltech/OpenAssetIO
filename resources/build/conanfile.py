@@ -33,7 +33,7 @@ class OpenAssetIOConan(ConanFile):
 
     def requirements(self):
         # CY2022
-        self.requires("pybind11/2.10.1")
+        self.requires("pybind11/2.9.2")
         # TOML library
         # TODO (EM) Unpin this. This is only pinned because a recipe update
         # seemed to remove all exceptions no matter how the configuration
