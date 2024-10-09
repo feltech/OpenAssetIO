@@ -34,9 +34,9 @@ InfoDictionary UIDelegateInterface::settings([[maybe_unused]] const HostSessionP
 
 void UIDelegateInterface::flushCaches([[maybe_unused]] const HostSessionPtr& hostSession) {}
 
-std::optional<UIDelegateState> UIDelegateInterface::populateUI(
+std::optional<UIDelegateStateConstPtr> UIDelegateInterface::populateUI(
     [[maybe_unused]] const trait::TraitsDataConstPtr& uiTraitsData,
-    [[maybe_unused]] const UIDelegateRequest& requestState,
+    [[maybe_unused]] const UIDelegateRequestConstPtr& requestState,
     [[maybe_unused]] const ContextConstPtr& context,
     [[maybe_unused]] const HostSessionPtr& hostSession) {
   return std::nullopt;

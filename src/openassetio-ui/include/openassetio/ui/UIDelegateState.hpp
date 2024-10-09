@@ -17,30 +17,56 @@ namespace openassetio {
 inline namespace OPENASSETIO_CORE_ABI_VERSION {
 namespace ui {
 
-class UIDelegateRequest;
-class UIDelegateState;
+OPENASSETIO_DECLARE_PTR(UIDelegateRequest)
+OPENASSETIO_DECLARE_PTR(UIDelegateState)
 
 /**
  */
 class OPENASSETIO_UI_EXPORT UIDelegateRequest {
  public:
+  OPENASSETIO_ALIAS_PTR(UIDelegateRequest)
   std::any nativeData;
   EntityReferences entityReferences;
   trait::TraitsDatas entityTraitsDatas;
-  trait::TraitsDataPtr relationshipTraitsData;
-  using StateChangedCallback = std::function<void(const UIDelegateState&)>;
+  trait::TraitsDatas relationshipTraitsDatas;
+  using StateChangedCallback = std::function<void(const UIDelegateStateConstPtr&)>;
   StateChangedCallback stateChangedCallback;
+
+  static UIDelegateRequestPtr make();
+  static UIDelegateRequestPtr make(std::any nativeData, EntityReferences entityReferences,
+                                   trait::TraitsDatas entityTraitsDatas,
+                                   trait::TraitsDatas relationshipTraitsDatas,
+                                   StateChangedCallback stateChangedCallback);
+
+ private:
+  UIDelegateRequest() = default;
+  UIDelegateRequest(std::any nativeData, EntityReferences entityReferences,
+                    trait::TraitsDatas entityTraitsDatas,
+                    trait::TraitsDatas relationshipTraitsData,
+                    StateChangedCallback stateChangedCallback);
 };
 
 /**
  */
 class OPENASSETIO_UI_EXPORT UIDelegateState {
  public:
+  OPENASSETIO_ALIAS_PTR(UIDelegateState)
   std::any nativeData;
   EntityReferences entityReferences;
   trait::TraitsDatas entityTraitsDatas;
-  using UpdateRequestCallback = std::function<void(const UIDelegateRequest&)>;
+  using UpdateRequestCallback = std::function<void(const UIDelegateRequestConstPtr&)>;
   UpdateRequestCallback updateRequestCallback;
+
+  static UIDelegateStatePtr make();
+  static UIDelegateStatePtr make(std::any nativeData, EntityReferences entityReferences,
+                                 trait::TraitsDatas entityTraitsDatas,
+                                 UpdateRequestCallback updateRequestCallback);
+
+ private:
+  UIDelegateState() = default;
+  UIDelegateState(std::any nativeData, EntityReferences entityReferences,
+                  trait::TraitsDatas entityTraitsDatas,
+                  UpdateRequestCallback updateRequestCallback);
 };
 }  // namespace ui
 }  // namespace OPENASSETIO_CORE_ABI_VERSION

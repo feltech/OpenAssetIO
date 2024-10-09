@@ -14,9 +14,10 @@
 #include <openassetio/InfoDictionary.hpp>
 #include <openassetio/trait/TraitsData.hpp>
 #include <openassetio/typedefs.hpp>
-#include <openassetio/ui/UIDelegateState.hpp>
 
 OPENASSETIO_FWD_DECLARE(ui::managerApi, UIDelegateInterface)
+OPENASSETIO_FWD_DECLARE(ui, UIDelegateState)
+OPENASSETIO_FWD_DECLARE(ui, UIDelegateRequest)
 OPENASSETIO_FWD_DECLARE(managerApi, HostSession)
 OPENASSETIO_FWD_DECLARE(Context)
 
@@ -143,9 +144,9 @@ class OPENASSETIO_UI_EXPORT UIDelegate final {
    */
   void flushCaches();
 
-  std::optional<UIDelegateState> populateUI(const trait::TraitsDataConstPtr& uiTraitsData,
-                                            const UIDelegateRequest& requestState,
-                                            const ContextConstPtr& context);
+  std::optional<UIDelegateStateConstPtr> populateUI(const trait::TraitsDataConstPtr& uiTraitsData,
+                                                    const UIDelegateRequestConstPtr& requestState,
+                                                    const ContextConstPtr& context);
 
   /**
    * @}

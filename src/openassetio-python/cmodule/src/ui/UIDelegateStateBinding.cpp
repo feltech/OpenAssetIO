@@ -23,20 +23,21 @@ void registerUIDelegateState(const py::module& mod) {
   using openassetio::ui::UIDelegateRequest;
   using openassetio::ui::UIDelegateState;
 
-  py::class_<UIDelegateRequest> pyUIDelegateRequest{mod, "UIDelegateRequest"};
-  py::class_<UIDelegateState> pyUIDelegateState{mod, "UIDelegateState"};
+  py::class_<UIDelegateRequest, UIDelegateRequest::Ptr> pyUIDelegateRequest{mod,
+                                                                            "UIDelegateRequest"};
+  py::class_<UIDelegateState, UIDelegateState::Ptr> pyUIDelegateState{mod, "UIDelegateState"};
 
   pyUIDelegateRequest
       .def(py::init([](py::object nativeData, EntityReferences entityReferences,
-                       TraitsDatas entityTraitsDatas, TraitsDataPtr relationshipTraitsData,
+                       TraitsDatas entityTraitsDatas, TraitsDatas relationshipTraitsDatas,
                        UIDelegateRequest::StateChangedCallback stateChangedCallback) {
-             return UIDelegateRequest{
+             return UIDelegateRequest::make(
                  std::move(nativeData), std::move(entityReferences), std::move(entityTraitsDatas),
-                 std::move(relationshipTraitsData), std::move(stateChangedCallback)};
+                 std::move(relationshipTraitsDatas), std::move(stateChangedCallback));
            }),
            py::arg("nativeData") = py::none{}, py::arg("entityReferences") = EntityReferences{},
            py::arg("entityTraitsDatas") = TraitsDatas{},
-           py::arg("relationshipTraitsData") = py::none{},
+           py::arg("relationshipTraitsData") = TraitsDatas{},
            py::arg("stateChangedCallback") = py::none{})
       .def_property(
           "nativeData",
@@ -46,16 +47,16 @@ void registerUIDelegateState(const py::module& mod) {
           })
       .def_readwrite("entityReferences", &UIDelegateRequest::entityReferences)
       .def_readwrite("entityTraitsDatas", &UIDelegateRequest::entityTraitsDatas)
-      .def_readwrite("relationshipTraitsData", &UIDelegateRequest::relationshipTraitsData)
+      .def_readwrite("relationshipTraitsDatas", &UIDelegateRequest::relationshipTraitsDatas)
       .def_readwrite("stateChangedCallback", &UIDelegateRequest::stateChangedCallback);
 
   pyUIDelegateState
       .def(py::init([](py::object nativeData, EntityReferences entityReferences,
                        TraitsDatas entityTraitsDatas,
                        UIDelegateState::UpdateRequestCallback updateRequestCallback) {
-             return UIDelegateState{std::move(nativeData), std::move(entityReferences),
-                                    std::move(entityTraitsDatas),
-                                    std::move(updateRequestCallback)};
+             return UIDelegateState::make(std::move(nativeData), std::move(entityReferences),
+                                          std::move(entityTraitsDatas),
+                                          std::move(updateRequestCallback));
            }),
            py::arg("nativeData") = py::none{}, py::arg("entityReferences") = EntityReferences{},
            py::arg("entityTraitsDatas") = TraitsDatas{},

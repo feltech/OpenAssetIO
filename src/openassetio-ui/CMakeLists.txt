@@ -56,6 +56,7 @@ endif ()
 target_sources(
     openassetio-ui
     PRIVATE
+    src/ui/UIDelegateState.cpp
     src/ui/hostApi/UIDelegateImplementationFactoryInterface.cpp
     src/ui/hostApi/UIDelegate.cpp
     src/ui/hostApi/UIDelegateFactory.cpp

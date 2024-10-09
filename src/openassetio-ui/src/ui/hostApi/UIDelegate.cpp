@@ -41,8 +41,8 @@ void UIDelegate::initialize(InfoDictionary uiDelegateSettings) {
 
 void UIDelegate::flushCaches() { uiDelegateInterface_->flushCaches(hostSession_); }
 
-std::optional<UIDelegateState> UIDelegate::populateUI(
-    const trait::TraitsDataConstPtr& uiTraitsData, const UIDelegateRequest& requestState,
+std::optional<UIDelegateStateConstPtr> UIDelegate::populateUI(
+    const trait::TraitsDataConstPtr& uiTraitsData, const UIDelegateRequestConstPtr& requestState,
     const ContextConstPtr& context) {
   return uiDelegateInterface_->populateUI(uiTraitsData, requestState, context, hostSession_);
 }

@@ -65,9 +65,6 @@ class Test_UIDelegate_populateUI:
     ):
         # setup
 
-        class NativeData:
-            pass
-
         ui_traits = TraitsData({"ui"})
         native_data = NativeData()
         entity_ref = EntityReference("a")
@@ -95,9 +92,7 @@ class Test_UIDelegate_populateUI:
         )
         assert actual_initial_ui_state.nativeData is native_data
         assert actual_initial_ui_state.entityReferences == [entity_ref]
-        assert actual_initial_ui_state.entityTraitsDatas == [entity_traits]
-
-        # Check callbacks.
+        assert actual_initial_ui_state.entityTraitsDatas == [entity_traits]  # Check callbacks.
 
         # setup
 
@@ -125,6 +120,10 @@ class Test_UIDelegate_populateUI:
 
         state_changed_callback.assert_called_once_with(mock.ANY)
         assert state_changed_callback.call_args[0][0].entityReferences == [EntityReference("c")]
+
+
+class NativeData:
+    pass
 
 
 @pytest.fixture

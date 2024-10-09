@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2024 The Foundry Visionmongers Ltd
 #include <memory>
-#include <optional>
 
 #include <pybind11/pybind11.h>
 
 #include <openassetio/managerApi/HostSession.hpp>
 #include <openassetio/trait/TraitsData.hpp>
 #include <openassetio/typedefs.hpp>
+#include <openassetio/ui/UIDelegateState.hpp>
 #include <openassetio/ui/hostApi/UIDelegate.hpp>
 #include <openassetio/ui/managerApi/UIDelegateInterface.hpp>
 
@@ -22,13 +22,13 @@ void registerUIDelegateTestUtils(py::module& mod) {
   auto ui = mod.def_submodule("ui");
 
   ui.def("createUIDelegateStateWithNonPyObjectNativeData", [] {
-    UIDelegateRequest state;
-    state.nativeData = double{};
+    auto state = UIDelegateRequest::make();
+    state->nativeData = double{};
     return state;
   });
   ui.def("createUIDelegateStateWithRawCPythonNativeData", [] {
-    UIDelegateRequest state;
-    state.nativeData = PyLong_FromLong(42);  // NOLINT(readability-magic-numbers)
+    auto state = UIDelegateRequest::make();
+    state->nativeData = PyLong_FromLong(42);  // NOLINT(readability-magic-numbers)
     return state;
   });
 }
