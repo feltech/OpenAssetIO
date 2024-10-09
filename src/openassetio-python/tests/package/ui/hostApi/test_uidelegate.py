@@ -5,7 +5,7 @@ from unittest import mock
 import pytest
 
 from openassetio import Context, EntityReference
-from openassetio.ui import UIDelegateState, UIDelegateRequest
+from openassetio.ui import UIDelegateState, UIDelegateRequest, constants
 from openassetio.trait import TraitsData
 from openassetio.ui.hostApi import UIDelegate
 
@@ -34,7 +34,7 @@ class Test_UIDelegate_info:
     ):
         mock_ui_delegate_interface.mock.info.return_value = {"a": "b"}
 
-        assert uiDelegate.info() == {"a": "b"}
+        assert uiDelegate.info() == {"a": "b", constants.kInfoKey_PythonOnly: True}
 
 
 class Test_UIDelegate_settings:

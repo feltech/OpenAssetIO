@@ -18,6 +18,7 @@
 #include <openassetio/trait/collection.hpp>
 #include <openassetio/typedefs.hpp>
 #include <openassetio/ui/UIDelegateState.hpp>
+#include <openassetio/ui/constants.hpp>
 #include <openassetio/ui/managerApi/UIDelegateInterface.hpp>
 
 #include "../../_openassetio.hpp"
@@ -42,6 +43,14 @@ struct PyUIDelegateInterface : UIDelegateInterface {
   }
 
   [[nodiscard]] InfoDictionary info() override {
+    auto infoDict = pyInfo();
+    // Enforce the "Python only" flag, so hosts can detect that
+    // PyObject* is required in nativeData.
+    infoDict[Str{constants::kInfoKey_PythonOnly}] = true;
+    return infoDict;
+  }
+
+  [[nodiscard]] InfoDictionary pyInfo() {
     OPENASSETIO_PYBIND11_OVERRIDE(InfoDictionary, UIDelegateInterface, info, /* no args */);
   }
 

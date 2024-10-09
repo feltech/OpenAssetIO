@@ -81,6 +81,7 @@ target_sources(
     src/pluginSystem/HybridPluginSystemManagerImplementationFactoryBinding.cpp
     src/trait/TraitsDataBinding.cpp
     src/utilsBinding.cpp
+    src/ui/constantsBinding.cpp
     src/ui/UIDelegateStateBinding.cpp
     src/ui/hostApi/UIDelegateBinding.cpp
     src/ui/hostApi/UIDelegateFactoryBinding.cpp

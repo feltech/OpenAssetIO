@@ -15,5 +15,6 @@
 #
 from .. import _openassetio
 
+constants = _openassetio.ui.constants
 UIDelegateState = _openassetio.ui.UIDelegateState
 UIDelegateRequest = _openassetio.ui.UIDelegateRequest

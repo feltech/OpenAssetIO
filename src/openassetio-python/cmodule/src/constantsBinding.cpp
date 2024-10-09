@@ -8,8 +8,6 @@
 #include "_openassetio.hpp"
 
 void registerConstants(const py::module_ &mod) {
-  mod.attr("kInfoKey_Icon") = openassetio::constants::kInfoKey_Icon;
-  mod.attr("kInfoKey_SmallIcon") = openassetio::constants::kInfoKey_SmallIcon;
   mod.attr("kInfoKey_EntityReferencesMatchPrefix") =
       openassetio::constants::kInfoKey_EntityReferencesMatchPrefix;
 }

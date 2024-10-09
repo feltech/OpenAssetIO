@@ -15,7 +15,7 @@ inline namespace OPENASSETIO_CORE_ABI_VERSION {
 /**
  * Constants used throughout the OpenAssetIO API.
  */
-namespace constants {
+namespace ui::constants {
 
 /**
  * @name Info dictionary field names.
@@ -26,20 +26,14 @@ namespace constants {
  * @{
  */
 
-// Entity Reference Properties
+inline constexpr std::string_view kInfoKey_SmallIcon = "smallIcon";
+inline constexpr std::string_view kInfoKey_Icon = "icon";
 
 /**
- * Common prefix for all entity references of a particular manager.
- *
- * This field may be used by the API to optimize queries to
- * isEntityReferenceString in situations where bridging languages, etc.
- * can be expensive (particularly in the case of python plug-ins called
- * from multi-threaded C++).
  */
-inline constexpr std::string_view kInfoKey_EntityReferencesMatchPrefix =
-    "entityReferencesMatchPrefix";
+inline constexpr std::string_view kInfoKey_PythonOnly = "pythonOnly";
 
 /// @}
-}  // namespace constants
+}  // namespace ui::constants
 }  // namespace OPENASSETIO_CORE_ABI_VERSION
 }  // namespace openassetio
