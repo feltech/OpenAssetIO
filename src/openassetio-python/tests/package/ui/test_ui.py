@@ -103,7 +103,7 @@ class Test_UIDelegateRequest_init:
         assert ui_request.nativeData is None
         assert ui_request.entityReferences == []
         assert ui_request.entityTraitsDatas == []
-        assert ui_request.relationshipTraitsData is None
+        assert ui_request.relationshipTraitsDatas == []
         assert ui_request.stateChangedCallback is None
 
     def test_when_constructed_with_positional_args_then_stores_members(self):
@@ -111,7 +111,7 @@ class Test_UIDelegateRequest_init:
         native_data = NativeData()
         entity_refs = [EntityReference("a")]
         entity_traits = [TraitsData({"entity"})]
-        relationship_traits = TraitsData({"relationship"})
+        relationship_traits = [TraitsData({"relationship"})]
         state_changed_cb = mock.Mock()
 
         ui_request = UIDelegateRequest(
@@ -121,7 +121,7 @@ class Test_UIDelegateRequest_init:
         assert ui_request.nativeData is native_data
         assert ui_request.entityReferences == entity_refs
         assert ui_request.entityTraitsDatas == entity_traits
-        assert ui_request.relationshipTraitsData == relationship_traits
+        assert ui_request.relationshipTraitsDatas == relationship_traits
         ui_request.stateChangedCallback(UIDelegateState())
         state_changed_cb.assert_called_once()
 
@@ -130,7 +130,7 @@ class Test_UIDelegateRequest_init:
         native_data = NativeData()
         entity_refs = [EntityReference("a")]
         entity_traits = [TraitsData({"entity"})]
-        relationship_traits = TraitsData({"relationship"})
+        relationship_traits = [TraitsData({"relationship"})]
         state_changed_cb = mock.Mock()
 
         ui_request = UIDelegateRequest(
@@ -138,13 +138,13 @@ class Test_UIDelegateRequest_init:
             entityReferences=entity_refs,
             entityTraitsDatas=entity_traits,
             stateChangedCallback=state_changed_cb,
-            relationshipTraitsData=relationship_traits,
+            relationshipTraitsDatas=relationship_traits,
         )
 
         assert ui_request.nativeData is native_data
         assert ui_request.entityReferences == entity_refs
         assert ui_request.entityTraitsDatas == entity_traits
-        assert ui_request.relationshipTraitsData == relationship_traits
+        assert ui_request.relationshipTraitsDatas == relationship_traits
         ui_request.stateChangedCallback(UIDelegateState())
         state_changed_cb.assert_called_once()
 
@@ -152,19 +152,19 @@ class Test_UIDelegateRequest_init:
         native_data = NativeData()
         entity_refs = [EntityReference("a")]
         entity_traits = [TraitsData({"entity"})]
-        relationship_traits = TraitsData({"relationship"})
+        relationship_traits = [TraitsData({"relationship"})]
         state_changed_cb = mock.Mock()
 
         ui_request = UIDelegateRequest()
         ui_request.nativeData = native_data
         ui_request.entityReferences = entity_refs
         ui_request.entityTraitsDatas = entity_traits
-        ui_request.relationshipTraitsData = relationship_traits
+        ui_request.relationshipTraitsDatas = relationship_traits
         ui_request.stateChangedCallback = state_changed_cb
 
         assert ui_request.entityReferences == entity_refs
         assert ui_request.entityTraitsDatas == entity_traits
         assert ui_request.nativeData is native_data
-        assert ui_request.relationshipTraitsData == relationship_traits
+        assert ui_request.relationshipTraitsDatas == relationship_traits
         ui_request.stateChangedCallback(UIDelegateState())
         state_changed_cb.assert_called_once()

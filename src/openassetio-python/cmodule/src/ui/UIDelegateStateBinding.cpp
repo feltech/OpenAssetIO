@@ -37,7 +37,7 @@ void registerUIDelegateState(const py::module& mod) {
            }),
            py::arg("nativeData") = py::none{}, py::arg("entityReferences") = EntityReferences{},
            py::arg("entityTraitsDatas") = TraitsDatas{},
-           py::arg("relationshipTraitsData") = TraitsDatas{},
+           py::arg("relationshipTraitsDatas") = TraitsDatas{},
            py::arg("stateChangedCallback") = py::none{})
       .def_property(
           "nativeData",
