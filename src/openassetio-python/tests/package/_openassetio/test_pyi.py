@@ -42,6 +42,7 @@ expected_pyi_files = (
     "trait.pyi",
     "utils.pyi",
     "ui/__init__.pyi",
+    "ui/access.pyi",
     "ui/constants.pyi",
     "ui/hostApi.pyi",
     "ui/managerApi.pyi",

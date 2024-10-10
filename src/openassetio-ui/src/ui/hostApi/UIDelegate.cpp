@@ -10,6 +10,7 @@
 #include <openassetio/trait/TraitsData.hpp>
 #include <openassetio/typedefs.hpp>
 #include <openassetio/ui/UIDelegateState.hpp>
+#include <openassetio/ui/access.hpp>
 #include <openassetio/ui/hostApi/UIDelegate.hpp>
 #include <openassetio/ui/managerApi/UIDelegateInterface.hpp>
 
@@ -42,9 +43,10 @@ void UIDelegate::initialize(InfoDictionary uiDelegateSettings) {
 void UIDelegate::flushCaches() { uiDelegateInterface_->flushCaches(hostSession_); }
 
 std::optional<UIDelegateStateConstPtr> UIDelegate::populateUI(
-    const trait::TraitsDataConstPtr& uiTraitsData, const UIDelegateRequestConstPtr& requestState,
-    const ContextConstPtr& context) {
-  return uiDelegateInterface_->populateUI(uiTraitsData, requestState, context, hostSession_);
+    const trait::TraitsDataConstPtr& uiTraitsData, const access::UIAccess uiAccess,
+    const UIDelegateRequestConstPtr& requestState, const ContextConstPtr& context) {
+  return uiDelegateInterface_->populateUI(uiTraitsData, uiAccess, requestState, context,
+                                          hostSession_);
 }
 
 InfoDictionary UIDelegate::info() { return uiDelegateInterface_->info(); }

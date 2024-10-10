@@ -67,11 +67,13 @@ struct PyUIDelegateInterface : UIDelegateInterface {
     OPENASSETIO_PYBIND11_OVERRIDE(void, UIDelegateInterface, flushCaches, hostSession);
   }
   std::optional<UIDelegateStateConstPtr> populateUI(const trait::TraitsDataConstPtr& uiTraitsData,
+                                                    const access::UIAccess uiAccess,
                                                     const UIDelegateRequestConstPtr& requestState,
                                                     const ContextConstPtr& context,
                                                     const HostSessionPtr& hostSession) override {
     OPENASSETIO_PYBIND11_OVERRIDE(std::optional<UIDelegateStateConstPtr>, UIDelegateInterface,
-                                  populateUI, uiTraitsData, requestState, context, hostSession);
+                                  populateUI, uiTraitsData, uiAccess, requestState, context,
+                                  hostSession);
   }
 };
 
@@ -106,6 +108,6 @@ void registerUIDelegateInterface(const py::module& mod) {
       .def("flushCaches", &UIDelegateInterface::flushCaches, py::arg("hostSession").none(false),
            py::call_guard<py::gil_scoped_release>{})
       .def("populateUI", &UIDelegateInterface::populateUI, py::arg("uiTraitsData").none(false),
-           py::arg("requestState"), py::arg("context").none(false),
+           py::arg("uiAccess"), py::arg("requestState"), py::arg("context").none(false),
            py::arg("hostSession").none(false), py::call_guard<py::gil_scoped_release>{});
 }

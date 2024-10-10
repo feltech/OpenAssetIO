@@ -5,7 +5,7 @@ from unittest import mock
 import pytest
 
 from openassetio import Context, EntityReference
-from openassetio.ui import UIDelegateState, UIDelegateRequest, constants
+from openassetio.ui import UIDelegateState, UIDelegateRequest, constants, access
 from openassetio.trait import TraitsData
 from openassetio.ui.hostApi import UIDelegate
 
@@ -73,8 +73,13 @@ class Test_UIDelegate_populateUI:
         context = Context()
         state_changed_callback = mock.Mock()
         update_request_callback = mock.Mock()
+        ui_access = access.UIAccess.kRead
         request_state = UIDelegateRequest(
-            native_data, [entity_ref], [entity_traits], relationship_traits, state_changed_callback
+            native_data,
+            [entity_ref],
+            [entity_traits],
+            [relationship_traits],
+            state_changed_callback,
         )
         expected_initial_ui_state = UIDelegateState(
             native_data, [entity_ref], [entity_traits], update_request_callback
@@ -83,12 +88,14 @@ class Test_UIDelegate_populateUI:
 
         # action
 
-        actual_initial_ui_state = uiDelegate.populateUI(ui_traits, request_state, context)
+        actual_initial_ui_state = uiDelegate.populateUI(
+            ui_traits, ui_access, request_state, context
+        )
 
         # confirm
 
         mock_ui_delegate_interface.mock.populateUI.assert_called_once_with(
-            ui_traits, request_state, context, a_host_session
+            ui_traits, ui_access, request_state, context, a_host_session
         )
         assert actual_initial_ui_state.nativeData is native_data
         assert actual_initial_ui_state.entityReferences == [entity_ref]
@@ -110,7 +117,7 @@ class Test_UIDelegate_populateUI:
         # setup
 
         updated_ui_state = UIDelegateState(entityReferences=[EntityReference("c")])
-        actual_request_state = mock_ui_delegate_interface.mock.populateUI.call_args[0][1]
+        actual_request_state = mock_ui_delegate_interface.mock.populateUI.call_args[0][2]
 
         # action
 

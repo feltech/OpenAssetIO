@@ -12,6 +12,7 @@
 #include <openassetio/InfoDictionary.hpp>
 #include <openassetio/trait/collection.hpp>
 #include <openassetio/typedefs.hpp>
+#include <openassetio/ui/access.hpp>
 
 OPENASSETIO_FWD_DECLARE(managerApi, HostSession)
 OPENASSETIO_FWD_DECLARE(Context)
@@ -194,8 +195,9 @@ class OPENASSETIO_UI_EXPORT UIDelegateInterface {
   virtual void flushCaches(const HostSessionPtr& hostSession);
 
   virtual std::optional<UIDelegateStateConstPtr> populateUI(
-      const trait::TraitsDataConstPtr& uiTraitsData, const UIDelegateRequestConstPtr& requestState,
-      const ContextConstPtr& context, const HostSessionPtr& hostSession);
+      const trait::TraitsDataConstPtr& uiTraitsData, access::UIAccess uiAccess,
+      const UIDelegateRequestConstPtr& requestState, const ContextConstPtr& context,
+      const HostSessionPtr& hostSession);
   /**
    * @}
    */

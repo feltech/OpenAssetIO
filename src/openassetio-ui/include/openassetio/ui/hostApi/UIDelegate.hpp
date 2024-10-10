@@ -14,6 +14,7 @@
 #include <openassetio/InfoDictionary.hpp>
 #include <openassetio/trait/TraitsData.hpp>
 #include <openassetio/typedefs.hpp>
+#include <openassetio/ui/access.hpp>
 
 OPENASSETIO_FWD_DECLARE(ui::managerApi, UIDelegateInterface)
 OPENASSETIO_FWD_DECLARE(ui, UIDelegateState)
@@ -145,6 +146,7 @@ class OPENASSETIO_UI_EXPORT UIDelegate final {
   void flushCaches();
 
   std::optional<UIDelegateStateConstPtr> populateUI(const trait::TraitsDataConstPtr& uiTraitsData,
+                                                    access::UIAccess uiAccess,
                                                     const UIDelegateRequestConstPtr& requestState,
                                                     const ContextConstPtr& context);
 

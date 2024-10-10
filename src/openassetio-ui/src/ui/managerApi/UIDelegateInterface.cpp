@@ -8,6 +8,7 @@
 #include <openassetio/errors/exceptions.hpp>
 #include <openassetio/trait/TraitsData.hpp>
 #include <openassetio/ui/UIDelegateState.hpp>
+#include <openassetio/ui/access.hpp>
 #include <openassetio/ui/managerApi/UIDelegateInterface.hpp>
 
 namespace openassetio {
@@ -36,6 +37,7 @@ void UIDelegateInterface::flushCaches([[maybe_unused]] const HostSessionPtr& hos
 
 std::optional<UIDelegateStateConstPtr> UIDelegateInterface::populateUI(
     [[maybe_unused]] const trait::TraitsDataConstPtr& uiTraitsData,
+    [[maybe_unused]] const access::UIAccess uiAccess,
     [[maybe_unused]] const UIDelegateRequestConstPtr& requestState,
     [[maybe_unused]] const ContextConstPtr& context,
     [[maybe_unused]] const HostSessionPtr& hostSession) {
