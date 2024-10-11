@@ -21,7 +21,9 @@ void registerUIDelegateState(const py::module& mod) {
   using openassetio::trait::TraitsDataPtr;
   using openassetio::trait::TraitsDatas;
   using openassetio::ui::UIDelegateRequest;
+  using openassetio::ui::UIDelegateRequestConstPtr;
   using openassetio::ui::UIDelegateState;
+  using openassetio::ui::UIDelegateStateConstPtr;
 
   py::class_<UIDelegateRequest, UIDelegateRequest::Ptr> pyUIDelegateRequest{mod,
                                                                             "UIDelegateRequest"};
@@ -32,8 +34,9 @@ void registerUIDelegateState(const py::module& mod) {
                        TraitsDatas entityTraitsDatas, TraitsDatas relationshipTraitsDatas,
                        UIDelegateRequest::StateChangedCallback stateChangedCallback) {
              return UIDelegateRequest::make(
-                 std::move(nativeData), std::move(entityReferences), std::move(entityTraitsDatas),
-                 std::move(relationshipTraitsDatas), std::move(stateChangedCallback));
+                 nativeData.release().ptr(), std::move(entityReferences),
+                 std::move(entityTraitsDatas), std::move(relationshipTraitsDatas),
+                 std::move(stateChangedCallback));
            }),
            py::arg("nativeData") = py::none{}, py::arg("entityReferences") = EntityReferences{},
            py::arg("entityTraitsDatas") = TraitsDatas{},
@@ -43,7 +46,7 @@ void registerUIDelegateState(const py::module& mod) {
           "nativeData",
           [](const UIDelegateRequest& self) { return anyCastToPyObject(self.nativeData); },
           [](UIDelegateRequest& self, py::object nativeData) {
-            self.nativeData = std::move(nativeData);
+            self.nativeData = nativeData.release().ptr();
           })
       .def_readwrite("entityReferences", &UIDelegateRequest::entityReferences)
       .def_readwrite("entityTraitsDatas", &UIDelegateRequest::entityTraitsDatas)
@@ -54,7 +57,7 @@ void registerUIDelegateState(const py::module& mod) {
       .def(py::init([](py::object nativeData, EntityReferences entityReferences,
                        TraitsDatas entityTraitsDatas,
                        UIDelegateState::UpdateRequestCallback updateRequestCallback) {
-             return UIDelegateState::make(std::move(nativeData), std::move(entityReferences),
+             return UIDelegateState::make(nativeData.release().ptr(), std::move(entityReferences),
                                           std::move(entityTraitsDatas),
                                           std::move(updateRequestCallback));
            }),
@@ -65,7 +68,7 @@ void registerUIDelegateState(const py::module& mod) {
           "nativeData",
           [](const UIDelegateState& self) { return anyCastToPyObject(self.nativeData); },
           [](UIDelegateState& self, py::object nativeData) {
-            self.nativeData = std::move(nativeData);
+            self.nativeData = nativeData.release().ptr();
           })
       .def_readwrite("entityReferences", &UIDelegateState::entityReferences)
       .def_readwrite("entityTraitsDatas", &UIDelegateState::entityTraitsDatas)

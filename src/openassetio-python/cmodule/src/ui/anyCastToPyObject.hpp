@@ -13,14 +13,13 @@
 namespace py = pybind11;
 
 inline py::object anyCastToPyObject(const std::any &wrapped) {
-  // Plugins should bundle a CPython PyObject* in their std::any.
+  if (!wrapped.has_value()) {
+    return py::none{};
+  }
+  // Hosts, managers and middleware should bundle a CPython PyObject* in
+  // their std::any.
   if (wrapped.type() == typeid(PyObject *)) {
     return py::reinterpret_borrow<py::object>(std::any_cast<PyObject *>(wrapped));
-  }
-  // Middleware (e.g. UIDelegate) will forward Python arguments as a
-  // py::object bundled in the std::any.
-  if (wrapped.type() == typeid(py::object)) {
-    return std::any_cast<py::object>(wrapped);
   }
   std::string wrappedTypeName = wrapped.type().name();
   py::detail::clean_type_id(wrappedTypeName);
