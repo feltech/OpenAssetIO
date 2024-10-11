@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2024 The Foundry Visionmongers Ltd
-#include <openassetio/ui/UIDelegateState.hpp>
-
+#include <algorithm>
 #include <any>
+#include <iterator>
 #include <memory>
 #include <utility>
 
 #include <openassetio/export.h>
 #include <openassetio/EntityReference.hpp>
+#include <openassetio/trait/TraitsData.hpp>
 #include <openassetio/trait/collection.hpp>
+#include <openassetio/ui/UIDelegateState.hpp>
 
 namespace openassetio {
 inline namespace OPENASSETIO_CORE_ABI_VERSION {
@@ -25,6 +27,21 @@ UIDelegateRequest::UIDelegateRequest(std::any nativeData_, EntityReferences enti
 
 UIDelegateRequestPtr UIDelegateRequest::make() {
   return std::make_shared<UIDelegateRequest>(UIDelegateRequest{});
+}
+UIDelegateRequestPtr UIDelegateRequest::make(const UIDelegateRequestConstPtr& other) {
+  trait::TraitsDatas entityTraitsDatas(other->entityTraitsDatas.size());
+  trait::TraitsDatas relationshipTraitsDatas(other->relationshipTraitsDatas.size());
+  transform(cbegin(other->entityTraitsDatas), cend(other->entityTraitsDatas),
+            begin(entityTraitsDatas), [](const trait::TraitsDataConstPtr& traitsData) {
+              return trait::TraitsData::make(traitsData);
+            });
+  transform(cbegin(other->relationshipTraitsDatas), cend(other->relationshipTraitsDatas),
+            begin(relationshipTraitsDatas), [](const trait::TraitsDataConstPtr& traitsData) {
+              return trait::TraitsData::make(traitsData);
+            });
+
+  return make(other->nativeData, other->entityReferences, entityTraitsDatas,
+              relationshipTraitsDatas, other->stateChangedCallback);
 }
 
 UIDelegateRequestPtr UIDelegateRequest::make(std::any nativeData,
@@ -47,6 +64,17 @@ UIDelegateState::UIDelegateState(std::any nativeData_, EntityReferences entityRe
 
 UIDelegateStatePtr UIDelegateState::make() {
   return std::make_shared<UIDelegateState>(UIDelegateState{});
+}
+
+UIDelegateStatePtr UIDelegateState::make(const UIDelegateStateConstPtr& other) {
+  trait::TraitsDatas entityTraitsDatas(other->entityTraitsDatas.size());
+  transform(cbegin(other->entityTraitsDatas), cend(other->entityTraitsDatas),
+            begin(entityTraitsDatas), [](const trait::TraitsDataConstPtr& traitsData) {
+              return trait::TraitsData::make(traitsData);
+            });
+
+  return make(other->nativeData, other->entityReferences, entityTraitsDatas,
+              other->updateRequestCallback);
 }
 
 UIDelegateStatePtr UIDelegateState::make(std::any nativeData, EntityReferences entityReferences,

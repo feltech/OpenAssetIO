@@ -33,6 +33,7 @@ class OPENASSETIO_UI_EXPORT UIDelegateRequest {
   StateChangedCallback stateChangedCallback;
 
   static UIDelegateRequestPtr make();
+  static UIDelegateRequestPtr make(const UIDelegateRequestConstPtr& other);
   static UIDelegateRequestPtr make(std::any nativeData, EntityReferences entityReferences,
                                    trait::TraitsDatas entityTraitsDatas,
                                    trait::TraitsDatas relationshipTraitsDatas,
@@ -58,6 +59,7 @@ class OPENASSETIO_UI_EXPORT UIDelegateState {
   UpdateRequestCallback updateRequestCallback;
 
   static UIDelegateStatePtr make();
+  static UIDelegateStatePtr make(const UIDelegateStateConstPtr& other);
   static UIDelegateStatePtr make(std::any nativeData, EntityReferences entityReferences,
                                  trait::TraitsDatas entityTraitsDatas,
                                  UpdateRequestCallback updateRequestCallback);

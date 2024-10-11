@@ -42,6 +42,7 @@ void registerUIDelegateState(const py::module& mod) {
            py::arg("entityTraitsDatas") = TraitsDatas{},
            py::arg("relationshipTraitsDatas") = TraitsDatas{},
            py::arg("stateChangedCallback") = py::none{})
+      .def(py::init(py::overload_cast<const UIDelegateRequestConstPtr&>(&UIDelegateRequest::make)))
       .def_property(
           "nativeData",
           [](const UIDelegateRequest& self) { return anyCastToPyObject(self.nativeData); },
@@ -64,6 +65,7 @@ void registerUIDelegateState(const py::module& mod) {
            py::arg("nativeData") = py::none{}, py::arg("entityReferences") = EntityReferences{},
            py::arg("entityTraitsDatas") = TraitsDatas{},
            py::arg("updateRequestCallback") = py::none{})
+      .def(py::init(py::overload_cast<const UIDelegateStateConstPtr&>(&UIDelegateState::make)))
       .def_property(
           "nativeData",
           [](const UIDelegateState& self) { return anyCastToPyObject(self.nativeData); },
