@@ -31,6 +31,9 @@ class MockUIDelegateInterface(UIDelegateInterface):
     def flushCaches(self, hostSession):
         return self.mock.flushCaches(hostSession)
 
+    def uiPolicy(self, uiTraits, uiPolicyAccess, context, hostSession):
+        return self.mock.uiPolicy(uiTraits, uiPolicyAccess, context, hostSession)
+
     def populateUI(self, container, uiTraits, entityTraits, *args):
         return self.mock.populateUI(container, uiTraits, entityTraits, *args)
 

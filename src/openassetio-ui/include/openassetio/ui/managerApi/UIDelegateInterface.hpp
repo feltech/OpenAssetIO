@@ -194,6 +194,11 @@ class OPENASSETIO_UI_EXPORT UIDelegateInterface {
    */
   virtual void flushCaches(const HostSessionPtr& hostSession);
 
+  [[nodiscard]] virtual trait::TraitsDataPtr uiPolicy(const trait::TraitSet& uiTraits,
+                                                      access::UIAccess uiAccess,
+                                                      const ContextConstPtr& context,
+                                                      const HostSessionPtr& hostSession);
+
   virtual std::optional<UIDelegateStateConstPtr> populateUI(
       const trait::TraitsDataConstPtr& uiTraitsData, access::UIAccess uiAccess,
       const UIDelegateRequestConstPtr& requestState, const ContextConstPtr& context,

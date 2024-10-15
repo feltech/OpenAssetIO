@@ -8,6 +8,7 @@
 #include <openassetio/InfoDictionary.hpp>
 #include <openassetio/managerApi/HostSession.hpp>
 #include <openassetio/trait/TraitsData.hpp>
+#include <openassetio/trait/collection.hpp>
 #include <openassetio/typedefs.hpp>
 #include <openassetio/ui/UIDelegateState.hpp>
 #include <openassetio/ui/access.hpp>
@@ -41,6 +42,12 @@ void UIDelegate::initialize(InfoDictionary uiDelegateSettings) {
 }
 
 void UIDelegate::flushCaches() { uiDelegateInterface_->flushCaches(hostSession_); }
+
+trait::TraitsDataPtr UIDelegate::uiPolicy(const trait::TraitSet& uiTraits,
+                                          access::UIAccess uiAccess,
+                                          const ContextConstPtr& context) {
+  return uiDelegateInterface_->uiPolicy(uiTraits, uiAccess, context, hostSession_);
+}
 
 std::optional<UIDelegateStateConstPtr> UIDelegate::populateUI(
     const trait::TraitsDataConstPtr& uiTraitsData, const access::UIAccess uiAccess,

@@ -129,6 +129,25 @@ class Test_UIDelegate_populateUI:
         assert state_changed_callback.call_args[0][0].entityReferences == [EntityReference("c")]
 
 
+
+class Test_UIDelegate_uiPolicy:
+    def test_wraps_the_corresponding_method_of_the_held_interface(
+        self, uiDelegate, mock_ui_delegate_interface, a_host_session
+    ):
+        ui_traits = {"ui"}
+        context = Context()
+        ui_access = access.UIAccess.kRead
+        expected_policy = TraitsData({"some_policy"})
+        mock_ui_delegate_interface.mock.uiPolicy.return_value = expected_policy
+
+        assert uiDelegate.uiPolicy(ui_traits, ui_access, context) == expected_policy
+
+        mock_ui_delegate_interface.mock.uiPolicy.assert_called_once_with(
+            ui_traits, ui_access, context, a_host_session
+        )
+
+
+
 class NativeData:
     pass
 
