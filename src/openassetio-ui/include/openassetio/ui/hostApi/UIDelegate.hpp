@@ -149,10 +149,10 @@ class OPENASSETIO_UI_EXPORT UIDelegate final {
                                               access::UIAccess uiAccess,
                                               const ContextConstPtr& context);
 
-  std::optional<UIDelegateStateConstPtr> populateUI(const trait::TraitsDataConstPtr& uiTraitsData,
-                                                    access::UIAccess uiAccess,
-                                                    const UIDelegateRequestConstPtr& requestState,
-                                                    const ContextConstPtr& context);
+  UIDelegateStateConstPtr populateUI(const trait::TraitsDataConstPtr& uiTraitsData,
+                                     access::UIAccess uiAccess,
+                                     const UIDelegateRequestConstPtr& requestState,
+                                     const ContextConstPtr& context);
 
   /**
    * @}

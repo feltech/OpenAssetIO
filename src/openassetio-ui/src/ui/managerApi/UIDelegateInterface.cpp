@@ -44,13 +44,13 @@ trait::TraitsDataPtr UIDelegateInterface::uiPolicy(
   return trait::TraitsData::make();
 }
 
-std::optional<UIDelegateStateConstPtr> UIDelegateInterface::populateUI(
+UIDelegateStateConstPtr UIDelegateInterface::populateUI(
     [[maybe_unused]] const trait::TraitsDataConstPtr& uiTraitsData,
     [[maybe_unused]] const access::UIAccess uiAccess,
     [[maybe_unused]] const UIDelegateRequestConstPtr& requestState,
     [[maybe_unused]] const ContextConstPtr& context,
     [[maybe_unused]] const HostSessionPtr& hostSession) {
-  return std::nullopt;
+  return {};
 }
 
 }  // namespace ui::managerApi

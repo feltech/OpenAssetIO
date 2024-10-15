@@ -199,10 +199,11 @@ class OPENASSETIO_UI_EXPORT UIDelegateInterface {
                                                       const ContextConstPtr& context,
                                                       const HostSessionPtr& hostSession);
 
-  virtual std::optional<UIDelegateStateConstPtr> populateUI(
-      const trait::TraitsDataConstPtr& uiTraitsData, access::UIAccess uiAccess,
-      const UIDelegateRequestConstPtr& requestState, const ContextConstPtr& context,
-      const HostSessionPtr& hostSession);
+  virtual UIDelegateStateConstPtr populateUI(const trait::TraitsDataConstPtr& uiTraitsData,
+                                             access::UIAccess uiAccess,
+                                             const UIDelegateRequestConstPtr& requestState,
+                                             const ContextConstPtr& context,
+                                             const HostSessionPtr& hostSession);
   /**
    * @}
    */

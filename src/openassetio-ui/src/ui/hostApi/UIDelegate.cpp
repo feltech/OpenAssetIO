@@ -49,9 +49,10 @@ trait::TraitsDataPtr UIDelegate::uiPolicy(const trait::TraitSet& uiTraits,
   return uiDelegateInterface_->uiPolicy(uiTraits, uiAccess, context, hostSession_);
 }
 
-std::optional<UIDelegateStateConstPtr> UIDelegate::populateUI(
-    const trait::TraitsDataConstPtr& uiTraitsData, const access::UIAccess uiAccess,
-    const UIDelegateRequestConstPtr& requestState, const ContextConstPtr& context) {
+UIDelegateStateConstPtr UIDelegate::populateUI(const trait::TraitsDataConstPtr& uiTraitsData,
+                                               const access::UIAccess uiAccess,
+                                               const UIDelegateRequestConstPtr& requestState,
+                                               const ContextConstPtr& context) {
   return uiDelegateInterface_->populateUI(uiTraitsData, uiAccess, requestState, context,
                                           hostSession_);
 }
