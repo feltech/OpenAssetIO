@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2013-2023 The Foundry Visionmongers Ltd
+// Copyright 2013-2024 The Foundry Visionmongers Ltd
 #include <cstddef>
 #include <exception>
 #include <string_view>
@@ -243,6 +243,28 @@ void registerExceptions(const py::module &mod) {
     if (!pexc) {
       return;
     }
+    if (PyErr_Occurred()) {
+      // If a Python exception is already active, then it is not safe to
+      // continue - e.g. the `py::module_::import` below can cause a
+      // fatal error.
+      //
+      // For example, this could happen if in the C++ call stack of a
+      // pybind11-bound function, a raw CPython call is made that
+      // results in the Python error indicator being set, then the
+      // function goes on to throw a C++ exception too. We could attempt
+      // to translate the C++ exception here whilst the Python error
+      // indicator is set, resulting in a fatal error in the `import`
+      // below.
+      //
+      // So just rethrow the C++ exception and hope that another (or the
+      // default) exception translator does something sensible. pybind11
+      // 2.8+ will use `py::raise_from` to chain the exceptions
+      // together.
+      // TODO(DF): Do something similar to `raise_from` so that we don't
+      // lose exception translation in this case.
+      std::rethrow_exception(pexc);
+    }
+
     const py::module_ pyModule = py::module_::import(kErrorsModuleName.data());
 
     // Handle the different possible C++ exceptions, creating the
