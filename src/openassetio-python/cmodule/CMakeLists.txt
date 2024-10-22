@@ -33,15 +33,13 @@ install(
     COMPONENT openassetio-python-distribution
 )
 if (BUILD_SHARED_LIBS)
-    # For a shared library build, we must ensure the core C++ library
-    # dependency is installed when the Python extension module component
-    # is installed. The openassetio-python-distribution component is
-    # targeted for install when building Python wheels - see setup.py.
-    # In addition, ensure the Python bridge library is also available,
-    # to enable (the albeit rare case of) C++ plugin direct interaction
-    # with Python objects.
+    # For a shared library build, we must ensure C++ library
+    # dependencies are installed when the Python extension module
+    # component is installed. The openassetio-python-distribution
+    # component is targeted for install when building Python wheels -
+    # see setup.py.
     install(
-        TARGETS openassetio-core openassetio-python-bridge
+        TARGETS openassetio-core openassetio-python-bridge openassetio-ui
         COMPONENT openassetio-python-distribution
     )
 endif ()
