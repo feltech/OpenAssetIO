@@ -1,8 +1,5 @@
-#  SPDX-License-Identifier: Apache-2.0
-#  Copyright 2024 The Foundry Visionmongers Ltd
-
 #
-#   Copyright 2024 The Foundry Visionmongers Ltd
+#   Copyright 2023 The Foundry Visionmongers Ltd
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -16,8 +13,12 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-from .. import _openassetio
+"""
+@namespace openassetio.access
+Provides access mode related constants for use in API functions.
+"""
 
-constants = _openassetio.ui.constants
-UIDelegateState = _openassetio.ui.UIDelegateState
-UIDelegateRequest = _openassetio.ui.UIDelegateRequest
+from openassetio import _openassetio  # pylint: disable=no-name-in-module
+
+
+UIAccess = _openassetio.ui.access.UIAccess
