@@ -72,6 +72,8 @@ void registerUIDelegateState(const py::module& mod) {
           [](UIDelegateState& self, py::object nativeData) {
             self.nativeData = nativeData.release().ptr();
           })
+      // TODO(DF): Due to list copying, entityReferences cannot be
+      // mutated, e.g. state.entityReferences.append(...) is a no-op.
       .def_readwrite("entityReferences", &UIDelegateState::entityReferences)
       .def_readwrite("entityTraitsDatas", &UIDelegateState::entityTraitsDatas)
       .def_readwrite("updateRequestCallback", &UIDelegateState::updateRequestCallback);
