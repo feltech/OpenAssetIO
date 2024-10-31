@@ -19,16 +19,16 @@ void registerUIDelegateFactory(const py::module& mod) {
   using openassetio::ui::hostApi::UIDelegateImplementationFactoryInterfacePtr;
   using openassetio::ui::hostApi::UIDelegatePtr;
 
-  py::class_<UIDelegateFactory, UIDelegateFactoryPtr> managerFactory(mod, "UIDelegateFactory",
-                                                                     py::is_final());
-  managerFactory
+  py::class_<UIDelegateFactory, UIDelegateFactoryPtr> uiDelegateFactory(mod, "UIDelegateFactory",
+                                                                        py::is_final());
+  uiDelegateFactory
       .def(py::init(RetainCommonPyArgs::forFn<&UIDelegateFactory::make>()),
            py::arg("hostInterface").none(false),
            py::arg("managerImplementationFactory").none(false), py::arg("logger").none(false))
       .def("identifiers", &UIDelegateFactory::identifiers,
            py::call_guard<py::gil_scoped_release>{});
 
-  py::class_<UIDelegateFactory::UIDelegateDetail>(managerFactory, "UIDelegateDetail")
+  py::class_<UIDelegateFactory::UIDelegateDetail>(uiDelegateFactory, "UIDelegateDetail")
       .def(py::init<openassetio::Identifier, openassetio::Str, openassetio::InfoDictionary>(),
            py::arg("identifier"), py::arg("displayName"), py::arg("info"))
       .def_readwrite("identifier", &UIDelegateFactory::UIDelegateDetail::identifier)
@@ -37,7 +37,7 @@ void registerUIDelegateFactory(const py::module& mod) {
       // ReSharper disable once CppIdenticalOperandsInBinaryExpression
       .def(py::self == py::self);  // NOLINT(misc-redundant-expression)
 
-  managerFactory
+  uiDelegateFactory
       .def("availableUIDelegates", &UIDelegateFactory::availableUIDelegates,
            py::call_guard<py::gil_scoped_release>{})
       .def_readonly_static("kDefaultUIDelegateConfigEnvVarName",
@@ -47,7 +47,7 @@ void registerUIDelegateFactory(const py::module& mod) {
       .def_static("createUIDelegateForInterface",
                   RetainCommonPyArgs::forFn<&UIDelegateFactory::createUIDelegateForInterface>(),
                   py::arg("identifier"), py::arg("hostInterface").none(false),
-                  py::arg("managerImplementationFactory").none(false),
+                  py::arg("uiDelegateImplementationFactory").none(false),
                   py::arg("logger").none(false), py::call_guard<py::gil_scoped_release>{})
       .def_static(
           "defaultUIDelegateForInterface",
@@ -56,7 +56,7 @@ void registerUIDelegateFactory(const py::module& mod) {
               const UIDelegateImplementationFactoryInterfacePtr&, const LoggerInterfacePtr&)>(
               &UIDelegateFactory::defaultUIDelegateForInterface)>(),
           py::arg("configPath"), py::arg("hostInterface").none(false),
-          py::arg("managerImplementationFactory").none(false), py::arg("logger").none(false),
+          py::arg("uiDelegateImplementationFactory").none(false), py::arg("logger").none(false),
           py::call_guard<py::gil_scoped_release>{})
       .def_static(
           "defaultUIDelegateForInterface",
@@ -64,6 +64,6 @@ void registerUIDelegateFactory(const py::module& mod) {
               const HostInterfacePtr&, const UIDelegateImplementationFactoryInterfacePtr&,
               const LoggerInterfacePtr&)>(&UIDelegateFactory::defaultUIDelegateForInterface)>(),
           py::arg("hostInterface").none(false),
-          py::arg("managerImplementationFactory").none(false), py::arg("logger").none(false),
+          py::arg("uiDelegateImplementationFactory").none(false), py::arg("logger").none(false),
           py::call_guard<py::gil_scoped_release>{});
 }
