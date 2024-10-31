@@ -19,4 +19,6 @@ struct StubUIDelegateInterface : openassetio::ui::managerApi::UIDelegateInterfac
   openassetio::InfoDictionary info() override {
     throw openassetio::errors::NotImplementedException{"Stub doesn't support info"};
   }
+
+  void close([[maybe_unused]] const HostSessionPtr& hostSession) override {}
 };

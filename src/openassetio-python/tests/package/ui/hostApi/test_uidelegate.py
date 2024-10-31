@@ -59,6 +59,34 @@ class Test_UIDelegate_initialize:
         )
 
 
+class Test_UIDelegate_close:
+    def test_wraps_the_corresponding_method_of_the_held_interface(
+        self, uiDelegate, mock_ui_delegate_interface, a_host_session
+    ):
+        uiDelegate.close()
+
+        mock_ui_delegate_interface.mock.close.assert_called_once_with(a_host_session)
+
+    def test_when_destroyed_then_close_called(
+        self, mock_ui_delegate_interface, a_host_session
+    ):
+        UIDelegate(mock_ui_delegate_interface, a_host_session)
+
+        mock_ui_delegate_interface.mock.close.assert_called_once_with(a_host_session)
+
+    def test_when_destroyed_and_close_raises_then_exception_logged(
+        self, mock_ui_delegate_interface, a_host_session, mock_logger
+    ):
+        error = RuntimeError("Boom!")
+        mock_ui_delegate_interface.mock.close.side_effect = error
+
+        UIDelegate(mock_ui_delegate_interface, a_host_session)
+
+        args, kwargs = mock_logger.mock.log.call_args
+        assert args[0] == mock_logger.Severity.kError
+        assert args[1].startswith("Exception in destructor of UIDelegate: RuntimeError: Boom!")
+
+
 class Test_UIDelegate_populateUI:
     def test_wraps_the_corresponding_method_of_the_held_interface(
         self, uiDelegate, mock_ui_delegate_interface, a_host_session
@@ -129,7 +157,6 @@ class Test_UIDelegate_populateUI:
         assert state_changed_callback.call_args[0][0].entityReferences == [EntityReference("c")]
 
 
-
 class Test_UIDelegate_uiPolicy:
     def test_wraps_the_corresponding_method_of_the_held_interface(
         self, uiDelegate, mock_ui_delegate_interface, a_host_session
@@ -145,7 +172,6 @@ class Test_UIDelegate_uiPolicy:
         mock_ui_delegate_interface.mock.uiPolicy.assert_called_once_with(
             ui_traits, ui_access, context, a_host_session
         )
-
 
 
 class NativeData:

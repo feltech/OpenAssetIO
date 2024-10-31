@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2013-2024 The Foundry Visionmongers Ltd
 #include <memory>
-#include <optional>
 #include <utility>
+
+#include <fmt/format.h>
 
 #include <openassetio/export.h>
 #include <openassetio/InfoDictionary.hpp>
+#include <openassetio/log/LoggerInterface.hpp>
 #include <openassetio/managerApi/HostSession.hpp>
 #include <openassetio/trait/TraitsData.hpp>
 #include <openassetio/trait/collection.hpp>
@@ -20,6 +22,18 @@ inline namespace OPENASSETIO_CORE_ABI_VERSION {
 namespace ui::hostApi {
 
 using HostSessionPtr = openassetio::managerApi::HostSessionPtr;
+
+UIDelegate::~UIDelegate() {
+  try {
+    close();
+  } catch (const std::exception& exc) {
+    hostSession_->logger()->error(
+        fmt::format("Exception in destructor of UIDelegate: {}", exc.what()));
+  } catch (...) {
+    hostSession_->logger()->error(
+        "Exception in destructor of UIDelegate: <unknown non-exception value caught>");
+  }
+}
 
 UIDelegatePtr UIDelegate::make(managerApi::UIDelegateInterfacePtr uiDelegateInterface,
                                HostSessionPtr hostSession) {
@@ -40,6 +54,7 @@ InfoDictionary UIDelegate::settings() { return uiDelegateInterface_->settings(ho
 void UIDelegate::initialize(InfoDictionary uiDelegateSettings) {
   uiDelegateInterface_->initialize(std::move(uiDelegateSettings), hostSession_);
 }
+void UIDelegate::close() { uiDelegateInterface_->close(hostSession_); }
 
 void UIDelegate::flushCaches() { uiDelegateInterface_->flushCaches(hostSession_); }
 

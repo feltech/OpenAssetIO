@@ -184,6 +184,14 @@ class OPENASSETIO_UI_EXPORT UIDelegateInterface {
   virtual void initialize(InfoDictionary uiDelegateSettings, const HostSessionPtr& hostSession);
 
   /**
+   * Clear all data related to active UI elements, especially callbacks.
+   *
+   * Called automatically on destruction of the @ref
+   * managerApi.UIDelegate middleware in use by the host.
+   */
+  virtual void close(const HostSessionPtr& hostSession) = 0;
+
+  /**
    * Clears any internal caches.
    *
    * Only applicable if the implementation makes use of any caching,

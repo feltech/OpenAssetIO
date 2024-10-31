@@ -35,6 +35,8 @@ class OPENASSETIO_UI_EXPORT UIDelegate final {
  public:
   OPENASSETIO_ALIAS_PTR(UIDelegate)
 
+  virtual ~UIDelegate();
+
   /**
    * Constructs a new UIDelegate wrapping the supplied UI delegate
    * interface and host session.
@@ -135,6 +137,14 @@ class OPENASSETIO_UI_EXPORT UIDelegate final {
    * @note This method may block for extended periods of time.
    */
   void initialize(InfoDictionary uiDelegateSettings);
+
+  /**
+   * Instruct the UI delegate to dispose of all active references to
+   * delegated UI.
+   *
+   * Called automatically on destruction of this UIDelegate.
+   */
+  void close();
 
   /**
    * Clears any internal caches.
