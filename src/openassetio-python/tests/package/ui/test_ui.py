@@ -1,5 +1,7 @@
 #  SPDX-License-Identifier: Apache-2.0
 #  Copyright 2024 The Foundry Visionmongers Ltd
+import sys
+import weakref
 from unittest import mock
 
 #
@@ -94,6 +96,15 @@ class Test_UIDelegateState_init:
         ui_state.updateRequestCallback(UIDelegateRequest())
         update_request_cb.assert_called_once()
 
+    def test_when_destroyed_then_nativeData_destroyed(self):
+        ui_state = UIDelegateState()
+        ui_state.nativeData = NativeData()
+
+        weak_native_data = weakref.ref(ui_state.nativeData)
+        del ui_state
+
+        assert weak_native_data() is None
+
 
 class Test_UIDelegateRequest_init:
 
@@ -168,3 +179,13 @@ class Test_UIDelegateRequest_init:
         assert ui_request.relationshipTraitsDatas == relationship_traits
         ui_request.stateChangedCallback(UIDelegateState())
         state_changed_cb.assert_called_once()
+
+
+    def test_when_destroyed_then_nativeData_destroyed(self):
+        ui_request = UIDelegateRequest()
+        ui_request.nativeData = NativeData()
+
+        weak_native_data = weakref.ref(ui_request.nativeData)
+        del ui_request
+
+        assert weak_native_data() is None

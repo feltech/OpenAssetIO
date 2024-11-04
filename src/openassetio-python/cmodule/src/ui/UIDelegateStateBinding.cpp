@@ -25,9 +25,10 @@ void registerUIDelegateState(const py::module& mod) {
   using openassetio::ui::UIDelegateState;
   using openassetio::ui::UIDelegateStateConstPtr;
 
-  py::class_<UIDelegateRequest, UIDelegateRequest::Ptr> pyUIDelegateRequest{mod,
-                                                                            "UIDelegateRequest"};
-  py::class_<UIDelegateState, UIDelegateState::Ptr> pyUIDelegateState{mod, "UIDelegateState"};
+  py::class_<UIDelegateRequest, UIDelegateRequest::Ptr> pyUIDelegateRequest{
+      mod, "UIDelegateRequest", py::dynamic_attr()};
+  py::class_<UIDelegateState, UIDelegateState::Ptr> pyUIDelegateState{mod, "UIDelegateState",
+                                                                      py::dynamic_attr()};
 
   pyUIDelegateRequest
       .def(py::init([](py::object nativeData, EntityReferences entityReferences,
@@ -47,7 +48,17 @@ void registerUIDelegateState(const py::module& mod) {
           "nativeData",
           [](const UIDelegateRequest& self) { return anyCastToPyObject(self.nativeData); },
           [](UIDelegateRequest& self, py::object nativeData) {
-            self.nativeData = nativeData.release().ptr();
+            anyCastToPyObject(self.nativeData).dec_ref();  // Decref previously held instance.
+            self.nativeData = nativeData.ptr();
+            auto pyself = py::cast(self);
+            if (!py::hasattr(pyself, "__openassetio_deleter__")) {
+              pyself.attr("__openassetio_deleter__") = py::capsule{
+                  static_cast<void*>(&self), [](void* pself) {
+                    py::handle{
+                        anyCastToPyObject(static_cast<UIDelegateRequest*>(pself)->nativeData)}
+                        .dec_ref();
+                  }};
+            }
           })
       .def_readwrite("entityReferences", &UIDelegateRequest::entityReferences)
       .def_readwrite("entityTraitsDatas", &UIDelegateRequest::entityTraitsDatas)
@@ -58,9 +69,11 @@ void registerUIDelegateState(const py::module& mod) {
       .def(py::init([](py::object nativeData, EntityReferences entityReferences,
                        TraitsDatas entityTraitsDatas,
                        UIDelegateState::UpdateRequestCallback updateRequestCallback) {
-             return UIDelegateState::make(nativeData.release().ptr(), std::move(entityReferences),
-                                          std::move(entityTraitsDatas),
-                                          std::move(updateRequestCallback));
+             auto self = UIDelegateState::make(
+                 nativeData.release().ptr(), std::move(entityReferences),
+                 std::move(entityTraitsDatas), std::move(updateRequestCallback));
+
+             return self;
            }),
            py::arg("nativeData") = py::none{}, py::arg("entityReferences") = EntityReferences{},
            py::arg("entityTraitsDatas") = TraitsDatas{},
@@ -70,7 +83,16 @@ void registerUIDelegateState(const py::module& mod) {
           "nativeData",
           [](const UIDelegateState& self) { return anyCastToPyObject(self.nativeData); },
           [](UIDelegateState& self, py::object nativeData) {
+            anyCastToPyObject(self.nativeData).dec_ref();  // Decref previously held instance.
             self.nativeData = nativeData.release().ptr();
+            auto pyself = py::cast(self);
+            if (!py::hasattr(pyself, "__openassetio_deleter__")) {
+              pyself.attr("__openassetio_deleter__") = py::capsule{
+                  static_cast<void*>(&self), [](void* pself) {
+                    py::handle{anyCastToPyObject(static_cast<UIDelegateState*>(pself)->nativeData)}
+                        .dec_ref();
+                  }};
+            }
           })
       // TODO(DF): Due to list copying, entityReferences cannot be
       // mutated, e.g. state.entityReferences.append(...) is a no-op.

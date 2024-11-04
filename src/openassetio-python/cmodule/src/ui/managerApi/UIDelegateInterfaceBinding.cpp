@@ -82,8 +82,9 @@ struct PyUIDelegateInterface : UIDelegateInterface {
                                      const UIDelegateRequestConstPtr& requestState,
                                      const ContextConstPtr& context,
                                      const HostSessionPtr& hostSession) override {
-    OPENASSETIO_PYBIND11_OVERRIDE(UIDelegateStateConstPtr, UIDelegateInterface, populateUI,
-                                  uiTraitsData, uiAccess, requestState, context, hostSession);
+    OPENASSETIO_PYBIND11_OVERRIDE(PyRetainingSharedPtr<const UIDelegateState>, UIDelegateInterface,
+                                  populateUI, uiTraitsData, uiAccess, requestState, context,
+                                  hostSession);
   }
 };
 
