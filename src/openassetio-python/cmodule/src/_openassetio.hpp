@@ -19,6 +19,8 @@ OPENASSETIO_FWD_DECLARE(managerApi, EntityReferencePagerInterface)
 OPENASSETIO_FWD_DECLARE(log, LoggerInterface)
 OPENASSETIO_FWD_DECLARE(hostApi, HostInterface)
 OPENASSETIO_FWD_DECLARE(hostApi, ManagerImplementationFactoryInterface)
+OPENASSETIO_FWD_DECLARE(ui, UIDelegateState)
+OPENASSETIO_FWD_DECLARE(ui, UIDelegateRequest)
 
 /**
  * Declare a `RetainPyArgs` alias with common template arguments.
@@ -38,7 +40,8 @@ using RetainCommonPyArgs = openassetio::RetainPyArgs<
     openassetio::log::LoggerInterfacePtr, openassetio::ManagerStateBasePtr,
     openassetio::managerApi::ManagerInterfacePtr, openassetio::hostApi::HostInterfacePtr,
     openassetio::hostApi::ManagerImplementationFactoryInterfacePtr,
-    openassetio::managerApi::EntityReferencePagerInterfacePtr>;
+    openassetio::managerApi::EntityReferencePagerInterfacePtr, openassetio::ui::UIDelegateStatePtr,
+    openassetio::ui::UIDelegateRequestPtr>;
 
 /// Concise pybind alias.
 namespace py = pybind11;

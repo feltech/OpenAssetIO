@@ -31,6 +31,7 @@ void registerUIDelegate(const py::module& mod) {
       .def("flushCaches", &UIDelegate::flushCaches, py::call_guard<py::gil_scoped_release>{})
       .def("uiPolicy", &UIDelegate::uiPolicy, py::arg("uiTraits"), py::arg("uiAccess"),
            py::arg("context").none(false), py::call_guard<py::gil_scoped_release>{})
-      .def("populateUI", &UIDelegate::populateUI, py::arg("uiTraitsData"), py::arg("uiAccess"),
-           py::arg("requestState"), py::arg("context"), py::call_guard<py::gil_scoped_release>{});
+      .def("populateUI", RetainCommonPyArgs::forFn<&UIDelegate::populateUI>(),
+           py::arg("uiTraitsData"), py::arg("uiAccess"), py::arg("requestState"),
+           py::arg("context"), py::call_guard<py::gil_scoped_release>{});
 }

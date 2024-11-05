@@ -123,7 +123,8 @@ void registerUIDelegateInterface(const py::module& mod) {
       .def("uiPolicy", &UIDelegateInterface::uiPolicy, py::arg("uiTraits"), py::arg("uiAccess"),
            py::arg("context").none(false), py::arg("hostSession").none(false),
            py::call_guard<py::gil_scoped_release>{})
-      .def("populateUI", &UIDelegateInterface::populateUI, py::arg("uiTraitsData").none(false),
-           py::arg("uiAccess"), py::arg("requestState"), py::arg("context").none(false),
-           py::arg("hostSession").none(false), py::call_guard<py::gil_scoped_release>{});
+      .def("populateUI", RetainCommonPyArgs::forFn<&UIDelegateInterface::populateUI>(),
+           py::arg("uiTraitsData").none(false), py::arg("uiAccess"), py::arg("requestState"),
+           py::arg("context").none(false), py::arg("hostSession").none(false),
+           py::call_guard<py::gil_scoped_release>{});
 }

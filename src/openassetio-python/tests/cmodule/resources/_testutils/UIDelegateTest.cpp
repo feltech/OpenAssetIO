@@ -23,12 +23,12 @@ void registerUIDelegateTestUtils(py::module& mod) {
 
   ui.def("createUIDelegateStateWithNonPyObjectNativeData", [] {
     auto state = UIDelegateRequest::make();
-    state->nativeData = double{};
+    state->setNativeData(double{});
     return state;
   });
   ui.def("createUIDelegateStateWithRawCPythonNativeData", [] {
     auto state = UIDelegateRequest::make();
-    state->nativeData = PyLong_FromLong(42);  // NOLINT(readability-magic-numbers)
+    state->setNativeData(PyLong_FromLong(42));  // NOLINT(readability-magic-numbers)
     return state;
   });
 }
