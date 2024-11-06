@@ -19,10 +19,10 @@ class Test_UIDelegateState:
         state = ui.createUIDelegateStateWithNonPyObjectNativeData()
 
         with pytest.raises(InputValidationException, match=expected_error):
-            state.getNativeData()
+            state.nativeData()
 
     def test_when_returns_raw_cpython_then_ok(self, a_host_session):
         ui = _openassetio._testutils.ui
         ui_delegate_state = ui.createUIDelegateStateWithRawCPythonNativeData()
 
-        assert ui_delegate_state.getNativeData() == 42
+        assert ui_delegate_state.nativeData() == 42

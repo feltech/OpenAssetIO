@@ -17,8 +17,8 @@
 #include <openassetio/ui/access.hpp>
 
 OPENASSETIO_FWD_DECLARE(ui::managerApi, UIDelegateInterface)
-OPENASSETIO_FWD_DECLARE(ui, UIDelegateState)
-OPENASSETIO_FWD_DECLARE(ui, UIDelegateRequest)
+OPENASSETIO_FWD_DECLARE(ui, UIDelegateStateInterface)
+OPENASSETIO_FWD_DECLARE(ui, UIDelegateRequestInterface)
 OPENASSETIO_FWD_DECLARE(managerApi, HostSession)
 OPENASSETIO_FWD_DECLARE(Context)
 
@@ -159,10 +159,10 @@ class OPENASSETIO_UI_EXPORT UIDelegate final {
                                               access::UIAccess uiAccess,
                                               const ContextConstPtr& context);
 
-  UIDelegateStateConstPtr populateUI(const trait::TraitsDataConstPtr& uiTraitsData,
-                                     access::UIAccess uiAccess,
-                                     const UIDelegateRequestConstPtr& requestState,
-                                     const ContextConstPtr& context);
+  UIDelegateStateInterfacePtr populateUI(const trait::TraitsDataConstPtr& uiTraitsData,
+                                         access::UIAccess uiAccess,
+                                         const UIDelegateRequestInterfacePtr& requestState,
+                                         const ContextConstPtr& context);
 
   /**
    * @}

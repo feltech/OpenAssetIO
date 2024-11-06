@@ -64,7 +64,7 @@ struct PyUIDelegateInterface : UIDelegateInterface {
   }
 
   void close(const HostSessionPtr& hostSession) override {
-    OPENASSETIO_PYBIND11_OVERRIDE_PURE(void, UIDelegateInterface, close, hostSession);
+    OPENASSETIO_PYBIND11_OVERRIDE(void, UIDelegateInterface, close, hostSession);
   }
 
   void flushCaches(const HostSessionPtr& hostSession) override {
@@ -77,14 +77,14 @@ struct PyUIDelegateInterface : UIDelegateInterface {
     OPENASSETIO_PYBIND11_OVERRIDE(trait::TraitsDataPtr, UIDelegateInterface, uiPolicy, uiTraits,
                                   uiAccess, context, hostSession);
   }
-  UIDelegateStateConstPtr populateUI(const trait::TraitsDataConstPtr& uiTraitsData,
-                                     const access::UIAccess uiAccess,
-                                     const UIDelegateRequestConstPtr& requestState,
-                                     const ContextConstPtr& context,
-                                     const HostSessionPtr& hostSession) override {
-    OPENASSETIO_PYBIND11_OVERRIDE(PyRetainingSharedPtr<const UIDelegateState>, UIDelegateInterface,
-                                  populateUI, uiTraitsData, uiAccess, requestState, context,
-                                  hostSession);
+  UIDelegateStateInterfacePtr populateUI(const trait::TraitsDataConstPtr& uiTraitsData,
+                                         const access::UIAccess uiAccess,
+                                         const UIDelegateRequestInterfacePtr& requestState,
+                                         const ContextConstPtr& context,
+                                         const HostSessionPtr& hostSession) override {
+    OPENASSETIO_PYBIND11_OVERRIDE(PyRetainingSharedPtr<UIDelegateStateInterface>,
+                                  UIDelegateInterface, populateUI, uiTraitsData, uiAccess,
+                                  requestState, context, hostSession);
   }
 };
 
@@ -99,7 +99,7 @@ void registerUIDelegateInterface(const py::module& mod) {
   using openassetio::managerApi::HostSessionPtr;
   using openassetio::trait::TraitsDataConstPtr;
   using openassetio::trait::TraitsDataPtr;
-  using openassetio::ui::UIDelegateRequest;
+  using openassetio::ui::UIDelegateRequestInterface;
   using openassetio::ui::managerApi::PyUIDelegateInterface;
   using openassetio::ui::managerApi::UIDelegateInterface;
   using openassetio::ui::managerApi::UIDelegateInterfacePtr;

@@ -30,6 +30,8 @@ void UIDelegateInterface::initialize(InfoDictionary uiDelegateSettings,
   }
 }
 
+void UIDelegateInterface::close([[maybe_unused]] const HostSessionPtr& hostSession) {}
+
 InfoDictionary UIDelegateInterface::settings([[maybe_unused]] const HostSessionPtr& hostSession) {
   return {};
 }
@@ -44,10 +46,10 @@ trait::TraitsDataPtr UIDelegateInterface::uiPolicy(
   return trait::TraitsData::make();
 }
 
-UIDelegateStateConstPtr UIDelegateInterface::populateUI(
+UIDelegateStateInterfacePtr UIDelegateInterface::populateUI(
     [[maybe_unused]] const trait::TraitsDataConstPtr& uiTraitsData,
     [[maybe_unused]] const access::UIAccess uiAccess,
-    [[maybe_unused]] const UIDelegateRequestConstPtr& requestState,
+    [[maybe_unused]] const UIDelegateRequestInterfacePtr& requestState,
     [[maybe_unused]] const ContextConstPtr& context,
     [[maybe_unused]] const HostSessionPtr& hostSession) {
   return {};

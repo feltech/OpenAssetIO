@@ -16,8 +16,8 @@
 
 OPENASSETIO_FWD_DECLARE(managerApi, HostSession)
 OPENASSETIO_FWD_DECLARE(Context)
-OPENASSETIO_FWD_DECLARE(ui, UIDelegateRequest)
-OPENASSETIO_FWD_DECLARE(ui, UIDelegateState)
+OPENASSETIO_FWD_DECLARE(ui, UIDelegateRequestInterface)
+OPENASSETIO_FWD_DECLARE(ui, UIDelegateStateInterface)
 
 namespace openassetio {
 inline namespace OPENASSETIO_CORE_ABI_VERSION {
@@ -189,7 +189,7 @@ class OPENASSETIO_UI_EXPORT UIDelegateInterface {
    * Called automatically on destruction of the @ref
    * managerApi.UIDelegate middleware in use by the host.
    */
-  virtual void close(const HostSessionPtr& hostSession) = 0;
+  virtual void close(const HostSessionPtr& hostSession);
 
   /**
    * Clears any internal caches.
@@ -207,11 +207,11 @@ class OPENASSETIO_UI_EXPORT UIDelegateInterface {
                                                       const ContextConstPtr& context,
                                                       const HostSessionPtr& hostSession);
 
-  virtual UIDelegateStateConstPtr populateUI(const trait::TraitsDataConstPtr& uiTraitsData,
-                                             access::UIAccess uiAccess,
-                                             const UIDelegateRequestConstPtr& requestState,
-                                             const ContextConstPtr& context,
-                                             const HostSessionPtr& hostSession);
+  virtual UIDelegateStateInterfacePtr populateUI(const trait::TraitsDataConstPtr& uiTraitsData,
+                                                 access::UIAccess uiAccess,
+                                                 const UIDelegateRequestInterfacePtr& requestState,
+                                                 const ContextConstPtr& context,
+                                                 const HostSessionPtr& hostSession);
   /**
    * @}
    */

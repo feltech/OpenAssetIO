@@ -19,5 +19,95 @@
 from .. import _openassetio
 
 constants = _openassetio.ui.constants
-UIDelegateState = _openassetio.ui.UIDelegateState
-UIDelegateRequest = _openassetio.ui.UIDelegateRequest
+UIDelegateStateInterface = _openassetio.ui.UIDelegateStateInterface
+UIDelegateRequestInterface = _openassetio.ui.UIDelegateRequestInterface
+
+
+class UIDelegateState(UIDelegateStateInterface):
+    # pylint: disable=all
+    # TODO(DF): enable linting.
+    def __init__(
+        self,
+        nativeData=None,
+        entityReferences=None,
+        entityTraitsDatas=None,
+        updateRequestCallback=None,
+    ):
+        UIDelegateStateInterface.__init__(self)
+        self.__nativeData = nativeData
+        if entityReferences is None:
+            entityReferences = []
+        self.__entityReferences = entityReferences
+        if entityTraitsDatas is None:
+            entityTraitsDatas = []
+        self.__entityTraitsDatas = entityTraitsDatas
+        self.__updateRequestCallback = updateRequestCallback
+
+    def nativeData(self):
+        return self.__nativeData
+
+    def entityReferences(self):
+        return self.__entityReferences
+
+    def entityTraitsDatas(self):
+        return self.__entityTraitsDatas
+
+    def updateRequestCallback(self):
+        return self.__updateRequestCallback
+
+    def setNativeData(self, nativeData):
+        self.__nativeData = nativeData
+
+    def setEntityReferences(self, entityReferences):
+        self.__entityReferences = entityReferences
+
+    def setEntityTraitsDatas(self, entityTraitsDatas):
+        self.__entityTraitsDatas = entityTraitsDatas
+
+    def setUpdateRequestCallback(self, updateRequestCallback):
+        self.__updateRequestCallback = updateRequestCallback
+
+
+class UIDelegateRequest(UIDelegateRequestInterface):
+    # pylint: disable=all
+    # TODO(DF): enable linting.
+    def __init__(
+        self,
+        nativeData=None,
+        entityReferences=None,
+        entityTraitsDatas=None,
+        stateChangedCallback=None,
+    ):
+        UIDelegateRequestInterface.__init__(self)
+        self.__nativeData = nativeData
+        if entityReferences is None:
+            entityReferences = []
+        self.__entityReferences = entityReferences
+        if entityTraitsDatas is None:
+            entityTraitsDatas = []
+        self.__entityTraitsDatas = entityTraitsDatas
+        self.__stateChangedCallback = stateChangedCallback
+
+    def nativeData(self):
+        return self.__nativeData
+
+    def entityReferences(self):
+        return self.__entityReferences
+
+    def entityTraitsDatas(self):
+        return self.__entityTraitsDatas
+
+    def stateChangedCallback(self):
+        return self.__stateChangedCallback
+
+    def setNativeData(self, nativeData):
+        self.__nativeData = nativeData
+
+    def setEntityReferences(self, entityReferences):
+        self.__entityReferences = entityReferences
+
+    def setEntityTraitsDatas(self, entityTraitsDatas):
+        self.__entityTraitsDatas = entityTraitsDatas
+
+    def setStateChangedCallback(self, stateChangedCallback):
+        self.__stateChangedCallback = stateChangedCallback

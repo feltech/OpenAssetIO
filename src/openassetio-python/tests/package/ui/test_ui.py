@@ -37,10 +37,10 @@ class Test_UIDelegateState_init:
 
     def test_when_default_constructed_then_members_are_empty(self):
         ui_state = UIDelegateState()
-        assert ui_state.getNativeData() is None
-        assert ui_state.getEntityReferences() == []
-        assert ui_state.getEntityTraitsDatas() == []
-        assert ui_state.getUpdateRequestCallback() is None
+        assert ui_state.nativeData() is None
+        assert ui_state.entityReferences() == []
+        assert ui_state.entityTraitsDatas() == []
+        assert ui_state.updateRequestCallback() is None
 
     def test_when_state_members_set_externally_then_stores_members(self):
         native_data = NativeData()
@@ -54,16 +54,16 @@ class Test_UIDelegateState_init:
         ui_state.setNativeData(native_data)
         ui_state.setUpdateRequestCallback(update_request_cb)
 
-        assert ui_state.getEntityReferences() == entity_refs
-        assert ui_state.getEntityTraitsDatas() == entity_traits
-        assert ui_state.getNativeData() is native_data
-        ui_state.getUpdateRequestCallback()(UIDelegateRequest())
+        assert ui_state.entityReferences() == entity_refs
+        assert ui_state.entityTraitsDatas() == entity_traits
+        assert ui_state.nativeData() is native_data
+        ui_state.updateRequestCallback()(UIDelegateRequest())
         update_request_cb.assert_called_once()
 
     def test_when_state_nativeData_destroyed_then_reference_invalid(self):
         ui_state = UIDelegateState()
         ui_state.setNativeData(NativeData())
-        weak_native_data = weakref.ref(ui_state.getNativeData())
+        weak_native_data = weakref.ref(ui_state.nativeData())
 
         assert weak_native_data() is not None
         del ui_state
@@ -81,7 +81,7 @@ class Test_UIDelegateState_init:
 
         state = fn()
         weak_state = weakref.ref(state)
-        state.getUpdateRequestCallback()(UIDelegateRequest())
+        state.updateRequestCallback()(UIDelegateRequest())
         del state
         gc.collect()
         assert weak_state() is None
@@ -92,16 +92,15 @@ class Test_UIDelegateRequest_init:
     def test_when_default_constructed_then_members_are_empty(self):
         ui_request = UIDelegateRequest()
 
-        assert ui_request.getNativeData() is None
-        assert ui_request.getEntityReferences() == []
-        assert ui_request.getEntityTraitsDatas() == []
-        assert ui_request.getStateChangedCallback() is None
+        assert ui_request.nativeData() is None
+        assert ui_request.entityReferences() == []
+        assert ui_request.entityTraitsDatas() == []
+        assert ui_request.stateChangedCallback() is None
 
     def test_when_members_set_externally_then_stores_members(self):
         native_data = NativeData()
         entity_refs = [EntityReference("a")]
         entity_traits = [TraitsData({"entity"})]
-        relationship_traits = [TraitsData({"relationship"})]
         state_changed_cb = mock.Mock()
 
         ui_request = UIDelegateRequest()
@@ -110,16 +109,16 @@ class Test_UIDelegateRequest_init:
         ui_request.setEntityTraitsDatas(entity_traits)
         ui_request.setStateChangedCallback(state_changed_cb)
 
-        assert ui_request.getEntityReferences() == entity_refs
-        assert ui_request.getEntityTraitsDatas() == entity_traits
-        assert ui_request.getNativeData() is native_data
-        ui_request.getStateChangedCallback()(UIDelegateState())
+        assert ui_request.entityReferences() == entity_refs
+        assert ui_request.entityTraitsDatas() == entity_traits
+        assert ui_request.nativeData() is native_data
+        ui_request.stateChangedCallback()(UIDelegateState())
         state_changed_cb.assert_called_once()
 
     def test_when_nativeData_destroyed_then_reference_invalid(self):
         ui_request = UIDelegateRequest()
         ui_request.setNativeData(NativeData())
-        weak_native_data = weakref.ref(ui_request.getNativeData())
+        weak_native_data = weakref.ref(ui_request.nativeData())
 
         assert weak_native_data() is not None
         del ui_request

@@ -127,9 +127,9 @@ class Test_UIDelegate_populateUI:
             ui_traits, ui_access, request_state, context, a_host_session
         )
         assert actual_initial_ui_state is expected_initial_ui_state
-        assert actual_initial_ui_state.getNativeData() is native_data
-        assert actual_initial_ui_state.getEntityReferences() == [entity_ref]
-        assert actual_initial_ui_state.getEntityTraitsDatas() == [
+        assert actual_initial_ui_state.nativeData() is native_data
+        assert actual_initial_ui_state.entityReferences() == [entity_ref]
+        assert actual_initial_ui_state.entityTraitsDatas() == [
             entity_traits
         ]  # Check callbacks.
 
@@ -140,12 +140,12 @@ class Test_UIDelegate_populateUI:
 
         # action
 
-        actual_initial_ui_state.getUpdateRequestCallback()(updated_request_state)
+        actual_initial_ui_state.updateRequestCallback()(updated_request_state)
 
         # confirm
 
         update_request_callback.assert_called_once_with(mock.ANY)
-        assert update_request_callback.call_args[0][0].getEntityReferences() == [
+        assert update_request_callback.call_args[0][0].entityReferences() == [
             EntityReference("b")
         ]
 
@@ -157,12 +157,12 @@ class Test_UIDelegate_populateUI:
 
         # action
 
-        actual_request_state.getStateChangedCallback()(updated_ui_state)
+        actual_request_state.stateChangedCallback()(updated_ui_state)
 
         # confirm
 
         state_changed_callback.assert_called_once_with(mock.ANY)
-        assert state_changed_callback.call_args[0][0].getEntityReferences() == [
+        assert state_changed_callback.call_args[0][0].entityReferences() == [
             EntityReference("c")
         ]
 
