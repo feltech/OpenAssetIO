@@ -18,7 +18,7 @@ RUN git clone --branch v42 https://github.com/rollbear/trompeloeil
 RUN cd trompeloeil && cmake -S . -B build && cmake --build build && cmake --install build
 
 # Pull and install fmt
-RUN git clone --branch 9.1.0 https://github.com/fmtlib/fmt
+RUN git clone --branch 11.0.2 https://github.com/fmtlib/fmt
 RUN cd fmt && cmake -S . -B build -DFMT_MASTER_PROJECT=OFF -DFMT_INSTALL=ON && \
      cmake --build build --parallel && cmake --install build
 

@@ -47,10 +47,7 @@ class OpenAssetIOConan(ConanFile):
         self.requires("catch2/2.13.8")
         # Mocking library
         self.requires("trompeloeil/42")
-        # TODO(DF): fmt v10 forcibly exports the symbol for its
-        #  `format_error` exception in GCC, making it not a true private
-        #  dependency. So pin to v9 for now.
-        self.requires("fmt/9.1.0")
+        self.requires("fmt/11.0.2")
 
     def configure(self):
         self.options["fmt"].header_only = True

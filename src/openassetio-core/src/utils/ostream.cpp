@@ -2,7 +2,7 @@
 // Copyright 2024-2025 The Foundry Visionmongers Ltd
 #include <ostream>
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 #include <openassetio/export.h>
 #include <openassetio/Context.hpp>

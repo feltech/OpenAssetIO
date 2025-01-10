@@ -19,7 +19,7 @@
 #include <dlfcn.h>
 #endif
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 #include <openassetio/export.h>
 #include <openassetio/errors/exceptions.hpp>

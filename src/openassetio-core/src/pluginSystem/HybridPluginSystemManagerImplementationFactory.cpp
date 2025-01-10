@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 #include <openassetio/export.h>
 #include <openassetio/EntityReference.hpp>

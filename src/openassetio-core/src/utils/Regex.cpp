@@ -8,7 +8,7 @@
 #include <string_view>
 #include <type_traits>
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <pcre2.h>
 
 #include <openassetio/export.h>

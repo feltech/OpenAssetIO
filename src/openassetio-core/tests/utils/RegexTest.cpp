@@ -2,7 +2,7 @@
 // Copyright 2023-2025 The Foundry Visionmongers Ltd
 #include <cstddef>
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <catch2/catch.hpp>
 
 #include <openassetio/errors/exceptions.hpp>

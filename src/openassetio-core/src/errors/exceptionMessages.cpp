@@ -7,7 +7,7 @@
 #include <cstddef>
 #include <optional>
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 #include <openassetio/export.h>
 #include <openassetio/EntityReference.hpp>
