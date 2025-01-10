@@ -79,7 +79,7 @@ COPY --from=openassetio-dependencies /usr/local/lib64/cmake/trompeloeil /usr/loc
 COPY --from=openassetio-dependencies /usr/local/include/trompeloeil.hpp /usr/local/include/trompeloeil.hpp
 
 # libabigail providing abidiff tool for ABI checking
-RUN yum install -y libabigail-2.5-1.el8
+RUN yum install -y libabigail-2.6-1.el8
 
 # * Update CMake. See cmake_minimum_required in top-level CMakeLists.txt.
 # * Add pybind11-stubgen for generating .pyi stub files
