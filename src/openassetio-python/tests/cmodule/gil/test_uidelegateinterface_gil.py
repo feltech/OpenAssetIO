@@ -57,8 +57,20 @@ class Test_UIDelegateInterface_gil:
         mock_ui_delegate_interface.mock.identifier.return_value = ""
         a_threaded_mock_ui_delegate_interface.identifier()
 
-    def test_info(self, a_threaded_mock_ui_delegate_interface):
+    def test_displayName(self, mock_ui_delegate_interface, a_threaded_mock_ui_delegate_interface):
+        mock_ui_delegate_interface.mock.displayName.return_value = ""
+        a_threaded_mock_ui_delegate_interface.displayName()
+
+    def test_info(self, mock_ui_delegate_interface, a_threaded_mock_ui_delegate_interface):
+        mock_ui_delegate_interface.mock.info.return_value = {}
         a_threaded_mock_ui_delegate_interface.info()
+
+    def test_settings(self, mock_ui_delegate_interface, a_threaded_mock_ui_delegate_interface):
+        mock_ui_delegate_interface.mock.identifier.return_value = ""
+        a_threaded_mock_ui_delegate_interface.identifier()
+
+    def test_initialize(self, a_threaded_mock_ui_delegate_interface, a_host_session):
+        a_threaded_mock_ui_delegate_interface.initialize({}, a_host_session)
 
 
 @pytest.fixture
