@@ -25,12 +25,9 @@ from unittest import mock
 
 import pytest
 
-from openassetio import _openassetio, errors  # pylint: disable=no-name-in-module
+from openassetio import errors
 from openassetio.hostApi import ManagerFactory, Manager, ManagerImplementationFactoryInterface
 from openassetio.log import LoggerInterface
-
-
-CppManagerFactory = _openassetio.hostApi.ManagerFactory  # pylint: disable=no-member
 
 
 class Test_ManagerFactory_ManagerDetail_equality:
@@ -169,7 +166,7 @@ class Test_ManagerFactory_defaultManagerForInterface:
 
         assert (
             str(exc.value)
-            == "Could not load default manager config from 'i/do/not/exist', file does not exist."
+            == "Could not load default config from 'i/do/not/exist', file does not exist."
         )
 
     @pytest.mark.parametrize("use_env_var_for_config_file", [True, False])
@@ -197,8 +194,7 @@ class Test_ManagerFactory_defaultManagerForInterface:
                 )
 
         assert (
-            str(exc.value)
-            == f"Could not load default manager config from '{directory_manager_config}', "
+            str(exc.value) == f"Could not load default config from '{directory_manager_config}', "
             "must be a TOML file not a directory."
         )
 
@@ -339,18 +335,18 @@ class Test_ManagerFactory_defaultManagerForInterface:
             assert mock_logger.mock.log.call_args_list == [
                 mock.call(
                     LoggerInterface.Severity.kDebug,
-                    "Retrieved default manager config file path from 'OPENASSETIO_DEFAULT_CONFIG'",
+                    "Retrieved default config file path from 'OPENASSETIO_DEFAULT_CONFIG'",
                 ),
                 mock.call(
                     LoggerInterface.Severity.kDebug,
-                    f"Loading default manager config at '{valid_manager_config}'",
+                    f"Loading default config at '{valid_manager_config}'",
                 ),
             ]
         else:
             assert mock_logger.mock.log.call_args_list == [
                 mock.call(
                     LoggerInterface.Severity.kDebug,
-                    f"Loading default manager config at '{valid_manager_config}'",
+                    f"Loading default config at '{valid_manager_config}'",
                 ),
             ]
 
@@ -514,11 +510,6 @@ def assert_expected_manager(mock_host_interface, mock_manager_interface):
 @pytest.fixture
 def a_manager_factory(mock_host_interface, mock_manager_implementation_factory, mock_logger):
     return ManagerFactory(mock_host_interface, mock_manager_implementation_factory, mock_logger)
-
-
-@pytest.fixture
-def a_cpp_manager_factory(mock_host_interface, mock_manager_implementation_factory, mock_logger):
-    return CppManagerFactory(mock_host_interface, mock_manager_implementation_factory, mock_logger)
 
 
 @pytest.fixture

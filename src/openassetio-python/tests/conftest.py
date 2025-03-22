@@ -1,5 +1,5 @@
 #
-#   Copyright 2013-2024 The Foundry Visionmongers Ltd
+#   Copyright 2013-2025 The Foundry Visionmongers Ltd
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -19,9 +19,13 @@ Shared fixtures/code for pytest cases.
 # pylint: disable=missing-function-docstring,redefined-outer-name
 from unittest import mock
 import sys
+import os
+import sysconfig
+import re
 
 import pytest
 
+import openassetio
 from openassetio import Context, EntityReference
 from openassetio.access import (
     PolicyAccess,
@@ -40,9 +44,14 @@ from openassetio.managerApi import (
 )
 from openassetio.hostApi import HostInterface
 from openassetio.trait import TraitsData
-
+from openassetio.ui.managerApi import UIDelegateInterface
 
 # pylint: disable=invalid-name
+
+
+@pytest.fixture(scope="session")
+def regex_matcher():
+    return RegexMatch
 
 
 @pytest.fixture
@@ -147,6 +156,71 @@ def create_mock_manager_interface():
         return manager_interface
 
     return creator
+
+
+@pytest.fixture
+def mock_ui_delegate_interface(create_mock_ui_delegate_interface):
+    return create_mock_ui_delegate_interface()
+
+
+@pytest.fixture
+def create_mock_ui_delegate_interface():
+
+    def creator():
+        return MockUIDelegateInterface()
+
+    return creator
+
+
+@pytest.fixture
+def plugin_a_identifier():
+    return "org.openassetio.test.pluginSystem.resources.pluginA"
+
+
+@pytest.fixture
+def a_cpp_plugin_path(the_cpp_plugins_root_path):
+    return os.path.join(the_cpp_plugins_root_path, "pathA")
+
+
+@pytest.fixture(scope="session")
+def the_cpp_plugins_root_path():
+    """
+    Assume C++ plugins are installed in
+    $<INSTALL_PREFIX>/${OPENASSETIO_TEST_CPP_PLUGINS_SUBDIR}
+    """
+    scheme = f"{os.name}_user"
+    return os.path.normpath(
+        os.path.join(
+            # Top-level __init__.py
+            openassetio.__file__,
+            # up to openassetio dir
+            "..",
+            # up to site-packages
+            "..",
+            # up to install tree root (i.e. posix ../../.., nt ../..)
+            os.path.relpath(
+                sysconfig.get_path("data", scheme), sysconfig.get_path("platlib", scheme)
+            ),
+            # down to install location of C++ plugins. Environment
+            # variable set automatically if running pytest via CMake's
+            # ctest. Default value provides a valid path to check (and
+            # fail) in consuming fixtures - see
+            # `skip_if_no_test_plugins_available`.
+            os.getenv("OPENASSETIO_TEST_CPP_PLUGINS_SUBDIR", "plugin-env-var-not-set"),
+        )
+    )
+
+
+class RegexMatch:
+    """
+    Argument matcher to match strings by regular expression.
+    """
+
+    def __init__(self, pattern):
+        self.__pattern = pattern
+
+    def __eq__(self, text):
+        return bool(re.search(self.__pattern, text))
 
 
 class ValidatingMockManagerInterface(ManagerInterface):
@@ -489,3 +563,31 @@ class MockEntityReferencePagerInterface(EntityReferencePagerInterface):
 
     def close(self, hostSession):
         self.mock.close(hostSession)
+
+
+class MockUIDelegateInterface(UIDelegateInterface):
+    """
+    `UIDelegateInterface` implementation that delegates all calls to a
+    public `Mock` instance.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.mock = mock.create_autospec(UIDelegateInterface, spec_set=True, instance=True)
+
+    def identifier(self):
+        return self.mock.identifier()
+
+    def displayName(self):
+        return self.mock.displayName()
+
+    def info(self):
+        return self.mock.info()
+
+    def settings(self, hostSession):
+        return self.mock.settings(hostSession)
+
+    def initialize(self, uiDelegateSettings, hostSession):
+        return self.mock.initialize(uiDelegateSettings, hostSession)
+
+    # TODO(DF): fill out remaining details

@@ -14,7 +14,8 @@
 #include <openassetio/log/LoggerInterface.hpp>
 #include <openassetio/managerApi/EntityReferencePagerInterface.hpp>
 #include <openassetio/managerApi/ManagerInterface.hpp>
-#include <openassetio/pluginSystem/CppPluginSystemPlugin.hpp>
+#include <openassetio/ui/hostApi/UIDelegateImplementationFactoryInterface.hpp>
+#include <openassetio/ui/managerApi/UIDelegateInterface.hpp>
 
 /*
  * Hack trompeloeil to make use of its internals, but provide our own
@@ -170,17 +171,37 @@ struct ThreadedManagerImplFactory : hostApi::ManagerImplementationFactoryInterfa
   IMPLEMENT_MOCK1(instantiate);
 };
 
-namespace pluginSystem = openassetio::pluginSystem;
+namespace ui = openassetio::ui;
 
-struct ThreadedCppPluginSystemPlugin : pluginSystem::CppPluginSystemPlugin {
-  using Base = pluginSystem::CppPluginSystemPlugin;
-  static Ptr make(Ptr wrapped) {
-    return std::make_shared<ThreadedCppPluginSystemPlugin>(std::move(wrapped));
+struct ThreadedUIDelegateImplFactory : ui::hostApi::UIDelegateImplementationFactoryInterface {
+  using Base = UIDelegateImplementationFactoryInterface;
+  static Ptr make(log::LoggerInterfacePtr logger, Ptr wrapped) {
+    return std::make_shared<ThreadedUIDelegateImplFactory>(std::move(logger), std::move(wrapped));
   }
-  explicit ThreadedCppPluginSystemPlugin(Ptr wrapped) : wrapped_{std::move(wrapped)} {}
+  explicit ThreadedUIDelegateImplFactory(log::LoggerInterfacePtr logger, Ptr wrapped)
+      : UIDelegateImplementationFactoryInterface(std::move(logger)),
+        wrapped_{std::move(wrapped)} {}
   Ptr wrapped_;
 
+  IMPLEMENT_MOCK0(identifiers);
+  IMPLEMENT_MOCK1(instantiate);
+};
+
+struct ThreadedUIDelegateInterface : ui::managerApi::UIDelegateInterface {
+  using Base = UIDelegateInterface;
+  static Ptr make(Ptr wrapped) {
+    return std::make_shared<ThreadedUIDelegateInterface>(std::move(wrapped));
+  }
+  explicit ThreadedUIDelegateInterface(Ptr wrapped) : wrapped_{std::move(wrapped)} {}
+  Ptr wrapped_;
+
+  // The following macros expand to the redefined TROMPELOEIL_* macros,
+  // see above.
   IMPLEMENT_CONST_MOCK0(identifier);
+  IMPLEMENT_CONST_MOCK0(displayName);
+  IMPLEMENT_MOCK0(info);
+  IMPLEMENT_MOCK1(settings);
+  IMPLEMENT_MOCK2(initialize);
 };
 }  // namespace
 
@@ -235,5 +256,6 @@ extern void registerRunInThread(py::module_& mod) {
   gil.def("wrapInThreadedHostInterface", &ThreadedHostInterface::make);
   gil.def("wrapInThreadedLoggerInterface", &ThreadedLoggerInterface::make);
   gil.def("wrapInThreadedManagerImplFactory", &ThreadedManagerImplFactory::make);
-  gil.def("wrapInThreadedCppPluginSystemPlugin", &ThreadedCppPluginSystemPlugin::make);
+  gil.def("wrapInThreadedUIDelegateImplFactory", &ThreadedUIDelegateImplFactory::make);
+  gil.def("wrapInThreadedUIDelegateInterface", &ThreadedUIDelegateInterface::make);
 }
