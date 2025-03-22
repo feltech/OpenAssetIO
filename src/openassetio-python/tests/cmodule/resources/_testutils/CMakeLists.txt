@@ -14,6 +14,7 @@ target_sources(
     PyRetainingSharedPtrTest.cpp
     errorsTest.cpp
     gilTest.cpp
+    UIDelegateTest.cpp
 )
 
 # Give access to private headers.

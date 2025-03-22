@@ -144,3 +144,7 @@ void registerUIDelegate(const py::module& mod);
 
 /// Register the UIDelegateFactory class with Python.
 void registerUIDelegateFactory(const py::module& mod);
+
+/// Register the UIDelegateRequest and UIDelegateState classes with
+/// Python.
+void registerUIDelegateState(const py::module& mod);
