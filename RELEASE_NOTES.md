@@ -32,6 +32,12 @@ see breaking changes section for more details._
 
 ## Improvements
 
+- Added a new constant `kInfoKey_IsPython` (`"isPython"`), and used in
+  the Python `HostInterface.info()` base class implementation, allowing
+  managers to detect if the host they're interacting with is written in
+  Python.
+  [#1445](https://github.com/OpenAssetIO/OpenAssetIO/issues/1445)
+
 - Added operators and hash functions to the `EntityReference` type, in
   both C++ and Python, such that `EntityReference` objects can be used
   as keys in associative containers (e.g. `dict`/`std::unordered_map`).
