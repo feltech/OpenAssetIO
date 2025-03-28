@@ -639,6 +639,9 @@ class MockUIDelegateInterface(UIDelegateInterface):
     def initialize(self, uiDelegateSettings, hostSession):
         return self.mock.initialize(uiDelegateSettings, hostSession)
 
+    def close(self, hostSession):
+        return self.mock.close(hostSession)
+
     def uiPolicy(self, uiTraitSet, uiAccess, context, hostSession):
         return self.mock.uiPolicy(uiTraitSet, uiAccess, context, hostSession)
 
