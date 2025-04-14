@@ -4,9 +4,32 @@ Release Notes
 v1.0.0-rc.x.x
 ---------------
 
-_This release remains source compatible for both hosts and managers._
+_This release may break source compatibility for Python and C++ hosts,
+see breaking changes section for more details._
+
+## Breaking changes
+
+- Modified `PythonPluginSystem.scan()` method to search Python
+  distribution entry point hooks as well as scan given paths. Added
+  arguments to parametrise search path and entry point usage. This class
+  is primarily an internal implementation detail, so the change will
+  only break advanced downstream use-cases.
+  [#1445](https://github.com/OpenAssetIO/OpenAssetIO/issues/1445)
+
+- Modified signature of `CppPluginSystem.scan()` to accept more
+  arguments to further parametrise search path usage. This class is
+  primarily an internal implementation detail, so this change will only
+  break advanced downstream use-cases.
+  [#1445](https://github.com/OpenAssetIO/OpenAssetIO/issues/1445)
 
 ## New features
+
+- Added an experimental UI delegation API alongside the core manager
+  API. This allows asset management systems to augment or replace
+  portions of a host application's user interface. The UI delegation API
+  has its own separate plugin system and namespace, and is entirely
+  opt-in.
+  [#1445](https://github.com/OpenAssetIO/OpenAssetIO/issues/1445)
 
 - Added `defaultEntityReference` overloads for convenience, providing
   alternatives to the core callback-based workflow. Includes querying
@@ -15,6 +38,12 @@ _This release remains source compatible for both hosts and managers._
   [#1170](https://github.com/OpenAssetIO/OpenAssetIO/issues/1170)
 
 ## Improvements
+
+- Added a new constant `kInfoKey_IsPython` (`"isPython"`), and used in
+  the Python `HostInterface.info()` base class implementation, allowing
+  managers to detect if the host they're interacting with is written in
+  Python.
+  [#1445](https://github.com/OpenAssetIO/OpenAssetIO/issues/1445)
 
 - Added operators and hash functions to the `EntityReference` type, in
   both C++ and Python, such that `EntityReference` objects can be used
